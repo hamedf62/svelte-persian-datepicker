@@ -1,5 +1,5 @@
 import PersianDate from '@alireza-ab/persian-date';
-import { Obj, Units, Langs, Shortcuts } from './types';
+import type { Obj, Units, Langs, Shortcuts } from './types';
 
 export const Core = {
   langs: {
