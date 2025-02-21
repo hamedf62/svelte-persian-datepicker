@@ -1,5 +1,4 @@
 <script lang="ts">
-	// import {  $derived } from 'svelte';
 	import { onMount, onDestroy, tick } from 'svelte';
 	import { PersianDate, Core } from './modules/core';
 	import type {
@@ -42,13 +41,13 @@
 		clickOn?: 'all' | 'input' | 'icon' | 'none';
 		modal?: boolean;
 		label?: string;
-		column?: number | Record<number, number>;
+		columnProp?: number | Record<number, number>;
 		autoSubmit?: boolean;
 		mode?: 'single' | 'range';
 		locale?: string;
 		clearable?: boolean;
 		disable?: Disable;
-		localeConfig?: Langs;
+		localeConfig?: RecursivePartial<Langs>;
 		styles?: Styles;
 		color?: 'blue' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray';
 		dualInput?: boolean;
@@ -65,38 +64,39 @@
 		inputFormat,
 		displayFormat,
 		type = 'date',
-		from,
-		to,
-		show = false,
+		from = type === 'time' ? '' : '1300',
+		to = type === 'time' ? '23:59' : '1499',
+		show = true,
 		clickOn = 'all',
 		modal = false,
-		label,
-		column = { 576: 1 },
+		label = 'pick a persian date:',
+		columnProp = { 576: 1 },
 		autoSubmit = true,
-		mode = 'range',
+		mode = 'single',
 		locale = 'fa',
-		clearable = false,
+		clearable = true,
 		disable,
 		localeConfig,
 		styles,
 		color,
 		dualInput = false,
 		iconInside = false,
-		shortcut = false
+		shortcut = true
 	}: Props = $props();
 
 	function updateValue(date?: PersianDate | PersianDate[] | string | string[]) {
+		console.log('value>>>>', date);
 		modelValue = date; // Update the prop directly
 	}
+
 	// Props
 	let rootElement: HTMLElement;
-	$inspect(locale);
 
 	// Reactive state
-	let core = new PersianDate();
-	let onDisplay: PersianDate = $state(new PersianDate());
-	let fromDate: PersianDate = $state(new PersianDate());
-	let toDate: PersianDate = $state(new PersianDate());
+	let core = $state(new PersianDate());
+	let onDisplay: PersianDate | undefined = $state();
+	let fromDate: PersianDate | undefined = $state();
+	let toDate: PersianDate | undefined = $state();
 	let selectedDates: PersianDate[] = $state([]);
 	let selectedTimes: PersianDate[] = $state([]);
 	let showDatePicker = $state(false);
@@ -104,74 +104,76 @@
 	let showMonthSelect = $state(false);
 	let displayValue: string[] = $state([]);
 	let inputName: Inputs = $state('firstInput');
-	let pickerPlace: PickerPlace = $state({} as PickerPlace);
+	let pickerPlaceState: PickerPlace = $state({} as PickerPlace);
 	let documentWidth = $state(typeof window !== 'undefined' ? window.innerWidth : Infinity);
-	let langs = $state(Core.langs);
-	let currentLocale = locale.split(',')[0];
+	let langs = Core.langs;
+	let currentLocale = $state(locale.split(',')[0]);
 	let interval: ReturnType<typeof setInterval>;
 	let submitedValue: PersianDate[] = $state([]);
 
 	// Refs
 	let root: HTMLElement;
-	let pdpPicker: HTMLElement | null = $state(null);
-	let pdpMain: HTMLElement | null = $state(null);
-	let pdpSelectYear: HTMLElement | null = $state(null);
-	// let inputs: HTMLInputElement[] = [];
-
-	// Computed
-	// $: lang = langs[currentLocale];
-	let lang = langs[currentLocale];
-	// $: attrs = calculateAttrs();
-	let attrs = $derived(calculateAttrs());
-	// $: years = calculateYears();
-	let years = $derived(calculateYears());
-	// $: columnCount = calculateColumnCount();
-	let columnCount = $derived(calculateColumnCount());
-	// $: monthDays = calculateMonthDays();
-	let monthDays = $derived(calculateMonthDays());
-	// $: months = calculateMonths();
-	let months = $derived(calculateMonths());
-	// $: nextLocale = calculateNextLocale();
-	let nextLocale = $derived(calculateNextLocale());
-	// $: formats = calculateFormats();
-	let formats = $derived(calculateFormats());
-	let inputsList = dualInput ? ['firstInput', 'secondInput'] : ['firstInput'];
-	// $: tabIndex = calculateTabIndex();
-	let tabIndex = $derived(calculateTabIndex());
-	let inputs = $derived(calculateInputs());
-	// Watchers
-	// $: {
-	// 	if (show !== undefined) showDatePicker = show;
-	// 	if (from) fromDate?.fromJalali(from);
-	// 	if (to) toDate?.fromJalali(to);
-	// 	if (mode === 'single' && selectedDates.length === 2) selectedDates.pop();
-	// 	langs = Core.mergeObject(Core.langs, localeConfig) as Langs;
-	// 	if (styles) Core.setStyles(styles, rootElement);
-	// 	if (color) Core.setColor(color, rootElement);
-	// }
-	// Effect to handle changes based on reactive dependencies
-	$effect(() => {
-		if (show !== undefined) showDatePicker = show;
-		if (from) fromDate?.fromJalali(from);
-		if (to) toDate?.fromJalali(to);
-		if (mode === 'single' && selectedDates.length === 2) selectedDates.pop();
-		langs = Core.mergeObject(Core.langs, localeConfig) as Langs;
-		if (styles) Core.setStyles(styles, rootElement);
-		if (color) Core.setColor(color, rootElement);
-	});
+	// let pdpPicker:HTMLElement=$state();
+	let pdpPicker = $state();
+	let pdpMain = $state();
+	let pdpSelectYear: HTMLElement;
+	//  | null = $state(null);
+	let inputs1: HTMLInputElement[] = $state([]);
+	$inspect('selectedDates', selectedDates);
+	$inspect('showDatePicker', showDatePicker);
+	$inspect('onDisplay', onDisplay);
 
 	onMount(() => {
-		initializeDates();
+		// initializeDates();
+
+		Core.setColor(color, rootElement as HTMLElement);
+		Core.setStyles(styles, rootElement as HTMLElement);
+
+		const calendar = lang.calendar;
+		fromDate = core.clone().parse(defaultDate.from).calendar(calendar);
+		toDate = core
+			.clone()
+			.parse(defaultDate.to)
+			.endOf(Core.getLastUnit(to, type))
+			.calendar(calendar);
+		core.calendar(calendar);
+
+		const val = attrs.modelValue as string | string[];
+		if (val) {
+			setDate(val);
+		} else {
+			const today = core.clone();
+			if (type == 'date') today.startOf('date');
+			if (checkDate(today, 'date')) {
+				onDisplay = today;
+			} else {
+				onDisplay = nearestDate(today).startOf('date');
+			}
+		}
+		window.addEventListener('resize', () => {
+			documentWidth = window.innerWidth;
+		});
+		if (type != 'date') {
+			onDisplay!.time(core as PersianDate);
+		}
+		showDatePicker = show;
+
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
 	});
 
-	function initializeDates() {
-		const calendar = lang.calendar;
-		fromDate = core.clone().parse(defaultDate().from).calendar(calendar);
-		toDate = core.clone().parse(defaultDate().to).calendar(calendar);
-		// Rest of initialization
+	// Computed
+
+	let lang: Langs[string] = langs[currentLocale];
+	let columnCount = calculateColumnCount();
+	// let monthDays = $state();
+
+	// let inputs: Inputs[] = !dualInput ? ['firstInput'] : ['firstInput', 'secondInput'];
+	function calculateInputs(): Inputs[] {
+		return !dualInput ? ['firstInput'] : ['firstInput', 'secondInput'];
 	}
+	let inputs = $state(calculateInputs());
+	$inspect('inputs', inputs);
 
 	function calculateAttrs(): Attrs {
 		const attrs: Attrs = {
@@ -182,7 +184,7 @@
 			firstInput: { class: 'pdp-input' },
 			secondInput: { class: 'pdp-input' }
 		};
-		for (const key in attrs) {
+		for (const key in this.$attrs) {
 			try {
 				// @ts-expect-error type
 				const [, group, attr] = key.match(/(div|label|alt|picker|firstInput|secondInput)-(.*)/) as [
@@ -190,51 +192,125 @@
 					keyof Attrs,
 					string
 				];
-				attrs[group][attr] = attrs[key];
+				attrs[group][attr] = this.$attrs[key];
 			} catch {
-				attrs['firstInput'][key] = attrs[key] as string;
+				attrs['firstInput'][key] = this.$attrs[key] as string;
 			}
 		}
 		attrs.picker.class = [
 			attrs.picker.class,
 			{
-				'pdp-top': pickerPlace.top,
-				'pdp-left': pickerPlace.left,
-				'pdp-right': pickerPlace.right
+				'pdp-top': pickerPlaceState.top,
+				'pdp-left': pickerPlaceState.left,
+				'pdp-right': pickerPlaceState.right
 			},
-			lang.dir.picker
+			this.lang.dir.picker
 		];
-		if (mode == 'single' && dualInput) {
+		if (this.mode == 'single' && this.dualInput) {
 			attrs['secondInput'].disabled = 'disabled';
 		}
-		if (showDatePicker) {
-			attrs[inputName].class += ' pdp-focus';
+		if (this.showDatePicker) {
+			attrs[this.inputName].class += ' pdp-focus';
 		}
 		return attrs;
 	}
-	function calculateYears(): number[] {
-		let start: number = fromDate!.year();
-		const end: number = toDate!.year();
-		return Array(end - start + 1)
-			.fill(null)
-			.map(() => start++);
+
+	let attrs = $derived(calculateAttrs());
+
+	// function calculateDefaultDate(): DefaultDate {
+	// 	const prefixLocal = type === 'time' ? core.toString('jYYYY/jMM/jDD') + ' ' : '';
+	// 	return {
+	// 		from: prefixLocal + from,
+	// 		to: prefixLocal + to
+	// 	};
+	// }
+	// const defaultDate = calculateDefaultDate();
+	let defaultDate = $derived({
+		from: (type === 'time' ? core.toString('jYYYY/jMM/jDD') + ' ' : '') + from,
+		to: (type === 'time' ? core.toString('jYYYY/jMM/jDD') + ' ' : '') + to
+	});
+
+	// function initializeDates() {
+	// 	console.log('initualzed date?>>>>>>>');
+	// 	Core.setColor(color, rootElement);
+	// 	Core.setStyles(styles, rootElement);
+
+	// 	const calendar = lang.calendar;
+	// 	// const fromValue = typeof from === 'function' ? from({ type }) : from;
+	// 	fromDate = core.clone().parse(defaultDate.from).calendar(calendar);
+	// 	toDate = core
+	// 		.clone()
+	// 		.parse(defaultDate.to)
+	// 		.endOf(Core.getLastUnit(to, type))
+	// 		.calendar(calendar);
+	// 	core.calendar(calendar);
+
+	// 	const val = attrs.modelValue as string | string[];
+	// 	if (val) {
+	// 		setDate(val);
+	// 	} else {
+	// 		const today = core.clone();
+	// 		if (type == 'date') today.startOf('date');
+	// 		if (checkDate(today, 'date')) {
+	// 			onDisplay = today;
+	// 		} else {
+	// 			onDisplay = nearestDate(today).startOf('date');
+	// 		}
+	// 	}
+	// 	window.addEventListener('resize', () => {
+	// 		documentWidth = window.innerWidth;
+	// 	});
+	// 	if (type != 'date') {
+	// 		onDisplay!.time(core as PersianDate);
+	// 	}
+	// 	showDatePicker = show;
+	// }
+	// initializeDates();
+	langs = Core.mergeObject(Core.langs, localeConfig) as Langs;
+	$effect(() => {
+		console.log('effects');
+		if (show !== undefined) showDatePicker = show;
+		if (from) fromDate?.fromJalali(from);
+		if (to) toDate?.fromJalali(to);
+		if (mode === 'single' && selectedDates.length === 2) selectedDates.pop();
+
+		if (styles) Core.setStyles(styles, rootElement);
+		if (color) Core.setColor(color, rootElement);
+	});
+
+	// function calculateYears(): number[] {
+	// 	let start: number = fromDate!.year();
+	// 	const end: number = toDate!.year();
+	// 	console.log(start);
+	// 	console.log(end);
+	// 	return Array(end - start + 1)
+	// 		.fill(null)
+	// 		.map(() => start++);
+	// }
+	// let years = calculateYears();
+	function calculateYears(start: number, end: number): number[] {
+		return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 	}
 
+	const years = $derived<number[]>(
+		fromDate && toDate ? calculateYears(fromDate.year(), toDate.year()) : []
+	);
+
 	function calculateColumnCount(): number {
-		let column = 2;
-		if (Core.isNumber(column)) {
-			column = column as number;
+		let columnLocal = 2;
+		if (Core.isNumber(columnProp)) {
+			columnLocal = columnProp as number;
 		} else {
-			const breakpoint = Object.keys(column)
+			const breakpoint = Object.keys(columnProp)
 				.sort((a, b) => +a - +b)
 				.find((bp) => documentWidth <= +bp);
-			if (breakpoint) column = (column as Obj)[breakpoint] as number;
+			if (breakpoint) columnLocal = (columnProp as Obj)[breakpoint] as number;
 		}
 		if (type.includes('time')) {
-			const scale = column / (mode == 'single' ? 1 : 2);
+			const scale = columnLocal / (mode == 'single' ? 1 : 2);
 			(rootElement as HTMLElement).style.setProperty('--time-scale', (scale > 1 ? scale : 1) + '');
 		}
-		return column;
+		return columnLocal;
 	}
 
 	function calculateMonthDays(): MonthDays[][] {
@@ -283,6 +359,7 @@
 		}
 		return months;
 	}
+	let monthDays = $derived(calculateMonthDays());
 
 	function calculateMonths(): Months {
 		const months: Months = {};
@@ -295,39 +372,37 @@
 		}
 		return months;
 	}
+	let months = $derived(calculateMonths());
 
 	function calculateFormats(): Formats {
-		const displayFormat: Obj<string, TypePart | 'datetime'> = {
+		const displayFormat1: Obj<string, TypePart | 'datetime'> = {
 			date: '?D ?MMMM',
 			datetime: '?D ?MMMM HH:mm',
 			time: 'HH:mm'
 		};
-		const format: Obj<string, TypePart | 'datetime'> = {
+		const format1: Obj<string, TypePart | 'datetime'> = {
 			date: 'YYYY-MM-DD',
 			datetime: 'YYYY-MM-DD HH:mm',
 			time: 'HH:mm'
 		};
 		return {
-			model: format || format[type],
+			model: format || format1[type],
 			input: inputFormat || lang.inputFormat || type,
-			display: displayFormat || lang.displayFormat || displayFormat[type],
-			alt: (attrs.alt.format as string) || format || format[type]
+			display: displayFormat || lang.displayFormat || displayFormat1[type],
+			alt: (attrs.alt.format as string) || format || format1[type]
 		};
 	}
-	function defaultDate(): DefaultDate {
-		const prefix = type === 'time' ? core.toString('jYYYY/jMM/jDD') + ' ' : '';
-		return {
-			from: prefix + from,
-			to: prefix + to
-		};
-	}
-	function calculateInputs(): Inputs[] {
-		return !dualInput ? ['firstInput'] : ['firstInput', 'secondInput'];
-	}
+	let formats = calculateFormats();
+
+	// function calculateInputs(): Inputs[] {
+	// 	return !dualInput ? ['firstInput'] : ['firstInput', 'secondInput'];
+	// }
 	function calculateTabIndex(): number | undefined {
 		return +(attrs.secondInput.tabindex || attrs.firstInput.tabindex) + 1 || undefined;
 	}
-	function shortcuts(): Shortcuts | false {
+	let tabIndex = calculateTabIndex();
+
+	function calculateShortcuts(): Shortcuts | false {
 		if (!shortcut) {
 			return false;
 		}
@@ -363,49 +438,55 @@
 		}
 		return shortcuts;
 	}
+	let shortcuts = $derived(calculateShortcuts());
 
 	function calculateNextLocale(): string {
 		const locales = locale.split(',');
 		const index = locales.indexOf(currentLocale);
-		 locale = locales[index + 1] || locales[0];
-		return langs[locale].translations.label;
+		const locale1 = locales[index + 1] || locales[0];
+		return langs[locale1].translations.label;
 	}
-	// Other methods converted to regular functions
+
+	let nextLocale = calculateNextLocale();
 
 	function handleResize() {
 		documentWidth = window.innerWidth;
 	}
 
-	// Event dispatchers
-	function dispatchOpen() {
-		/* ... */
-	}
-	function dispatchClose() {
-		/* ... */
-	}
-	// ... other event dispatchers
-	function showPart(part: CalendarPart): void {
-		if (part == 'year') {
+	function showPart(part) {
+		if (part === 'year') {
 			showMonthSelect = false;
 			showYearSelect = !showYearSelect;
-			if (showYearSelect) {
-				tick().then(() => {
-					const selectedYearTop = (
-						(pdpSelectYear as HTMLElement).querySelector('li.selected') as HTMLLIElement
-					).offsetTop;
-					(pdpSelectYear as HTMLElement).scroll({
-						top: selectedYearTop,
-						behavior: 'smooth'
-					});
-				});
-			}
-		} else if (part == 'month') {
+		} else if (part === 'month') {
 			showYearSelect = false;
 			showMonthSelect = !showMonthSelect;
 		}
 	}
+
+	// Effect to handle scrolling after DOM updates
+	$effect(() => {
+		if (showYearSelect) {
+			tick().then(() => {
+				const selectedYearElement = pdpSelectYear.querySelector('li.selected');
+				if (selectedYearElement) {
+					const selectedYearTop = selectedYearElement.offsetTop;
+					pdpSelectYear.scrollTo({
+						top: selectedYearTop,
+						behavior: 'smooth'
+					});
+				}
+			});
+		}
+	});
+
 	function changeSelectedMonth(month: 'add' | 'sub' | number): void {
 		const clone = onDisplay!.clone();
+		console.log('changeSelectedMonth', month);
+		console.log(onDisplay);
+		console.log(checkDate(onDisplay, 'month'));
+		console.log('fromDate', fromDate, toDate);
+		console.log(from, to);
+
 		if (month == 'add') {
 			onDisplay!.addMonth();
 		} else if (month == 'sub') {
@@ -413,16 +494,22 @@
 		} else onDisplay!.month(month);
 		if (checkDate(onDisplay, 'month')) showMonthSelect = false;
 		else onDisplay = clone;
+		console.log(onDisplay);
+		console.log(checkDate(onDisplay, 'month'));
+		console.log(from, to);
 	}
+
 	function changeSelectedYear(year: number): void {
 		onDisplay!.year(year);
 		if (!checkDate(onDisplay, 'date')) onDisplay = nearestDate(onDisplay as PersianDate);
 		showYearSelect = false;
 	}
+
 	function validate(date: PersianDate, part: TypePart): boolean {
 		if (!checkDate(date, part) || isInDisable(date)) return false;
 		return true;
 	}
+
 	function isDisableBetween(first: PersianDate, second: PersianDate): boolean {
 		if (!disable) return false;
 		if (type != 'datetime' && Core.isString(disable)) {
@@ -457,7 +544,9 @@
 		return false;
 	}
 	function selectDate(date: PersianDate, part: TypePart): number {
+		console.log(date, part);
 		let isValid = validate(date, part);
+
 		if (!isValid) {
 			return -1;
 		} else if (mode == 'range' && selectedDates.length == 1) {
@@ -466,9 +555,13 @@
 				return -2;
 			}
 		}
+
 		if (type == 'date') {
 			date.startOf('date');
+			// console.log("inja>>")
+			// console.log(date.startOf('date'));
 		}
+
 		if (mode == 'single') {
 			selectedDates = [date];
 		} else if (mode == 'range') {
@@ -507,6 +600,7 @@
 		}
 
 		// $emit('select', date);
+		console.log('final date', date);
 		onSelect?.(date);
 		if (autoSubmit && (mode !== 'range' || (mode === 'range' && selectedDates.length == 2))) {
 			submitDate();
@@ -524,6 +618,7 @@
 		// $emit('update:modelValue', date);
 		updateValue(date);
 	}
+
 	function goToToday(): void {
 		showMonthSelect = showYearSelect = false;
 		onDisplay = core.now().clone();
@@ -545,7 +640,7 @@
 				}, 1000);
 			});
 	}
-	function checkDate(date: unknown, part: CalendarPart | TypePart): boolean {
+	function calculateCheckDate(date: unknown, part: CalendarPart | TypePart): boolean {
 		let from, to;
 		if (!Core.isPersianDate(date)) date = core.clone().parse(date as PersianDate);
 		switch (part) {
@@ -568,6 +663,9 @@
 		}
 		return (date as PersianDate).isBetween(from, to, '[]');
 	}
+
+	let checkDate = $derived(calculateCheckDate);
+
 	function isInDisable(date: PersianDate, disable?: Disable): boolean {
 		if (!disable) return false;
 		disable = disable || disable;
@@ -606,7 +704,7 @@
 		if (clickOn == 'all' || clickOn == el) {
 			const inputName1 = inputs[index];
 			if (dualInput) inputName = inputName1;
-			(inputs as HTMLElement[])[index].focus();
+			(inputs1 as HTMLElement[])[index].focus();
 			showDatePicker = true;
 			if (!modal) {
 				tick().then(() => {
@@ -752,6 +850,14 @@
 				column += number;
 			}
 			if (checkDate(selectedDate, 'date') && !isInDisable(selectedDate)) {
+				console.log(selectedDate);
+				console.log(selectedDate.date());
+				console.log('column', column);
+				console.log(
+					document.querySelector(
+						`.pdp-column[data-column='${column}'] .pdp-day[value='${selectedDate.date()}']`
+					)
+				);
 				document
 					.querySelector(
 						`.pdp-column[data-column='${column}'] .pdp-day[value='${selectedDate.date()}']`
@@ -766,10 +872,15 @@
 		const displayDate = selectedDates.map((el) => {
 			return el.toString(formats.input);
 		});
+
+		console.log('formats.input', formats.input);
+		console.log('displayDate', displayDate);
+
 		if (dualInput) displayValue = displayDate;
 		else displayValue[0] = displayDate.join(' - ');
 
 		submitedValue = selectedDates.slice();
+
 		setModel();
 		// $emit('submit', mode === 'range' ? selectedDates : selectedDates[0]);
 		onSubmit?.(mode === 'range' ? selectedDates : selectedDates[0]);
@@ -777,6 +888,9 @@
 			showDatePicker = false;
 		}
 	}
+
+	$inspect('displayValue', displayValue);
+
 	function getColumn({ parentNode }: HTMLElement): number | string {
 		return (parentNode!.parentNode!.parentNode as HTMLElement).dataset.column!;
 	}
@@ -786,25 +900,27 @@
 			? fromDate!.clone()
 			: toDate!.clone();
 	}
+
 	function locate(): void {
-		pickerPlace = {
+		pickerPlaceState = {
 			top: false,
 			left: false,
 			right: false
 		};
 		tick().then(() => {
-			const input = (inputs as HTMLElement[])[0];
+			const input = (inputs1 as HTMLElement[])[0];
 			const inputOffset = input.offsetHeight + input.getBoundingClientRect().top;
 			const picker = pdpPicker as HTMLElement;
 			const pickerHeight = picker.offsetHeight + 10;
 			const pickerOffset = picker.getBoundingClientRect();
-			pickerPlace = {
+			pickerPlaceState = {
 				top: inputOffset >= pickerHeight && window.innerHeight - (inputOffset + pickerHeight) < 0,
 				left: pickerOffset.left <= 0,
 				right: window.innerWidth - (pickerOffset.left + pickerOffset.width) <= 0
 			};
 		});
 	}
+
 	function changeLocale(): void {
 		const locales = locale.split(',');
 		const index = locales.indexOf(currentLocale);
@@ -819,6 +935,7 @@
 		}
 		submitDate(false);
 	}
+
 	function clear(inputName: Inputs): void {
 		const inputIndex = inputName === 'firstInput' ? 0 : 1;
 
@@ -893,6 +1010,7 @@
 			submitDate();
 		}
 	}
+
 	function setDate(dates: string | string[]) {
 		if (!dates) return;
 		if (mode == 'single' && typeof dates === 'string') dates = [dates];
@@ -912,6 +1030,20 @@
 		});
 		if (selectedDates.length) submitDate();
 	}
+
+	$inspect('langs', langs);
+	$inspect('lang', lang);
+	$inspect('currentLocale', currentLocale);
+	$inspect('selectedDates', selectedDates);
+	$inspect('fromDate', fromDate);
+	$inspect('toDate', toDate);
+	$inspect('attrs', attrs);
+	$inspect('years', years);
+	$inspect('type', type);
+	$inspect('locale', locale);
+	$inspect('from', from);
+	$inspect('to', to);
+	// $inspect('months', months);
 </script>
 
 <div
@@ -920,51 +1052,57 @@
 		? 'pdp-modal'
 		: ''} {dualInput ? 'pdp-dual' : ''}"
 >
-	<slot name="before">
-		{#if label}
-			<label for={attrs.firstInput.id} {...attrs.label}>
-				{label}
-			</label>
-		{/if}
-	</slot>
+	{#if label}
+		<label for={attrs.firstInput.id} {...attrs.label}>
+			{label}
+		</label>
+	{/if}
 
 	<div {...attrs.div}>
 		{#each inputs as input, index}
+			{input}
+			{index}
 			<!-- {#if !$$slots.icon || $slots.icon} -->
 			{#if !slots.icon || slots.icon().length > 0}
 				<div
+					role="button"
+					tabindex="0"
 					class="pdp-icon"
 					class:pdp-pointer={['all', 'icon'].includes(clickOn)}
 					class:pdp-inside={iconInside}
 					onclick={() => showPicker('icon', index as 0 | 1)}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							showPicker('icon', index as 0 | 1);
+						}
+					}}
 				>
-					<slot name="icon">
-						<PDPIcon icon={type} width="23" height="23" />
-					</slot>
+					<!-- <slot name="icon"> -->
+					<PDPIcon icon={type} width="230" height="23" />
+					<!-- </slot> -->
 				</div>
 			{/if}
 
 			<input
-				bind:this={inputs[index]}
+				bind:this={inputs1}
 				bind:value={displayValue[index]}
 				type="text"
 				autocomplete="off"
 				{...attrs[input]}
 				onfocus={() => showPicker('input', index as 0 | 1)}
 				onkeydown={selectWithArrow}
+				defaultValue="123"
 			/>
 
 			{#if clearable}
 				<button class="pdp-clear" type="button" onclick={() => clear(input)}>
-					<slot name="clear">
-						<PDPIcon icon="clear" />
-					</slot>
+					<!-- <slot name="clear"> -->
+					<PDPIcon icon="clear" />
+					<!-- </slot> -->
 				</button>
 			{/if}
 		{/each}
 	</div>
-
-	<slot name="after" />
 
 	{#if attrs.alt.name}
 		<PDPAlt name={attrs.alt.name} format={formats.alt} dates={submitedValue} />
@@ -972,7 +1110,12 @@
 
 	{#if showDatePicker}
 		<div>
-			<div class="pdp-overlay" onclick={() => (showDatePicker = false)} />
+			<button
+				type="button"
+				class="pdp-overlay"
+				aria-label="Close datepicker"
+				onclick={() => (showDatePicker = false)}
+			></button>
 			<div {...attrs.picker} bind:this={pdpPicker}>
 				<div class="pdp-auto">
 					{#if type.includes('date')}
@@ -995,12 +1138,14 @@
 							bind:this={pdpSelectYear}
 						>
 							{#each years as year}
-								<li
+								<button
+									type="button"
 									class:selected={onDisplay.year() === year}
 									onclick={() => changeSelectedYear(year)}
+									onkeydown={() => changeSelectedYear(year)}
 								>
 									{year}
-								</li>
+								</button>
 							{/each}
 						</ul>
 					{/if}
@@ -1023,9 +1168,12 @@
 									title={lang.translations.prevMonth}
 									onclick={() => changeSelectedMonth('sub')}
 								>
-									<slot name="right-arrow">
-										<PDPArrow direction="right" inverse={lang.dir.picker === 'ltr'} />
-									</slot>
+									<PDPArrow
+										direction="right"
+										inverse={lang.dir.picker === 'ltr'}
+										width={10}
+										height={10}
+									/>
 								</button>
 
 								<div>
@@ -1047,9 +1195,9 @@
 									title={lang.translations.nextMonth}
 									onclick={() => changeSelectedMonth('add')}
 								>
-									<slot name="left-arrow">
-										<PDPArrow direction="left" inverse={lang.dir.picker === 'ltr'} />
-									</slot>
+									<!-- <slot name="left-arrow"> -->
+									<PDPArrow direction="left" inverse={lang.dir.picker === 'ltr'} />
+									<!-- </slot> -->
 								</button>
 							</div>
 						</div>
@@ -1068,8 +1216,9 @@
 										<div class="pdp-days">
 											{#each monthDays[i] as week, wIndex}
 												<div>
-													{#each week as day, dIndex}
+													{#each week as any[] as day, dIndex}
 														{#if day}
+															{day.raw}
 															<button
 																type="button"
 																class="pdp-day"
@@ -1115,7 +1264,9 @@
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
 												>
-													<slot name="up-arrow"><PDPArrow /></slot>
+													<!-- <slot name="up-arrow"> -->
+													<PDPArrow />
+													<!-- </slot> -->
 												</button>
 												{selectedTimes[i] ? selectedTimes[i].hour('HH') : core.hour('HH')}
 												<button
@@ -1126,7 +1277,9 @@
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
 												>
-													<slot name="down-arrow"><PDPArrow direction="down" /></slot>
+													<!-- <slot name="down-arrow"> -->
+													<PDPArrow direction="down" />
+													<!-- </slot> -->
 												</button>
 											</div>
 											:
@@ -1139,7 +1292,9 @@
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
 												>
-													<slot name="up-arrow"><PDPArrow /></slot>
+													<!-- <slot name="up-arrow"> -->
+													<PDPArrow />
+													<!-- </slot> -->
 												</button>
 												{selectedTimes[i] ? selectedTimes[i].minute('mm') : core.minute('mm')}
 												<button
@@ -1150,7 +1305,9 @@
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
 												>
-													<slot name="down-arrow"><PDPArrow direction="down" /></slot>
+													<!-- <slot name="down-arrow"> -->
+													<PDPArrow direction="down" />
+													<!-- </slot> -->
 												</button>
 											</div>
 										</div>
@@ -1162,7 +1319,7 @@
 
 					<div class="pdp-footer">
 						<div>
-							<slot name="footer" />
+							<!-- <slot name="footer" /> -->
 							{#if selectedDates[0]}
 								<small>{selectedDates[0].toString(formats.display)}</small>
 							{/if}
@@ -1177,6 +1334,7 @@
 								</button>
 							{/if}
 							{#if !autoSubmit && !selectedDates.some((date) => isInDisable(date))}
+								999
 								<button class="pdp-submit" tabindex={tabIndex} onclick={() => submitDate()}>
 									{lang.translations.submit}
 								</button>

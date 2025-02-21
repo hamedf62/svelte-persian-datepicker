@@ -1,9 +1,19 @@
 <script lang="ts">
     import type { PersianDate } from '../modules/core';
   
-    export let name: string;
-    export let format: string;
-    export let dates: PersianDate[];
+
+
+    interface Props {
+      name: string;
+    format: string;
+    dates: PersianDate[];
+
+    }
+
+    let { name,format,dates }: Props = $props();
+
+
+    
   </script>
   
   {#if name.endsWith('[]')}
