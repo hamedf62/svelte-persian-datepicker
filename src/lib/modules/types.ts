@@ -1,5 +1,5 @@
 import type PersianDate from '@alireza-ab/persian-date/typings/PersianDate';
-export { PersianDate };
+export type { PersianDate };
 
 export type Obj<
   T = unknown,
