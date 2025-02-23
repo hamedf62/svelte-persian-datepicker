@@ -3,11 +3,10 @@
 
 	// let modelValue = /* your model value */;
 	let formatProp = 'YYYY-MM-DD';
-	let inputFormatProp = 'jYYYY/jMM/jDD';
+	let inputFormatProp = 'jYYYY/jMM/jDD HH:mm:ss';
 	let displayFormatProp = 'YYYY-MM-DD';
 </script>
 
-<h1>Welcome to SvelteKit</h1>
 
 <DatePicker
 
@@ -19,5 +18,7 @@
 	onSubmit={() => {}}
 	onClear={() => {}}
 
+ typeProp="date"
+ modeProp="single"
  
 />
