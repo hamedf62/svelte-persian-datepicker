@@ -12,6 +12,10 @@ This project provides a customizable datepicker component built with Svelte. It 
 - **Shortcuts**: Predefined shortcuts for quick selections (e.g. yesterday, tomorrow, this week).
 - **Clearable Input**: Option to clear the selected date(s).
 
+## Documentation
+
+this project obligate ALireza-ab Datepicker attributes as may find in [Documentations from Alireza-ab](https://alireza-ab.ir/datepicker)
+
 ## Project Structure
 
 - **Component**: The main datepicker is implemented in [src/lib/DatePicker.svelte](src/lib/DatePicker.svelte).
