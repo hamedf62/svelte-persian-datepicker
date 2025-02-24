@@ -24,5 +24,5 @@ This project provides a customizable datepicker component built with Svelte. It 
 Ensure that you have [pnpm](https://pnpm.io/) installed. Then run:
 
 ```sh
-pnpm install
+pnpm i svelte-persian-datepicker
 ```
