@@ -2,10 +2,10 @@
 	"name": "@hfallah/svelte-persian-datepicker",
 	"version": "0.0.5",
 	"description": "A reusable Svelte Persian DateTime picker component",
-	"homepage": "https://github.com/hamedf62/datepicker",
+	"homepage": "https://github.com/hamedf62/svelte-persian-datepicker",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/yourusername/svelte-datepicker.git"
+		"url": "https://github.com/hamedf62/svelte-persian-datepicker.git"
 	},
 	"documentation": "https://alireza-ab.ir/datepicker",
 	"keywords": ["svelte", "datepicker", "component","persian-datepicker","persian","persian-calendar","persian","svelte5","datetime-picker","time-picker","range-picker","jalali","jalali-date-picker"],
