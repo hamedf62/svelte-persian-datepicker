@@ -23,11 +23,10 @@
 	import PDPAlt from './components/PDPAlt.svelte';
 	import { browser } from '$app/environment';
 
-
 	interface Props {
-		onSelect: (date: PersianDate) => void;
-		onSubmit: (date: PersianDate | PersianDate[]) => void;
-		onClear: () => void;
+		onSelect?: (date: PersianDate) => void;
+		onSubmit?: (date: PersianDate | PersianDate[]) => void;
+		onClear?: () => void;
 		onOpen?: () => void;
 		onClose?: () => void;
 		modelValueProp?: PersianDate | PersianDate[] | string | string[];
@@ -66,8 +65,8 @@
 		inputFormatProp,
 		displayFormatProp,
 		typeProp = 'datetime',
-		fromProp = typeProp === 'time' ? '' : '1300',
-		toProp = typeProp === 'time' ? '23:59' : '1500',
+		fromProp = typeProp === 'time' ? '' : '1403',
+		toProp = typeProp === 'time' ? '23:59' : '1405',
 		showProp = false,
 		clickOnProp = 'all',
 		modalProp = false,
@@ -89,7 +88,7 @@
 
 	// Reactive state
 	let coreState = $state(new PersianDate());
-	let onDisplayState: PersianDate = $state(coreState);
+	let onDisplayState: PersianDate | undefined = $state();
 	let selectedDatesState: PersianDate[] = $state([]);
 	let selectedTimesState: PersianDate[] = $state([]);
 	let showDatePickerState = $state(showProp);
@@ -111,8 +110,6 @@
 	let inputsElement: (HTMLInputElement | undefined)[] = $state([]);
 	let rootElement: HTMLElement;
 
-
-
 	let lang: Langs[string] = $derived(langs[currentLocaleState]);
 
 	let inputs: Inputs[] = dualInputProp ? ['firstInput', 'secondInput'] : ['firstInput'];
@@ -122,16 +119,15 @@
 		to: (typeProp === 'time' ? coreState.toString('jYYYY/jMM/jDD') + ' ' : '') + toProp
 	});
 
-	const calendar = $derived(lang.calendar);
-	let fromDateState: PersianDate = $derived(
-		coreState.clone().parse(defaultDate.from).calendar(calendar)
+	let fromDateState: PersianDate = $state(
+		coreState.clone().parse(defaultDate.from).calendar(lang.calendar)
 	);
-	let toDateState: PersianDate = $derived(
+	let toDateState: PersianDate = $state(
 		coreState
 			.clone()
 			.parse(defaultDate.to)
 			.endOf(Core.getLastUnit(toProp, typeProp))
-			.calendar(calendar)
+			.calendar(lang.calendar)
 	);
 
 	const val = modelValueProp as string | string[];
@@ -139,12 +135,12 @@
 	if (val) {
 		setDate(val);
 	} else {
-		const today = coreState.clone();
-		if (typeProp == 'date') today.startOf('date');
-		if (checkDate(today, 'date')) {
-			onDisplayState = today;
+		const today = () => coreState.clone();
+		if (typeProp == 'date') today().startOf('date');
+		if (checkDate(today(), 'date')) {
+			onDisplayState = today();
 		} else {
-			onDisplayState = nearestDate(today).startOf('date');
+			onDisplayState = nearestDate(today()).startOf('date');
 		}
 	}
 
@@ -152,23 +148,14 @@
 		Core.setColor(colorProp, rootElement as HTMLElement);
 		Core.setStyles(stylesProp, rootElement as HTMLElement);
 
-		// const val = attrs.modelValue as string | string[];
-		// const val = restAttrs?.modelValue as string | string[];
-		// // console.log('val', val);
-
 		window.addEventListener('resize', () => {
 			documentWidthState = window.innerWidth;
 		});
 		if (typeProp != 'date') {
 			onDisplayState!.time(coreState as PersianDate);
 		}
-		showDatePickerState = showProp;
-
-		// window.addEventListener('resize', handleResize);
-		// return () => window.removeEventListener('resize', handleResize);
 	});
 
-	// function calculateAttrs(): Attrs {
 	let attrs = $derived.by((): Attrs => {
 		const attrsLocal: Attrs = {
 			div: { class: 'pdp-group' },
@@ -178,9 +165,8 @@
 			firstInput: { class: 'pdp-input' },
 			secondInput: { class: 'pdp-input' }
 		};
-		// for (const key in this.$attrs) {
+
 		for (const [key, value] of Object.entries(restAttrs)) {
-			
 			const match = key.match(/(div|label|alt|picker|firstInput|secondInput)-(.*)/);
 			if (match) {
 				const [, group, attr] = match as [string, keyof Attrs, string];
@@ -215,7 +201,6 @@
 			.map(() => start++);
 	});
 
-	// function calculateColumnCount(): number {
 	let columnCountDerived = $derived.by((): number => {
 		let columnLocal = 2;
 		if (Core.isNumber(columnProp)) {
@@ -288,7 +273,6 @@
 		}
 		return monthsLocal;
 	});
-	// let monthDays = $derived.by(calculateMonthDays());
 
 	let months = $derived.by((): Months => {
 		const monthsLocal: Months = {};
@@ -313,7 +297,6 @@
 			datetime: 'YYYY-MM-DD HH:mm',
 			time: 'HH:mm'
 		};
-		// console.log(inputFormatProp, lang.inputFormat, typeProp);
 		return {
 			model: formatProp || formatLocal[typeProp],
 			input: inputFormatProp || lang.inputFormat || typeProp,
@@ -362,7 +345,6 @@
 		}
 		return shortcuts;
 	});
-	// let shortcuts = $derived.by(calculateShortcuts());
 
 	let nextLocale = $derived.by((): string => {
 		const locales = localeProp.split(',');
@@ -370,7 +352,6 @@
 		const locale = locales[index + 1] || locales[0];
 		return langs[locale].translations.label;
 	});
-
 
 	$effect(() => {
 		if (showYearSelectState) {
@@ -387,16 +368,6 @@
 	});
 
 	$effect(() => {
-		if (showProp !== undefined) showDatePickerState = showProp;
-		if (fromProp) fromDateState?.fromJalali(fromProp);
-		if (toProp) toDateState?.fromJalali(toProp);
-		if (modeProp === 'single' && selectedDatesState.length === 2) selectedDatesState.pop();
-
-		if (stylesProp) Core.setStyles(stylesProp, rootElement);
-		if (colorProp) Core.setColor(colorProp, rootElement);
-	});
-
-	$effect(() => {
 		if (showDatePickerState) {
 			onOpen(); // Call the onOpen callback prop
 		} else {
@@ -404,18 +375,6 @@
 				document.removeEventListener('scroll', locate);
 			}
 			onClose(); // Call the onClose callback prop
-		}
-	});
-
-	$effect(() => {
-		if (fromProp && fromDateState) {
-			fromDateState.fromJalali(fromProp);
-		}
-	});
-
-	$effect(() => {
-		if (toProp && toDateState) {
-			toDateState.fromJalali(toProp);
 		}
 	});
 
@@ -462,19 +421,19 @@
 	}
 
 	function changeSelectedMonth(month: 'add' | 'sub' | number): void {
-		const cloneLocal = onDisplayState!.clone();
-		const cloneLocal2 = onDisplayState!.clone();
-
 		if (month == 'add') {
-			cloneLocal2.addMonth();
+			onDisplayState = onDisplayState?.clone().addMonth();
 		} else if (month == 'sub') {
-			cloneLocal2.subMonth();
-		} else cloneLocal2.month(month);
+			onDisplayState = onDisplayState?.clone().subMonth();
+		} else {
+			onDisplayState = onDisplayState?.clone().month(month);
+		}
 
-		if (checkDate(cloneLocal2, 'month')) {
+		if (checkDate(onDisplayState, 'month')) {
 			showMonthSelectState = false;
-			onDisplayState = cloneLocal2;
-		} else onDisplayState = cloneLocal;
+			// onDisplayState = onDisplayState?.clone();
+		}
+		//  else onDisplayState = onDisplayState?.clone();
 	}
 
 	function changeSelectedYear(year: number): void {
@@ -575,18 +534,14 @@
 			});
 		}
 
-		// this.$emit('select', date);
-		onSelect(date);
-		// console.log('>>>>> selectDate...', autoSubmitProp);
+		onSelect!(date);
 		if (
 			autoSubmitProp &&
 			(modeProp !== 'range' || (modeProp === 'range' && selectedDatesState.length == 2))
 		) {
-			// console.log('inside...');
 			submitDate();
 			return 1;
 		}
-		// console.log('final....');
 		return 0;
 	}
 
@@ -597,7 +552,6 @@
 			});
 			if (modeProp == 'single') date = date[0];
 		}
-		// this.$emit('update:modelValue', date);
 		updateValue(date);
 	}
 
@@ -731,11 +685,8 @@
 					.date(focusedDay.innerText)
 					.addDay(numberOfDay);
 
-
-					
 				if (!checkDate(nextElementValue, 'date')) return focusedDay.classList.add('hover');
 				nextElementValue = (nextElementValue as PersianDate).date();
-			
 
 				column = focusedMonth.diff(firstColumnMonth, 'month');
 				if (column < 0) {
@@ -747,7 +698,7 @@
 				}
 				onDisplayState = fakeOnDisplayState;
 				await tick();
-				
+
 				focusedDay = document.querySelector(
 					`.pdp .pdp-main .pdp-column[data-column='${column}'] .pdp-day[data-value='${nextElementValue}']`
 				) as HTMLElement;
@@ -758,7 +709,6 @@
 				) as HTMLElement;
 				if (focusedDay) focusedDay.classList.add('hover');
 				else {
-					
 					focusedDay = document.querySelector(
 						`.pdp .pdp-main .pdp-column[data-column="0"] .pdp-day[data-value="${fromDateState!.date()}"]`
 					) as HTMLElement;
@@ -866,17 +816,12 @@
 			return el.toString(formats.input);
 		});
 
-		// console.log('displayDate>>>>>', displayDate, formats.input);
-
 		if (dualInputProp) displayValueState = displayDate;
 		else displayValueState[0] = displayDate.join(' - ');
 
 		submitedValueState = selectedDatesState.slice();
 		setModel();
-		// this.$emit(
-		//   'submit',
-		//   this.mode === 'range' ? selectedDatesState : selectedDatesState[0],
-		// );
+
 		onSubmit?.(modeProp === 'range' ? selectedDatesState : selectedDatesState[0]);
 
 		if (close) {
@@ -903,19 +848,13 @@
 		};
 		tick().then(() => {
 			const input = (inputsElement as HTMLElement[])[0];
-			// console.log('%%%%%%%%');
-			// console.log(inputsElement);
-			// console.log($state.snapshot(inputsElement));
 
-			// console.log(input);
 			const inputOffset = input.offsetHeight + input.getBoundingClientRect().top;
 			const picker = pdpPicker as HTMLElement;
-			// console.log('>>>>>>>');
-			// console.log(picker);
-			// console.log(pdpPicker);
+
 			const pickerHeight = picker.offsetHeight + 10;
 			const pickerOffset = picker.getBoundingClientRect();
-			// // console.log('---------------------------');
+
 			pickerPlaceState = {
 				top: inputOffset >= pickerHeight && window.innerHeight - (inputOffset + pickerHeight) < 0,
 				left: pickerOffset.left <= 0,
@@ -929,10 +868,12 @@
 		const index = locales.indexOf(currentLocaleState);
 		currentLocaleState = locales[index + 1] || locales[0];
 		const calendar = lang.calendar;
-		coreState.calendar(calendar);
-		fromDateState!.calendar(calendar);
-		toDateState!.calendar(calendar);
-		onDisplayState!.calendar(calendar);
+
+		coreState = coreState.clone().calendar(calendar);
+		fromDateState = fromDateState.clone().calendar(calendar);
+		toDateState = toDateState.clone().calendar(calendar);
+		onDisplayState = onDisplayState?.clone().calendar(calendar);
+
 		for (const date of selectedDatesState) {
 			date.calendar(calendar);
 		}
@@ -943,8 +884,7 @@
 		const inputIndex = inputName === 'firstInput' ? 0 : 1;
 
 		displayValueState[inputIndex] = '';
-		// this.$emit('clear');
-		onClear();
+		onClear!();
 
 		if (dualInputProp) {
 			const values = (restAttrs as any).value;
@@ -955,9 +895,7 @@
 	}
 
 	function startChangeTime(timeIndex: number, unit: 'minute' | 'hour', operator: 'add' | 'sub') {
-		// console.log('timeindex', timeIndex);
 		let time = selectedTimesState[timeIndex];
-		// console.log('time::::1', time);
 		if (!time) {
 			time = coreState.clone();
 			if (!checkDate(time, 'time')) {
@@ -978,8 +916,6 @@
 		let currentAmount = time[unit]();
 
 		const changeTime = () => {
-			// console.log('change time fnc...');
-			// console.log(currentAmount);
 			if (operator == 'add') {
 				currentAmount++;
 				if (currentAmount > maxAmount) currentAmount = 0;
@@ -1008,23 +944,16 @@
 			}
 			// Assign the new time to trigger reactivity
 			selectedTimesState[timeIndex] = newTime;
-			// console.log('time::::2', newTime);
 
 			if (!isInDisable(newTime as PersianDate)) {
-				// console.log('0000>>>>>');
-
 				if (typeProp == 'time') {
-					// console.log('11111>>>>>');
-
 					selectedDatesState[timeIndex] = newTime;
 				} else if (selectedDatesState[timeIndex]) {
-					// console.log('2222>>>>>');
-
 					selectedDatesState[timeIndex] = selectedDatesState[timeIndex].time(
 						newTime as PersianDate
 					);
 				}
-				// $emit('select', time);
+
 				onSelect?.(newTime);
 				if (
 					autoSubmitProp &&
@@ -1041,11 +970,10 @@
 		clearInterval(interval!);
 	}
 
-
 	function selectShorcut(dates: PersianDate[]) {
 		selectedDatesState = dates.map((date, i) => {
 			if (i == 0) onDisplayState = date.clone();
-			// $emit('select', date);
+
 			onSelect?.(date);
 			return date.clone();
 		});
@@ -1056,14 +984,13 @@
 
 	function setDate(dates: string | string[]) {
 		if (!dates) return;
-		// // console.log('dates', dates);
+
 		if (modeProp == 'single' && typeof dates === 'string') dates = [dates];
 		selectedDatesState = [];
 		(dates as string[]).some((d, index) => {
 			const date = coreState
 				.clone()
 				.fromGregorian((typeProp == 'time' ? coreState.toString('YYYY-MM-DD') + ' ' : '') + d);
-			// // console.log('date', date);
 			if (Core.isPersianDate(date)) {
 				selectedDatesState.push(date.clone());
 				selectedTimesState.push(date.clone());
@@ -1076,7 +1003,7 @@
 		if (selectedDatesState.length) submitDate();
 	}
 
-
+	// $inspect("coreState", coreState);
 	// $inspect('inputsElement>>>', inputsElement);
 	// $inspect('langs', langs);
 	// $inspect('lang', lang);
@@ -1101,7 +1028,6 @@
 	// $inspect('fromDateState', fromDateState);
 	// $inspect('toDateState', toDateState);
 	// $inspect('inputs', inputs);
-
 </script>
 
 <div
@@ -1118,7 +1044,6 @@
 
 	<div {...attrs.div}>
 		{#each inputs as input, index}
-			
 			<div
 				role="button"
 				tabindex="0"
@@ -1174,7 +1099,7 @@
 							<ul class="pdp-select-month">
 								{#each Object.values(months) as month, index}
 									<li class:selected={month.selected} class:disabled={month.disabled}>
-										<button onclick={() => changeSelectedMonth(index)}>
+										<button onclick={() => changeSelectedMonth(index + 1)}>
 											{month.label}
 										</button>
 									</li>
@@ -1185,7 +1110,6 @@
 						{#if showYearSelectState}
 							<ul class="pdp-select-year" bind:this={pdpSelectYear}>
 								{#each years as year}
-									
 									<li class:selected={onDisplayState!.year() === year}>
 										<button
 											type="button"
@@ -1265,7 +1189,6 @@
 						{#if typeProp.includes('date')}
 							<div class="pdp-date">
 								{#each Array(columnCountDerived) as _, i}
-								
 									<div class="pdp-column" data-column={i}>
 										<div class="pdp-week">
 											<!-- week days above -->
@@ -1279,22 +1202,6 @@
 												<div>
 													{#each week as any[] as day, dIndex}
 														{#if day}
-															<!-- {day.raw} -->
-															<!-- <button
-																type="button"
-																class="pdp-day"
-																class:empty={day.empty}
-																class:friday={day.friday}
-																class:end-range={day.endRange}
-																class:disabled={day.disabled}
-																class:in-range={day.inRange}
-																onclick={() => selectDate(day.raw, 'date')}
-																onkeydown={() => selectDate(day.raw, 'date')}
-																aria-label={day.val ? `Day ${day.val}` : 'Empty'}
-																disabled={day.disabled}
-															>
-																{day.val}
-															</button> -->
 															<div
 																class="pdp-day"
 																role="button"
@@ -1423,19 +1330,20 @@
 				{#if shortcuts && Object.keys(shortcuts).length > 0}
 					<ul class="pdp-shortcut">
 						{#each Object.entries(shortcuts) as [name, dates]}
-						<li 	class:selected={!dates.some(
-							(date: PersianDate, i: number) =>
-								!date.isSame(selectedDatesState[i]?.toString('datetime'))
-						)}>
-							<button
-								type="button"
-							
-								onclick={() => selectShorcut(dates)}
-								onkeydown={() => selectShorcut(dates)}
+							<li
+								class:selected={!dates.some(
+									(date: PersianDate, i: number) =>
+										!date.isSame(selectedDatesState[i]?.toString('datetime'))
+								)}
 							>
-								{name}
-							</button>
-						</li>
+								<button
+									type="button"
+									onclick={() => selectShorcut(dates)}
+									onkeydown={() => selectShorcut(dates)}
+								>
+									{name}
+								</button>
+							</li>
 						{/each}
 					</ul>
 				{/if}
