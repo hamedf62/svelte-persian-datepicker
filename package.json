@@ -1,5 +1,5 @@
 {
-	"name": "svelte-persian-datepicker",
+	"name": "@hfallah/svelte-persian-datepicker",
 	"version": "0.0.5",
 	"description": "A reusable Svelte Persian DateTime picker component",
 	"homepage": "https://github.com/hamedf62/datepicker",
