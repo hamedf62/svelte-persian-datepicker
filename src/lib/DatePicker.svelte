@@ -24,65 +24,65 @@
 	// import { browser } from '$app/environment';
 
 	interface Props {
-		onSelect?: (date: PersianDate) => void;
-		onSubmit?: (date: PersianDate | PersianDate[]) => void;
-		onClear?: () => void;
-		onOpen?: () => void;
-		onClose?: () => void;
-		modelValueProp?: PersianDate | PersianDate[] | string | string[];
-		formatProp: string;
-		inputFormatProp: string;
-		displayFormatProp: string;
-		typeProp?: 'date' | 'time' | 'datetime';
-		fromProp?: string;
-		toProp?: string;
-		showProp?: boolean;
-		clickOnProp?: 'all' | 'input' | 'icon' | 'none';
-		modalProp?: boolean;
-		labelProp?: string;
-		columnProp?: number | Record<number, number>;
-		autoSubmitProp?: boolean;
-		modeProp?: 'single' | 'range';
-		localeProp?: string;
-		clearableProp?: boolean;
-		disableProp?: Disable;
-		localeConfigProp?: RecursivePartial<Langs>;
-		stylesProp?: Styles;
-		colorProp?: 'blue' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray';
-		dualInputProp?: boolean;
-		iconInsideProp?: boolean;
-		shortcutProp?: boolean | Shortcuts;
+		select?: (date: PersianDate) => void;
+		submit?: (date: PersianDate | PersianDate[]) => void;
+		clear?: () => void;
+		open?: () => void;
+		close?: () => void;
+		modelValue?: PersianDate | PersianDate[] | string | string[];
+		format: string;
+		inputFormat: string;
+		displayFormat: string;
+		type?: 'date' | 'time' | 'datetime';
+		from?: string;
+		to?: string;
+		show?: boolean;
+		clickOn?: 'all' | 'input' | 'icon' | 'none';
+		modal?: boolean;
+		label?: string;
+		column?: number | Record<number, number>;
+		autoSubmit?: boolean;
+		mode?: 'single' | 'range';
+		locale?: string;
+		clearable?: boolean;
+		disable?: Disable;
+		localeConfig?: RecursivePartial<Langs>;
+		styles?: Styles;
+		color?: 'blue' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray';
+		dualInput?: boolean;
+		iconInside?: boolean;
+		shortcut?: boolean | Shortcuts;
 	}
 
 	let {
-		onSelect,
-		onSubmit,
-		onClear,
-		onOpen = () => {}, // Default to no-op function
-		onClose = () => {}, // Default to no-op function
-		modelValueProp,
-		formatProp,
-		inputFormatProp,
-		displayFormatProp,
-		typeProp = 'datetime',
-		fromProp = typeProp === 'time' ? '' : '1403',
-		toProp = typeProp === 'time' ? '23:59' : '1405',
-		showProp = false,
-		clickOnProp = 'all',
-		modalProp = false,
-		labelProp = 'pick a persian date:',
-		columnProp = 1,
-		autoSubmitProp = false,
-		modeProp = 'range',
-		localeProp = 'fa',
-		clearableProp = true,
-		disableProp,
-		localeConfigProp,
-		stylesProp,
-		colorProp,
-		dualInputProp = false,
-		iconInsideProp = false,
-		shortcutProp = false,
+		select:onSelect,
+		submit:onSubmit,
+		clear:onClear,
+		open:onOpen = () => {}, // Default to no-op function
+		close:onClose = () => {}, // Default to no-op function
+		modelValue: modelValueProp,
+		format:formatProp,
+		inputFormat:inputFormatProp,
+		displayFormat:displayFormatProp,
+		type:typeProp = 'datetime',
+		from:fromProp = typeProp === 'time' ? '' : '1403',
+		to:toProp = typeProp === 'time' ? '23:59' : '1405',
+		show:showProp = false,
+		clickOn:clickOnProp = 'all',
+		modal:modalProp = false,
+		label:labelProp = 'pick a persian date:',
+		column:columnProp = 1,
+		autoSubmit:autoSubmitProp = false,
+		mode:modeProp = 'range',
+		locale:localeProp = 'fa',
+		clearable:clearableProp = true,
+		disable:disableProp,
+		localeConfig:localeConfigProp,
+		styles:stylesProp,
+		color:colorProp,
+		dualInput:dualInputProp = false,
+		iconInside:iconInsideProp = false,
+		shortcut:shortcutProp = false,
 		...restAttrs
 	}: Props = $props();
 

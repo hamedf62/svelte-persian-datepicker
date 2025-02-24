@@ -2,25 +2,26 @@
 	import DatePicker from '$lib/DatePicker.svelte';
 
 	// let modelValue = /* your model value */;
-	let formatProp = 'YYYY-MM-DD';
-	let inputFormatProp = 'jYYYY/jMM/jDD HH:mm:ss';
-	let displayFormatProp = 'YYYY-MM-DD';
+	let format = 'YYYY-MM-DD';
+	let inputFormat = 'jYYYY/jMM/jDD HH:mm:ss';
+	let displayFormat = 'YYYY-MM-DD';
 
-	function onSubmit(val) {
+	function submit(val) {
 		console.log('result:', val);
 	}
 </script>
 
 <DatePicker
-	{formatProp}
-	{inputFormatProp}
-	{displayFormatProp}
-	onSelect={() => {}}
-	{onSubmit}
-	onClear={() => {}}
-	localeProp="fa,en"
-	typeProp="date"
-	modeProp="single"
-	columnProp={2}
-	autoSubmitProp={false}
+	{format}
+	{inputFormat}
+	{displayFormat}
+	select={() => {}}
+	{submit}
+	clear={() => {}}
+	locale="fa,en"
+	type="date"
+	mode="single"
+	column={2}
+	autoSubmit={true}
+	placeholder="تاریخ تولد"
 />
