@@ -1,38 +1,28 @@
-# sv
+# DatePicker Component
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Thanks to [Alireza great PersianDate and DatePicker package](https://github.com/alireza-ab/vue3-persian-datepicker)! its originally converted from his VUE3 component to svelte5.
 
-## Creating a project
+This project provides a customizable datepicker component built with Svelte. It supports various modes (single, range, time, datetime), locale configurations (e.g. Persian, Gregorian, Arabic), and custom styling options.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```bash
-# create a new project in the current directory
-npx sv create
+- **Multiple Types**: Use the date, time, or datetime modes.
+- **Localization**: Supports multiple locales (e.g. `fa`, `en`, `ar`).
+- **Customization**: Customize display formats, input formats, colors, and styles.
+- **Shortcuts**: Predefined shortcuts for quick selections (e.g. yesterday, tomorrow, this week).
+- **Clearable Input**: Option to clear the selected date(s).
 
-# create a new project in my-app
-npx sv create my-app
+## Project Structure
+
+- **Component**: The main datepicker is implemented in [src/lib/DatePicker.svelte](src/lib/DatePicker.svelte).
+- **Core Logic**: Helper functions and shortcut definitions can be found in [src/lib/modules/core.ts](src/lib/modules/core.ts).
+- **Testing**: Component tests are written with Cypress and are located in [cypress/component/datepicker.cy.ts](cypress/component/datepicker.cy.ts).
+- **Styles**: The component styling is managed in the SASS/CSS files under [src/lib/assets/sass/app.scss](src/lib/assets/sass/app.scss) and [src/lib/assets/sass/app.css](src/lib/assets/sass/app.css).
+
+## Installation
+
+Ensure that you have [pnpm](https://pnpm.io/) installed. Then run:
+
+```sh
+pnpm install
 ```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
