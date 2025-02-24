@@ -21,7 +21,7 @@
 	import PDPArrow from './components/PDPArrow.svelte';
 	import PDPIcon from './components/PDPIcon.svelte';
 	import PDPAlt from './components/PDPAlt.svelte';
-	import { browser } from '$app/environment';
+	// import { browser } from '$app/environment';
 
 	interface Props {
 		onSelect?: (date: PersianDate) => void;
@@ -213,7 +213,7 @@
 		}
 		if (typeProp.includes('time')) {
 			const scale = columnLocal / (modeProp == 'single' ? 1 : 2);
-			if (browser) {
+			if (typeof window !== 'undefined') {
 				(rootElement as HTMLElement).style.setProperty(
 					'--time-scale',
 					(scale > 1 ? scale : 1) + ''
