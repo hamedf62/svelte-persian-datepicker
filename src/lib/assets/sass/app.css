@@ -65,7 +65,7 @@
     border: none !important;
   }
 }
-@font-face {
+/* @font-face {
   font-family: Shabnam;
   font-weight: 400;
   src: url(/fonts/Shabnam-FD.eot?2232cb3d312b7ee188810ebd5df01b20);
@@ -94,7 +94,7 @@
   font-weight: 500;
   src: url(/fonts/Shabnam-Medium-FD.eot?0f36291b85143f7dd2b163328e3f5e19);
   src: url(/fonts/Shabnam-Medium-FD.eot?0f36291b85143f7dd2b163328e3f5e19) format("embedded-opentype"), url(/fonts/Shabnam-Medium-FD.woff2?47ee72e7a63a6888f4fced2ed4316c24) format("woff2"), url(/fonts/Shabnam-Medium-FD.woff?ee7cd867931b7ab28b61b242be4fa8f6) format("woff"), url(/fonts/Shabnam-Medium-FD.ttf?af15d03043d5a46585dcda6bd7f96d63) format("truetype");
-}
+} */
 .font-fa,
 .pdp {
   direction: rtl;

@@ -1,0 +1,18 @@
+# Cypress testing files
+cypress/
+cypress.config.ts
+
+# Development and test files
+*.cy.ts
+*.spec.ts
+*.test.ts
+
+# Other common dev files
+node_modules/
+*.log
+.git
+.gitignore
+.vscode/
+static/
+.svelte-kit/
+src/
