@@ -15,13 +15,14 @@
 	{format}
 	{inputFormat}
 	{displayFormat}
-	select={() => {}}
 	{submit}
 	clear={() => {}}
-	locale="fa,en"
-	type="date"
-	mode="single"
-	column={2}
-	autoSubmit={true}
-	placeholder="تاریخ تولد"
+
 />
+
+<!-- locale="fa,en"
+type="date"
+mode="single"
+column={2}
+autoSubmit={true}
+placeholder="تاریخ تولد" -->

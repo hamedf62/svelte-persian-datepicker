@@ -21,8 +21,8 @@
 	import PDPArrow from './components/PDPArrow.svelte';
 	import PDPIcon from './components/PDPIcon.svelte';
 	import PDPAlt from './components/PDPAlt.svelte';
-	// import { browser } from '$app/environment';
 
+	
 	interface Props {
 		select?: (date: PersianDate) => void;
 		submit?: (date: PersianDate | PersianDate[]) => void;
@@ -55,24 +55,24 @@
 	}
 
 	let {
-		select:onSelect,
-		submit:onSubmit,
-		clear:onClear,
+		select:onSelect = () => {}, // Default to no-op function,
+		submit:onSubmit = () => {}, // Default to no-op function,
+		clear:onClear = () => {}, // Default to no-op function,
 		open:onOpen = () => {}, // Default to no-op function
 		close:onClose = () => {}, // Default to no-op function
 		modelValue: modelValueProp,
 		format:formatProp,
 		inputFormat:inputFormatProp,
 		displayFormat:displayFormatProp,
-		type:typeProp = 'datetime',
-		from:fromProp = typeProp === 'time' ? '' : '1403',
-		to:toProp = typeProp === 'time' ? '23:59' : '1405',
+		type:typeProp = 'date',
+		from:fromProp = typeProp === 'time' ? '' : '1300',
+		to:toProp = typeProp === 'time' ? '23:59' : '1430',
 		show:showProp = false,
 		clickOn:clickOnProp = 'all',
 		modal:modalProp = false,
-		label:labelProp = 'pick a persian date:',
+		label:labelProp = '',
 		column:columnProp = 1,
-		autoSubmit:autoSubmitProp = false,
+		autoSubmit:autoSubmitProp = true,
 		mode:modeProp = 'range',
 		locale:localeProp = 'fa',
 		clearable:clearableProp = true,

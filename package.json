@@ -1,6 +1,6 @@
 {
 	"name": "@hamedf/svelte-persian-datepicker",
-	"version": "0.0.4",
+	"version": "0.0.8",
 	"description": "A reusable Svelte Persian DateTime picker component",
 	"homepage": "https://github.com/hamedf62/svelte-persian-datepicker",
 	"repository": {
@@ -23,12 +23,16 @@
 		"jalali",
 		"jalali-date-picker"
 	],
-	"author": "Hamed Fallah h.fallah@sau.ac.ir",
+	"author": {
+		"name": "Hamed Fallah",
+		"url": "https://profile.acecr.ac.ir/hfallah/fa"
+	},
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"package": "svelte-package",
+		"build": "vite build && pnpm run package",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -36,20 +40,35 @@
 		"format": "prettier --write .",
 		"lint": "prettier --check ."
 	},
+	"files": [
+		"dist",
+		"!dist/**/*.test.*",
+		"!dist/**/*.spec.*"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/DatePicker.d.ts",
+			"svelte": "./dist/DatePicker.svelte",
+			"default": "./dist/DatePicker.svelte"
+		}
+	},
+	"svelte": "./dist/DatePicker.svelte",
+	"types": "./dist/DatePicker.d.ts",
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^4.0.0",
 		"@sveltejs/adapter-static": "^3.0.8",
-		"@sveltejs/kit": "^2.17.2",
+		"@sveltejs/kit": "^2.17.3",
+		"@sveltejs/package": "^2.3.10",
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
-		"cypress": "^14.0.3",
+		"cypress": "^14.1.0",
 		"prettier": "^3.5.2",
 		"prettier-plugin-svelte": "^3.3.3",
-		"sass": "^1.85.0",
-		"sass-embedded": "^1.85.0",
+		"sass": "^1.85.1",
+		"sass-embedded": "^1.85.1",
 		"svelte": "^5.20.4",
 		"svelte-check": "^4.1.4",
 		"typescript": "^5.7.3",
-		"vite": "^6.1.1"
+		"vite": "^6.2.0"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [

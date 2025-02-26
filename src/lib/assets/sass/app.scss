@@ -105,41 +105,6 @@
 
 @charset "UTF-8";
 
-@font-face {
-  font-family: Shabnam;
-  font-weight: 400;
-  src: url(/fonts/Shabnam-FD.eot?2232cb3d312b7ee188810ebd5df01b20);
-  src: url(/fonts/Shabnam-FD.eot?2232cb3d312b7ee188810ebd5df01b20) format("embedded-opentype"), url(/fonts/Shabnam-FD.woff2?864d6171418cf6bbab5405e5febe8925) format("woff2"), url(/fonts/Shabnam-FD.woff?93426e086a765cc06b7934718afe3083) format("woff"), url(/fonts/Shabnam-FD.ttf?b990f7dc87672d8fb6cc776544c44d41) format("truetype")
-}
-
-@font-face {
-  font-family: Shabnam;
-  font-weight: 700;
-  src: url(../fonts/Shabnam-Bold-FD.eot?d49208929e7fbb7d286b67d599cf9cf9);
-  src: url(/fonts/Shabnam-Bold-FD.eot?d49208929e7fbb7d286b67d599cf9cf9) format("embedded-opentype"), url(/fonts/Shabnam-Bold-FD.woff2?f5e31987d1b22024691f5d4f90e7f1c5) format("woff2"), url(/fonts/Shabnam-Bold-FD.woff?6d854ca06299eeea534adc7bac95ba70) format("woff"), url(/fonts/Shabnam-Bold-FD.ttf?a6bc8c73f5eb3ac2289f8ac7b7eb6e13) format("truetype")
-}
-
-@font-face {
-  font-family: Shabnam;
-  font-weight: 100;
-  src: url(/fonts/Shabnam-Thin-FD.eot?5d42dd6cf2a13f4775dadd24b09fd7b6);
-  src: url(/fonts/Shabnam-Thin-FD.eot?5d42dd6cf2a13f4775dadd24b09fd7b6) format("embedded-opentype"), url(/fonts/Shabnam-Thin-FD.woff2?555c7d31ef262bdf676a614f93b7374d) format("woff2"), url(/fonts/Shabnam-Thin-FD.woff?a40298964cf6bcd293944c6e6fa7a16e) format("woff"), url(/fonts/Shabnam-Thin-FD.ttf?9cc818566455ec2a9a2359459b169027) format("truetype")
-}
-
-@font-face {
-  font-family: Shabnam;
-  font-weight: 300;
-  src: url(/fonts/Shabnam-Light-FD.eot?8a533df33990a75827136e72ec556d87);
-  src: url(/fonts/Shabnam-Light-FD.eot?8a533df33990a75827136e72ec556d87) format("embedded-opentype"), url(/fonts/Shabnam-Light-FD.woff2?735fd3ece9c28b5c6c9f9817b3e593e4) format("woff2"), url(/fonts/Shabnam-Light-FD.woff?3b1874d8025c15b0b110b9fa4418c0ba) format("woff"), url(/fonts/Shabnam-Light-FD.ttf?aa002fee9b275b481a2483013ab02d7a) format("truetype")
-}
-
-@font-face {
-  font-family: Shabnam;
-  font-weight: 500;
-  src: url(/fonts/Shabnam-Medium-FD.eot?0f36291b85143f7dd2b163328e3f5e19);
-  src: url(/fonts/Shabnam-Medium-FD.eot?0f36291b85143f7dd2b163328e3f5e19) format("embedded-opentype"), url(/fonts/Shabnam-Medium-FD.woff2?47ee72e7a63a6888f4fced2ed4316c24) format("woff2"), url(/fonts/Shabnam-Medium-FD.woff?ee7cd867931b7ab28b61b242be4fa8f6) format("woff"), url(/fonts/Shabnam-Medium-FD.ttf?af15d03043d5a46585dcda6bd7f96d63) format("truetype")
-}
-
 .font-fa,
 .pdp {
   direction: rtl;
