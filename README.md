@@ -1,8 +1,6 @@
-# DatePicker Component
+# Persian DatePicker Component (Svelte5)
 
-Thanks to [Alireza great PersianDate and DatePicker package](https://github.com/alireza-ab/vue3-persian-datepicker)! its originally converted from his VUE3 component to svelte5.
-
-This project provides a customizable datepicker component built with Svelte. It supports various modes (single, range, time, datetime), locale configurations (e.g. Persian, Gregorian, Arabic), and custom styling options.
+A highly customizable date picker component built with Svelte 5, supporting Persian (Jalali), Gregorian, and Arabic calendars. This component is inspired by and converted from [Alireza's Vue3 Persian DatePicker](https://github.com/alireza-ab/vue3-persian-datepicker).
 
 ## Features
 
@@ -28,5 +26,5 @@ this project obligate ALireza-ab Datepicker attributes as may find in [Documenta
 Ensure that you have [pnpm](https://pnpm.io/) installed. Then run:
 
 ```sh
-pnpm i svelte-persian-datepicker
+pnpm i @hamedf/svelte-persian-datepicker
 ```
