@@ -1,6 +1,10 @@
+<script lang="ts" module>
+	import { PersianDate, Core } from './modules/core';
+	export { PersianDate };
+</script>
+
 <script lang="ts">
 	import { onMount, onDestroy, tick } from 'svelte';
-	import { PersianDate, Core } from './modules/core';
 	import type {
 		Obj,
 		Attrs,
@@ -22,7 +26,6 @@
 	import PDPIcon from './components/PDPIcon.svelte';
 	import PDPAlt from './components/PDPAlt.svelte';
 
-	
 	interface Props {
 		select?: (date: PersianDate) => void;
 		submit?: (date: PersianDate | PersianDate[]) => void;
@@ -55,34 +58,34 @@
 	}
 
 	let {
-		select:onSelect = () => {}, // Default to no-op function,
-		submit:onSubmit = () => {}, // Default to no-op function,
-		clear:onClear = () => {}, // Default to no-op function,
-		open:onOpen = () => {}, // Default to no-op function
-		close:onClose = () => {}, // Default to no-op function
+		select: onSelect = () => {}, // Default to no-op function,
+		submit: onSubmit = () => {}, // Default to no-op function,
+		clear: onClear = () => {}, // Default to no-op function,
+		open: onOpen = () => {}, // Default to no-op function
+		close: onClose = () => {}, // Default to no-op function
 		modelValue: modelValueProp,
-		format:formatProp,
-		inputFormat:inputFormatProp,
-		displayFormat:displayFormatProp,
-		type:typeProp = 'date',
-		from:fromProp = typeProp === 'time' ? '' : '1300',
-		to:toProp = typeProp === 'time' ? '23:59' : '1430',
-		show:showProp = false,
-		clickOn:clickOnProp = 'all',
-		modal:modalProp = false,
-		label:labelProp = '',
-		column:columnProp = 1,
-		autoSubmit:autoSubmitProp = true,
-		mode:modeProp = 'range',
-		locale:localeProp = 'fa',
-		clearable:clearableProp = true,
-		disable:disableProp,
-		localeConfig:localeConfigProp,
-		styles:stylesProp,
-		color:colorProp,
-		dualInput:dualInputProp = false,
-		iconInside:iconInsideProp = false,
-		shortcut:shortcutProp = false,
+		format: formatProp,
+		inputFormat: inputFormatProp,
+		displayFormat: displayFormatProp,
+		type: typeProp = 'date',
+		from: fromProp = typeProp === 'time' ? '' : '1300',
+		to: toProp = typeProp === 'time' ? '23:59' : '1430',
+		show: showProp = false,
+		clickOn: clickOnProp = 'all',
+		modal: modalProp = false,
+		label: labelProp = '',
+		column: columnProp = 1,
+		autoSubmit: autoSubmitProp = true,
+		mode: modeProp = 'range',
+		locale: localeProp = 'fa',
+		clearable: clearableProp = true,
+		disable: disableProp,
+		localeConfig: localeConfigProp,
+		styles: stylesProp,
+		color: colorProp,
+		dualInput: dualInputProp = false,
+		iconInside: iconInsideProp = false,
+		shortcut: shortcutProp = false,
 		...restAttrs
 	}: Props = $props();
 
@@ -130,8 +133,13 @@
 			.calendar(lang.calendar)
 	);
 
-	const val = modelValueProp as string | string[];
 
+
+	onMount(() => {
+		Core.setColor(colorProp, rootElement as HTMLElement);
+		Core.setStyles(stylesProp, rootElement as HTMLElement);
+
+		const val = modelValueProp as string | string[];
 	if (val) {
 		setDate(val);
 	} else {
@@ -144,9 +152,6 @@
 		}
 	}
 
-	onMount(() => {
-		Core.setColor(colorProp, rootElement as HTMLElement);
-		Core.setStyles(stylesProp, rootElement as HTMLElement);
 
 		window.addEventListener('resize', () => {
 			documentWidthState = window.innerWidth;
@@ -155,6 +160,7 @@
 			onDisplayState!.time(coreState as PersianDate);
 		}
 	});
+
 
 	let attrs = $derived.by((): Attrs => {
 		const attrsLocal: Attrs = {
@@ -193,6 +199,27 @@
 		return attrsLocal;
 	});
 
+	const formats = $derived.by((): Formats => {
+		const displayFormatLocal: Obj<string, TypePart | 'datetime'> = {
+			date: '?D ?MMMM',
+			datetime: '?D ?MMMM HH:mm',
+			time: 'HH:mm'
+		};
+		const formatLocal: Obj<string, TypePart | 'datetime'> = {
+			date: 'YYYY-MM-DD',
+			datetime: 'YYYY-MM-DD HH:mm',
+			time: 'HH:mm'
+		};
+		return {
+			model: formatProp || formatLocal[typeProp],
+			input: inputFormatProp || lang.inputFormat || typeProp,
+			display: displayFormatProp || lang.displayFormat || displayFormatLocal[typeProp],
+			alt: (attrs.alt.format as string) || formatProp || formatLocal[typeProp]
+		};
+	});
+
+
+
 	const years = $derived.by((): number[] => {
 		let start: number = fromDateState!.year();
 		const end: number = toDateState!.year();
@@ -224,6 +251,7 @@
 	});
 
 	let monthDays = $derived.by((): MonthDays[][] => {
+		if (!onDisplayState) return [];
 		const monthsLocal: MonthDays[][] = [];
 		for (let i = 0; i < columnCountDerived; i++) {
 			let emptyCells;
@@ -275,6 +303,7 @@
 	});
 
 	let months = $derived.by((): Months => {
+		if (!onDisplayState) return {};
 		const monthsLocal: Months = {};
 		for (let i = 1; i <= 12; i++) {
 			monthsLocal[i] = {
@@ -286,24 +315,6 @@
 		return monthsLocal;
 	});
 
-	const formats = $derived.by((): Formats => {
-		const displayFormatLocal: Obj<string, TypePart | 'datetime'> = {
-			date: '?D ?MMMM',
-			datetime: '?D ?MMMM HH:mm',
-			time: 'HH:mm'
-		};
-		const formatLocal: Obj<string, TypePart | 'datetime'> = {
-			date: 'YYYY-MM-DD',
-			datetime: 'YYYY-MM-DD HH:mm',
-			time: 'HH:mm'
-		};
-		return {
-			model: formatProp || formatLocal[typeProp],
-			input: inputFormatProp || lang.inputFormat || typeProp,
-			display: displayFormatProp || lang.displayFormat || displayFormatLocal[typeProp],
-			alt: (attrs.alt.format as string) || formatProp || formatLocal[typeProp]
-		};
-	});
 
 	let tabIndex = $derived.by((): number | undefined => {
 		return +(attrs.secondInput.tabindex || attrs.firstInput.tabindex) + 1 || undefined;
@@ -987,15 +998,18 @@
 
 		if (modeProp == 'single' && typeof dates === 'string') dates = [dates];
 		selectedDatesState = [];
+		console.log(dates);
 		(dates as string[]).some((d, index) => {
 			const date = coreState
 				.clone()
 				.fromGregorian((typeProp == 'time' ? coreState.toString('YYYY-MM-DD') + ' ' : '') + d);
+			console.log(date)
 			if (Core.isPersianDate(date)) {
 				selectedDatesState.push(date.clone());
 				selectedTimesState.push(date.clone());
 				if (index == 0) onDisplayState = date.clone();
 			} else {
+				console.log("inja")
 				selectedDatesState = selectedTimesState = [];
 				return true;
 			}
@@ -1022,7 +1036,7 @@
 	// $inspect('showDatePicker', showDatePickerState);
 	// $inspect('interval', interval);
 	// $inspect('selectedTimesState', selectedTimesState);
-	// $inspect('onDisplayState', onDisplayState);
+	$inspect('onDisplayState', onDisplayState);
 	// $inspect('selectedDatesState', selectedDatesState);
 	// $inspect('displayValueState', displayValueState);
 	// $inspect('fromDateState', fromDateState);
@@ -1110,7 +1124,7 @@
 						{#if showYearSelectState}
 							<ul class="pdp-select-year" bind:this={pdpSelectYear}>
 								{#each years as year}
-									<li class:selected={onDisplayState!.year() === year}>
+									<li class:selected={onDisplayState!.year() === year} class:disabled={!checkDate(year, 'year')}>
 										<button
 											type="button"
 											onclick={() => changeSelectedYear(year)}

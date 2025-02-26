@@ -1,28 +1,18 @@
 <script lang="ts">
-	import DatePicker from '$lib/DatePicker.svelte';
+	import DatePicker, { PersianDate } from '$lib/DatePicker.svelte';
 
 	// let modelValue = /* your model value */;
 	let format = 'YYYY-MM-DD';
-	let inputFormat = 'jYYYY/jMM/jDD HH:mm:ss';
+	let inputFormat = 'HH:mm';
 	let displayFormat = 'YYYY-MM-DD';
 
+	// console.log(PersianDate)
 	function submit(val) {
 		console.log('result:', val);
 	}
+
+
 </script>
 
-<DatePicker
-	{format}
-	{inputFormat}
-	{displayFormat}
-	{submit}
-	clear={() => {}}
+<DatePicker modelValue="20:20" mode="single" type="time" {format} {inputFormat} {displayFormat} {submit} clear={() => {}} />
 
-/>
-
-<!-- locale="fa,en"
-type="date"
-mode="single"
-column={2}
-autoSubmit={true}
-placeholder="تاریخ تولد" -->
