@@ -33,28 +33,28 @@
 		clear?: () => void;
 		open?: () => void;
 		close?: () => void;
-		modelValue?: PersianDate | PersianDate[] | string | string[];
-		format: string;
-		inputFormat: string;
-		displayFormat: string;
+		model?: PersianDate | PersianDate[] | string | string[];
+		format?: string;
+		input_format?: string;
+		display_format?: string;
 		type?: 'date' | 'time' | 'datetime';
 		from?: string;
 		to?: string;
 		show?: boolean;
-		clickOn?: 'all' | 'input' | 'icon' | 'none';
+		click_on?: 'all' | 'input' | 'icon' | 'none';
 		modal?: boolean;
 		label?: string;
 		column?: number | Record<number, number>;
-		autoSubmit?: boolean;
+		auto_submit?: boolean;
 		mode?: 'single' | 'range';
 		locale?: string;
 		clearable?: boolean;
 		disable?: Disable;
-		localeConfig?: RecursivePartial<Langs>;
+		locale_config?: RecursivePartial<Langs>;
 		styles?: Styles;
 		color?: 'blue' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray';
-		dualInput?: boolean;
-		iconInside?: boolean;
+		dual_input?: boolean;
+		icon_inside?: boolean;
 		shortcut?: boolean | Shortcuts;
 	}
 
@@ -64,28 +64,28 @@
 		clear: onClear = () => {}, // Default to no-op function,
 		open: onOpen = () => {}, // Default to no-op function
 		close: onClose = () => {}, // Default to no-op function
-		modelValue: modelValueProp,
+		model: modelValueProp=$bindable(),
 		format: formatProp,
-		inputFormat: inputFormatProp,
-		displayFormat: displayFormatProp,
+		input_format: inputFormatProp,
+		display_format: displayFormatProp,
 		type: typeProp = 'date',
 		from: fromProp = typeProp === 'time' ? '' : '1300',
 		to: toProp = typeProp === 'time' ? '23:59' : '1430',
 		show: showProp = false,
-		clickOn: clickOnProp = 'all',
+		click_on: clickOnProp = 'all',
 		modal: modalProp = false,
 		label: labelProp = '',
 		column: columnProp = 1,
-		autoSubmit: autoSubmitProp = true,
+		auto_submit: autoSubmitProp = true,
 		mode: modeProp = 'range',
 		locale: localeProp = 'fa',
 		clearable: clearableProp = true,
 		disable: disableProp,
-		localeConfig: localeConfigProp,
+		locale_config: localeConfigProp,
 		styles: stylesProp,
 		color: colorProp,
-		dualInput: dualInputProp = false,
-		iconInside: iconInsideProp = false,
+		dual_input: dualInputProp = false,
+		icon_inside: iconInsideProp = false,
 		shortcut: shortcutProp = false,
 		...restAttrs
 	}: Props & HTMLInputAttributes = $props();
@@ -1007,7 +1007,8 @@
 			const date = coreState
 				.clone()
 				.fromGregorian((typeProp == 'time' ? coreState.toString('YYYY-MM-DD') + ' ' : '') + d);
-			if (Core.isPersianDate(date)) {
+
+				if (Core.isPersianDate(date)) {
 				selectedDatesState.push(date.clone());
 				selectedTimesState.push(date.clone());
 				if (index == 0) onDisplayState = date.clone();
@@ -1073,7 +1074,7 @@
 					}
 				}}
 			>
-				<PDPIcon icon={typeProp} width="230" height="23" />
+				<PDPIcon icon={typeProp} width="23" height="23" />
 			</div>
 
 			<input
@@ -1088,9 +1089,7 @@
 
 			{#if clearableProp}
 				<button class="pdp-clear" type="button" onclick={() => clear(input)}>
-					<!-- <slot name="clear"> -->
 					<PDPIcon icon="clear" />
-					<!-- </slot> -->
 				</button>
 			{/if}
 		{/each}
@@ -1321,7 +1320,6 @@
 
 					<div class="pdp-footer">
 						<div>
-							<!-- <slot name="footer" /> -->
 							{#if selectedDatesState[0]}
 								<small>{selectedDatesState[0].toString(formats.display)}</small>
 							{/if}
