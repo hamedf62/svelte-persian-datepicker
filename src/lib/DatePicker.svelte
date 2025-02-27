@@ -4,6 +4,7 @@
 </script>
 
 <script lang="ts">
+	import type { HTMLInputAttributes } from 'svelte/elements';
 	import { onMount, onDestroy, tick } from 'svelte';
 	import type {
 		Obj,
@@ -87,7 +88,7 @@
 		iconInside: iconInsideProp = false,
 		shortcut: shortcutProp = false,
 		...restAttrs
-	}: Props = $props();
+	}: Props & HTMLInputAttributes = $props();
 
 	// Reactive state
 	let coreState = $state(new PersianDate());
@@ -173,6 +174,7 @@
 		};
 
 		for (const [key, value] of Object.entries(restAttrs)) {
+
 			const match = key.match(/(div|label|alt|picker|firstInput|secondInput)-(.*)/);
 			if (match) {
 				const [, group, attr] = match as [string, keyof Attrs, string];
@@ -190,12 +192,14 @@
 			},
 			lang.dir.picker
 		];
+
 		if (modeProp == 'single' && dualInputProp) {
 			attrsLocal['secondInput'].disabled = 'disabled';
 		}
 		if (showDatePickerState) {
 			attrsLocal[inputNameState].class += ' pdp-focus';
 		}
+
 		return attrsLocal;
 	});
 
@@ -998,18 +1002,16 @@
 
 		if (modeProp == 'single' && typeof dates === 'string') dates = [dates];
 		selectedDatesState = [];
-		console.log(dates);
+
 		(dates as string[]).some((d, index) => {
 			const date = coreState
 				.clone()
 				.fromGregorian((typeProp == 'time' ? coreState.toString('YYYY-MM-DD') + ' ' : '') + d);
-			console.log(date)
 			if (Core.isPersianDate(date)) {
 				selectedDatesState.push(date.clone());
 				selectedTimesState.push(date.clone());
 				if (index == 0) onDisplayState = date.clone();
 			} else {
-				console.log("inja")
 				selectedDatesState = selectedTimesState = [];
 				return true;
 			}
@@ -1036,7 +1038,7 @@
 	// $inspect('showDatePicker', showDatePickerState);
 	// $inspect('interval', interval);
 	// $inspect('selectedTimesState', selectedTimesState);
-	$inspect('onDisplayState', onDisplayState);
+	// $inspect('onDisplayState', onDisplayState);
 	// $inspect('selectedDatesState', selectedDatesState);
 	// $inspect('displayValueState', displayValueState);
 	// $inspect('fromDateState', fromDateState);
@@ -1260,9 +1262,10 @@
 										>
 											<div class="hour">
 												<button
-													ontouchstart={() => startChangeTime(i, 'hour', 'add')}
-													onmousedown={() => startChangeTime(i, 'hour', 'add')}
-													onkeydown={() => startChangeTime(i, 'hour', 'add')}
+												type="button"
+													ontouchstart={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'add')}}
+													onmousedown={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'add')}}
+													onkeydown={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'add')}}
 													ontouchend={stopChangeTime}
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
@@ -1272,10 +1275,10 @@
 												{selectedTimesState[i]
 													? selectedTimesState[i].hour('HH')
 													: coreState.hour('HH')}
-												<button
-													ontouchstart={() => startChangeTime(i, 'hour', 'sub')}
-													onmousedown={() => startChangeTime(i, 'hour', 'sub')}
-													onkeydown={() => startChangeTime(i, 'hour', 'sub')}
+												<button type="button"
+													ontouchstart={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'sub')}}
+													onmousedown={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'sub')}}
+													onkeydown={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'sub')}}
 													ontouchend={stopChangeTime}
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
@@ -1285,10 +1288,10 @@
 											</div>
 											:
 											<div class="minute">
-												<button
-													ontouchstart={() => startChangeTime(i, 'minute', 'add')}
-													onmousedown={() => startChangeTime(i, 'minute', 'add')}
-													onkeydown={() => startChangeTime(i, 'minute', 'add')}
+												<button type="button"
+													ontouchstart={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'add')}}
+													onmousedown={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'add')}}
+													onkeydown={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'add')}}
 													ontouchend={stopChangeTime}
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
@@ -1298,10 +1301,10 @@
 												{selectedTimesState[i]
 													? selectedTimesState[i].minute('mm')
 													: coreState.minute('mm')}
-												<button
-													ontouchstart={() => startChangeTime(i, 'minute', 'sub')}
-													onmousedown={() => startChangeTime(i, 'minute', 'sub')}
-													onkeydown={() => startChangeTime(i, 'minute', 'sub')}
+												<button type="button"
+													ontouchstart={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'sub')}}
+													onmousedown={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'sub')}}
+													onkeydown={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'sub')}}
 													ontouchend={stopChangeTime}
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
