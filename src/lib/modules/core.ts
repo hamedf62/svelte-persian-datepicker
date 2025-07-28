@@ -31,6 +31,10 @@ export const Core = {
         nextMonth: 'ماه بعد',
         now: 'هم اکنون',
         submit: 'تایید',
+        confirm: 'تایید',
+        cancel: 'لغو',
+        daysSelected: 'روز انتخاب شده',
+        selectDates: 'انتخاب تاریخ',
         /* use in shourcuts */
         // date-single
         yesterday: 'دیروز',
@@ -84,6 +88,10 @@ export const Core = {
         nextMonth: 'Next Month',
         now: 'Now',
         submit: 'Submit',
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+        daysSelected: 'days selected',
+        selectDates: 'Select dates',
         /* use in shourcuts */
         // date-single
         yesterday: 'Yesterday',
@@ -105,6 +113,63 @@ export const Core = {
         prevHour: 'Previous Hour',
         nextHour: 'Next Hour',
         allDay: 'All Day',
+      },
+      inputFormat: '',
+      displayFormat: '',
+    },
+    ar: {
+      calendar: 'jalali', // Use jalali calendar but with Hijri months/translations
+      weekdays: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
+      months: [
+        'محرم',
+        'صفر',
+        'ربيع الأول',
+        'ربيع الثاني',
+        'جمادى الأولى',
+        'جمادى الثانية',
+        'رجب',
+        'شعبان',
+        'رمضان',
+        'شوال',
+        'ذو القعدة',
+        'ذو الحجة',
+      ],
+      dir: {
+        input: 'rtl',
+        picker: 'rtl',
+      },
+      translations: {
+        label: 'هجري',
+        text: 'التقويم الهجري',
+        prevMonth: 'الشهر السابق',
+        nextMonth: 'الشهر التالي',
+        now: 'الآن',
+        submit: 'تأكيد',
+        confirm: 'تأكيد',
+        cancel: 'إلغاء',
+        daysSelected: 'أيام محددة',
+        selectDates: 'اختر التواريخ',
+        /* use in shortcuts */
+        // date-single
+        yesterday: 'أمس',
+        tomorrow: 'غدا',
+        firstOfWeek: 'أول الأسبوع',
+        lastOfWeek: 'آخر الأسبوع',
+        // date-range
+        thisWeek: 'هذا الأسبوع',
+        prevWeek: 'الأسبوع السابق',
+        nextWeek: 'الأسبوع القادم',
+        thisMonth: 'هذا الشهر',
+        // time-single
+        oneHourAgo: 'قبل ساعة',
+        oneHourLater: 'بعد ساعة',
+        midnight: 'منتصف الليل',
+        midday: 'منتصف النهار',
+        // time-range
+        thisHour: 'هذه الساعة',
+        prevHour: 'الساعة السابقة',
+        nextHour: 'الساعة القادمة',
+        allDay: 'طوال اليوم',
       },
       inputFormat: '',
       displayFormat: '',

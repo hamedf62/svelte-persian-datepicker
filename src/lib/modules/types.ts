@@ -47,6 +47,7 @@ export type MonthDays = Obj<
     startRange?: boolean;
     endRange?: boolean;
     inRange?: boolean;
+    selected?: boolean;
     disabled?: boolean;
     today?: boolean;
     val?: number;
@@ -85,6 +86,10 @@ export type Langs = {
       nextMonth: string;
       now: string;
       submit: string;
+      confirm?: string;
+      cancel?: string;
+      daysSelected?: string;
+      selectDates?: string;
       /* use in shourcuts */
       // date-single
       yesterday: string;

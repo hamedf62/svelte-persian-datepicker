@@ -37,6 +37,7 @@
 		format?: string;
 		input_format?: string;
 		display_format?: string;
+		input_calendar?: 'auto' | 'jalali' | 'gregorian';
 		type?: 'date' | 'time' | 'datetime';
 		from?: string;
 		to?: string;
@@ -46,7 +47,7 @@
 		label?: string;
 		column?: number | Record<number, number>;
 		auto_submit?: boolean;
-		mode?: 'single' | 'range';
+		mode?: 'single' | 'range' | 'multiple';
 		locale?: string;
 		clearable?: boolean;
 		disable?: Disable;
@@ -64,10 +65,11 @@
 		clear: onClear = () => {}, // Default to no-op function,
 		open: onOpen = () => {}, // Default to no-op function
 		close: onClose = () => {}, // Default to no-op function
-		model: modelValueProp=$bindable(),
+		model: modelValueProp = $bindable(),
 		format: formatProp,
 		input_format: inputFormatProp,
 		display_format: displayFormatProp,
+		input_calendar: inputCalendarProp = 'auto',
 		type: typeProp = 'date',
 		from: fromProp = typeProp === 'time' ? '' : '1300',
 		to: toProp = typeProp === 'time' ? '23:59' : '1430',
@@ -77,7 +79,7 @@
 		label: labelProp = '',
 		column: columnProp = 1,
 		auto_submit: autoSubmitProp = true,
-		mode: modeProp = 'range',
+		mode: modeProp = 'single',
 		locale: localeProp = 'fa',
 		clearable: clearableProp = true,
 		disable: disableProp,
@@ -116,6 +118,14 @@
 
 	let lang: Langs[string] = $derived(langs[currentLocaleState]);
 
+	// Determine which calendar to use for input display based on input_calendar prop
+	let inputDisplayCalendar = $derived.by((): string => {
+		if (inputCalendarProp === 'auto') {
+			return lang.calendar;
+		}
+		return inputCalendarProp;
+	});
+
 	let inputs: Inputs[] = dualInputProp ? ['firstInput', 'secondInput'] : ['firstInput'];
 
 	let defaultDate = $derived({
@@ -123,36 +133,34 @@
 		to: (typeProp === 'time' ? coreState.toString('jYYYY/jMM/jDD') + ' ' : '') + toProp
 	});
 
-	let fromDateState: PersianDate = $state(
-		coreState.clone().parse(defaultDate.from).calendar(lang.calendar)
-	);
-	let toDateState: PersianDate = $state(
-		coreState
+	let fromDateState: PersianDate = $state(new PersianDate());
+	let toDateState: PersianDate = $state(new PersianDate());
+
+	$effect(() => {
+		fromDateState = coreState.clone().parse(defaultDate.from).calendar(lang.calendar);
+		toDateState = coreState
 			.clone()
 			.parse(defaultDate.to)
 			.endOf(Core.getLastUnit(toProp, typeProp))
-			.calendar(lang.calendar)
-	);
-
-
+			.calendar(lang.calendar);
+	});
 
 	onMount(() => {
 		Core.setColor(colorProp, rootElement as HTMLElement);
 		Core.setStyles(stylesProp, rootElement as HTMLElement);
 
 		const val = modelValueProp as string | string[];
-	if (val) {
-		setDate(val);
-	} else {
-		const today = () => coreState.clone();
-		if (typeProp == 'date') today().startOf('date');
-		if (checkDate(today(), 'date')) {
-			onDisplayState = today();
+		if (val) {
+			setDate(val);
 		} else {
-			onDisplayState = nearestDate(today()).startOf('date');
+			const today = () => coreState.clone();
+			if (typeProp == 'date') today().startOf('date');
+			if (checkDate(today(), 'date')) {
+				onDisplayState = today();
+			} else {
+				onDisplayState = nearestDate(today()).startOf('date');
+			}
 		}
-	}
-
 
 		window.addEventListener('resize', () => {
 			documentWidthState = window.innerWidth;
@@ -161,7 +169,6 @@
 			onDisplayState!.time(coreState as PersianDate);
 		}
 	});
-
 
 	let attrs = $derived.by((): Attrs => {
 		const attrsLocal: Attrs = {
@@ -174,7 +181,6 @@
 		};
 
 		for (const [key, value] of Object.entries(restAttrs)) {
-
 			const match = key.match(/(div|label|alt|picker|firstInput|secondInput)-(.*)/);
 			if (match) {
 				const [, group, attr] = match as [string, keyof Attrs, string];
@@ -209,20 +215,73 @@
 			datetime: '?D ?MMMM HH:mm',
 			time: 'HH:mm'
 		};
-		const formatLocal: Obj<string, TypePart | 'datetime'> = {
+		// Model format is always Gregorian for consistent data handling
+		const gregorianFormatLocal: Obj<string, TypePart | 'datetime'> = {
 			date: 'YYYY-MM-DD',
 			datetime: 'YYYY-MM-DD HH:mm',
 			time: 'HH:mm'
 		};
+
+		// Input format changes based on calendar type for display purposes
+		let inputFormat: string;
+		let displayFormat = displayFormatProp || lang.displayFormat || displayFormatLocal[typeProp];
+
+		// Always determine input format based on inputDisplayCalendar unless explicitly overridden
+		if (inputFormatProp) {
+			// If explicitly provided, use it as-is
+			inputFormat = inputFormatProp;
+		} else {
+			// Determine format based on the calendar we want to display
+			if (currentLocaleState === 'ar') {
+				// Arabic locale uses Hijri-style display but jalali calendar internally
+				const hijriInputFormatLocal: Obj<string, TypePart | 'datetime'> = {
+					date: 'jYYYY/jMM/jDD',
+					datetime: 'jYYYY/jMM/jDD HH:mm',
+					time: 'HH:mm'
+				};
+				inputFormat = hijriInputFormatLocal[typeProp];
+			} else if (inputDisplayCalendar === 'jalali') {
+				// Persian calendar input format
+				const jalaliInputFormatLocal: Obj<string, TypePart | 'datetime'> = {
+					date: 'jYYYY/jMM/jDD',
+					datetime: 'jYYYY/jMM/jDD HH:mm',
+					time: 'HH:mm'
+				};
+				inputFormat = jalaliInputFormatLocal[typeProp];
+			} else {
+				// Gregorian calendar input format
+				inputFormat = gregorianFormatLocal[typeProp];
+			}
+		}
+
+		// Set calendar-specific display formats if not explicitly provided
+		if (!displayFormat) {
+			if (currentLocaleState === 'ar') {
+				const hijriDisplayFormatLocal: Obj<string, TypePart | 'datetime'> = {
+					date: '?jD ?MMMM ?jYYYY',
+					datetime: '?jD ?MMMM ?jYYYY HH:mm',
+					time: 'HH:mm'
+				};
+				displayFormat = hijriDisplayFormatLocal[typeProp];
+			} else if (lang.calendar === 'jalali') {
+				const jalaliDisplayFormatLocal: Obj<string, TypePart | 'datetime'> = {
+					date: '?jD ?jMMMM ?jYYYY',
+					datetime: '?jD ?jMMMM ?jYYYY HH:mm',
+					time: 'HH:mm'
+				};
+				displayFormat = jalaliDisplayFormatLocal[typeProp];
+			} else {
+				displayFormat = displayFormatLocal[typeProp];
+			}
+		}
+
 		return {
-			model: formatProp || formatLocal[typeProp],
-			input: inputFormatProp || lang.inputFormat || typeProp,
-			display: displayFormatProp || lang.displayFormat || displayFormatLocal[typeProp],
-			alt: (attrs.alt.format as string) || formatProp || formatLocal[typeProp]
+			model: formatProp || gregorianFormatLocal[typeProp], // Always Gregorian for model
+			input: inputFormat, // Calendar-specific for display
+			display: displayFormat, // Calendar-specific for display
+			alt: (attrs.alt.format as string) || formatProp || gregorianFormatLocal[typeProp]
 		};
 	});
-
-
 
 	const years = $derived.by((): number[] => {
 		let start: number = fromDateState!.year();
@@ -243,7 +302,7 @@
 			if (breakpoint) columnLocal = (columnProp as Obj)[breakpoint] as number;
 		}
 		if (typeProp.includes('time')) {
-			const scale = columnLocal / (modeProp == 'single' ? 1 : 2);
+			const scale = columnLocal / (modeProp == 'range' ? 2 : 1);
 			if (typeof window !== 'undefined') {
 				(rootElement as HTMLElement).style.setProperty(
 					'--time-scale',
@@ -273,7 +332,7 @@
 						monthLocal[week][day] = { empty: true };
 						--emptyCells;
 					} else if (daysOfMonthNumber) {
-						//FIXME: refactor
+						//FIXME: refractor
 						monthLocal[week][day] = {
 							friday: day == 6,
 							raw: onDisplayState!.clone().addMonth(i).date(showDay),
@@ -291,6 +350,11 @@
 									.isBetween(
 										...(selectedDatesState.map((date) => date.toString()) as [string, string])
 									),
+							selected:
+								modeProp === 'multiple' &&
+								selectedDatesState.some((date) =>
+									date.isSame(selectedYear, selectedMonth, showDay)
+								),
 							disabled:
 								!checkDate(onDisplayState!.clone().addMonth(i).date(showDay), 'date') ||
 								isInDisable(onDisplayState!.clone().addMonth(i).date(showDay)),
@@ -318,7 +382,6 @@
 		}
 		return monthsLocal;
 	});
-
 
 	let tabIndex = $derived.by((): number | undefined => {
 		return +(attrs.secondInput.tabindex || attrs.firstInput.tabindex) + 1 || undefined;
@@ -418,6 +481,26 @@
 	$effect(() => {
 		if (rootElement) {
 			Core.setColor(colorProp, rootElement);
+		}
+	});
+
+	// Effect to update displayValueState when selectedDatesState or inputDisplayCalendar changes
+	$effect(() => {
+		if (selectedDatesState.length > 0) {
+			const displayDate = selectedDatesState.map((el) => {
+				// Use the configured input display calendar
+				const calendarDate = el.clone().calendar(inputDisplayCalendar as 'jalali' | 'gregorian');
+				return calendarDate.toString();
+			});
+			if (dualInputProp) {
+				displayValueState = displayDate;
+			} else {
+				if (modeProp === 'multiple') {
+					displayValueState[0] = displayDate.join(', ');
+				} else {
+					displayValueState[0] = displayDate.join(' - ');
+				}
+			}
 		}
 	});
 
@@ -537,6 +620,19 @@
 			if (selectedDatesState.length == 2) {
 				(pdpMain as HTMLElement).removeEventListener('mouseover', selectInRangeDate);
 			}
+		} else if (modeProp == 'multiple') {
+			// Check if date is already selected
+			const existingIndex = selectedDatesState.findIndex((selectedDate) =>
+				selectedDate.isSame(date, 'date')
+			);
+
+			if (existingIndex >= 0) {
+				// Date is already selected, remove it (toggle off)
+				selectedDatesState = selectedDatesState.filter((_, index) => index !== existingIndex);
+			} else {
+				// Date is not selected, add it
+				selectedDatesState = [...selectedDatesState, date];
+			}
 		}
 
 		if (typeProp == 'datetime') {
@@ -552,10 +648,15 @@
 		onSelect!(date);
 		if (
 			autoSubmitProp &&
-			(modeProp !== 'range' || (modeProp === 'range' && selectedDatesState.length == 2))
+			(modeProp === 'single' || (modeProp === 'range' && selectedDatesState.length == 2))
 		) {
 			submitDate();
 			return 1;
+		}
+		// For multiple selection, update the model but don't close the modal
+		// The displayValueState is automatically updated by the $effect
+		if (modeProp === 'multiple') {
+			setModel();
 		}
 		return 0;
 	}
@@ -563,7 +664,9 @@
 	function setModel(date?: PersianDate | PersianDate[] | string | string[]): void {
 		if (date === undefined) {
 			date = selectedDatesState.map((el) => {
-				return el.toString(formats.model);
+				// Always convert to Gregorian calendar for model value
+				const gregorianDate = el.clone().calendar('gregorian');
+				return gregorianDate.toString(formats.model);
 			});
 			if (modeProp == 'single') date = date[0];
 		}
@@ -756,7 +859,11 @@
 						else onDisplay = fromDateState!.clone();
 						onDisplay.time(time as [string]);
 					} else {
-						onDisplay = coreState.clone().parse(value);
+						// Parse the user input considering the input display calendar
+						onDisplay = coreState
+							.clone()
+							.calendar(inputDisplayCalendar as 'jalali' | 'gregorian')
+							.parse(value);
 					}
 					if (selectDate(onDisplay, 'time') === 0) {
 						const diff = onDisplay.diff(onDisplayState as PersianDate, 'month');
@@ -827,17 +934,13 @@
 	}
 
 	function submitDate(close = true): void {
-		const displayDate = selectedDatesState.map((el) => {
-			return el.toString(formats.input);
-		});
-
-		if (dualInputProp) displayValueState = displayDate;
-		else displayValueState[0] = displayDate.join(' - ');
+		// The displayValueState is now updated automatically by the $effect above
+		// when selectedDatesState or inputDisplayCalendar changes
 
 		submitedValueState = selectedDatesState.slice();
 		setModel();
 
-		onSubmit?.(modeProp === 'range' ? selectedDatesState : selectedDatesState[0]);
+		onSubmit?.(modeProp === 'single' ? selectedDatesState[0] : selectedDatesState);
 
 		if (close) {
 			showDatePickerState = false;
@@ -863,10 +966,13 @@
 		};
 		tick().then(() => {
 			const input = (inputsElement as HTMLElement[])[0];
-
-			const inputOffset = input.offsetHeight + input.getBoundingClientRect().top;
 			const picker = pdpPicker as HTMLElement;
 
+			if (!input || !picker) {
+				return;
+			}
+
+			const inputOffset = input.offsetHeight + input.getBoundingClientRect().top;
 			const pickerHeight = picker.offsetHeight + 10;
 			const pickerOffset = picker.getBoundingClientRect();
 
@@ -1008,7 +1114,7 @@
 				.clone()
 				.fromGregorian((typeProp == 'time' ? coreState.toString('YYYY-MM-DD') + ' ' : '') + d);
 
-				if (Core.isPersianDate(date)) {
+			if (Core.isPersianDate(date)) {
 				selectedDatesState.push(date.clone());
 				selectedTimesState.push(date.clone());
 				if (index == 0) onDisplayState = date.clone();
@@ -1017,7 +1123,12 @@
 				return true;
 			}
 		});
-		if (selectedDatesState.length) submitDate();
+
+		// Update the model and submitted state, displayValueState will be updated by the reactive effect
+		if (selectedDatesState.length) {
+			submitedValueState = selectedDatesState.slice();
+			setModel();
+		}
 	}
 
 	// $inspect("coreState", coreState);
@@ -1042,16 +1153,19 @@
 	// $inspect('onDisplayState', onDisplayState);
 	// $inspect('selectedDatesState', selectedDatesState);
 	// $inspect('displayValueState', displayValueState);
+	// $inspect('inputDisplayCalendar', inputDisplayCalendar);
+	// $inspect('formats', formats);
 	// $inspect('fromDateState', fromDateState);
 	// $inspect('toDateState', toDateState);
 	// $inspect('inputs', inputs);
+	$inspect('inputCalendarProp>>>', inputCalendarProp);
 </script>
 
 <div
 	bind:this={rootElement}
-	class="pdp {lang.dir.input} {modeProp === 'range' ? 'pdp-range' : ''} {modalProp
-		? 'pdp-modal'
-		: ''} {dualInputProp ? 'pdp-dual' : ''}"
+	class="pdp {lang.dir.input} {modeProp === 'range' ? 'pdp-range' : ''} {modeProp === 'multiple'
+		? 'pdp-multiple'
+		: ''} {modalProp ? 'pdp-modal' : ''} {dualInputProp ? 'pdp-dual' : ''}"
 >
 	{#if labelProp}
 		<label for={attrs.firstInput.id} {...attrs.label}>
@@ -1125,7 +1239,10 @@
 						{#if showYearSelectState}
 							<ul class="pdp-select-year" bind:this={pdpSelectYear}>
 								{#each years as year}
-									<li class:selected={onDisplayState!.year() === year} class:disabled={!checkDate(year, 'year')}>
+									<li
+										class:selected={onDisplayState!.year() === year}
+										class:disabled={!checkDate(year, 'year')}
+									>
 										<button
 											type="button"
 											onclick={() => changeSelectedYear(year)}
@@ -1227,11 +1344,20 @@
 																class:today={day.today}
 																class:start-range={day.startRange}
 																class:end-range={day.endRange}
+																class:selected={day.selected}
 																class:disabled={day.disabled}
 																class:in-range={day.inRange}
 																class:hover={day.hover}
-																onclick={() => selectDate(day.raw, 'date')}
-																onkeydown={() => selectDate(day.raw, 'date')}
+																onclick={() =>
+																	!day.empty &&
+																	!day.disabled &&
+																	day.raw &&
+																	selectDate(day.raw, 'date')}
+																onkeydown={() =>
+																	!day.empty &&
+																	!day.disabled &&
+																	day.raw &&
+																	selectDate(day.raw, 'date')}
 																aria-label={day.val ? `Day ${day.val}` : 'Empty'}
 																data-value={day.val}
 															>
@@ -1261,10 +1387,19 @@
 										>
 											<div class="hour">
 												<button
-												type="button"
-													ontouchstart={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'add')}}
-													onmousedown={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'add')}}
-													onkeydown={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'add')}}
+													type="button"
+													ontouchstart={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'hour', 'add');
+													}}
+													onmousedown={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'hour', 'add');
+													}}
+													onkeydown={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'hour', 'add');
+													}}
 													ontouchend={stopChangeTime}
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
@@ -1274,10 +1409,20 @@
 												{selectedTimesState[i]
 													? selectedTimesState[i].hour('HH')
 													: coreState.hour('HH')}
-												<button type="button"
-													ontouchstart={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'sub')}}
-													onmousedown={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'sub')}}
-													onkeydown={(e) => { e.preventDefault();startChangeTime(i, 'hour', 'sub')}}
+												<button
+													type="button"
+													ontouchstart={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'hour', 'sub');
+													}}
+													onmousedown={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'hour', 'sub');
+													}}
+													onkeydown={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'hour', 'sub');
+													}}
 													ontouchend={stopChangeTime}
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
@@ -1287,10 +1432,20 @@
 											</div>
 											:
 											<div class="minute">
-												<button type="button"
-													ontouchstart={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'add')}}
-													onmousedown={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'add')}}
-													onkeydown={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'add')}}
+												<button
+													type="button"
+													ontouchstart={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'minute', 'add');
+													}}
+													onmousedown={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'minute', 'add');
+													}}
+													onkeydown={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'minute', 'add');
+													}}
 													ontouchend={stopChangeTime}
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
@@ -1300,10 +1455,20 @@
 												{selectedTimesState[i]
 													? selectedTimesState[i].minute('mm')
 													: coreState.minute('mm')}
-												<button type="button"
-													ontouchstart={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'sub')}}
-													onmousedown={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'sub')}}
-													onkeydown={(e) => { e.preventDefault();startChangeTime(i, 'minute', 'sub')}}
+												<button
+													type="button"
+													ontouchstart={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'minute', 'sub');
+													}}
+													onmousedown={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'minute', 'sub');
+													}}
+													onkeydown={(e) => {
+														e.preventDefault();
+														startChangeTime(i, 'minute', 'sub');
+													}}
 													ontouchend={stopChangeTime}
 													onmouseup={stopChangeTime}
 													onkeyup={stopChangeTime}
@@ -1320,11 +1485,22 @@
 
 					<div class="pdp-footer">
 						<div>
-							{#if selectedDatesState[0]}
-								<small>{selectedDatesState[0].toString(formats.display)}</small>
-							{/if}
-							{#if selectedDatesState.length === 2}
-								<small> - {selectedDatesState[1].toString(formats.display)}</small>
+							{#if modeProp === 'multiple'}
+								{#if selectedDatesState.length > 0}
+									<small
+										>{selectedDatesState.length}
+										{lang.translations.daysSelected || 'days selected'}</small
+									>
+								{:else}
+									<small>{lang.translations.selectDates || 'Select dates'}</small>
+								{/if}
+							{:else}
+								{#if selectedDatesState[0]}
+									<small>{selectedDatesState[0].toString(formats.display)}</small>
+								{/if}
+								{#if selectedDatesState.length === 2}
+									<small> - {selectedDatesState[1].toString(formats.display)}</small>
+								{/if}
 							{/if}
 						</div>
 						<div>
@@ -1333,7 +1509,20 @@
 									{lang.translations.now}
 								</button>
 							{/if}
-							{#if !autoSubmitProp && !selectedDatesState.some((date) => isInDisable(date))}
+							{#if modeProp === 'multiple'}
+								{#if selectedDatesState.length > 0}
+									<button class="pdp-submit" tabindex={tabIndex} onclick={() => submitDate()}>
+										{lang.translations.confirm || 'Confirm'} ({selectedDatesState.length})
+									</button>
+								{/if}
+								<button
+									class="pdp-cancel"
+									tabindex={tabIndex}
+									onclick={() => (showDatePickerState = false)}
+								>
+									{lang.translations.cancel || 'Cancel'}
+								</button>
+							{:else if !autoSubmitProp && !selectedDatesState.some((date) => isInDisable(date))}
 								<button class="pdp-submit" tabindex={tabIndex} onclick={() => submitDate()}>
 									{lang.translations.submit}
 								</button>
