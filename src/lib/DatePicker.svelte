@@ -27,35 +27,220 @@
 	import PDPIcon from './components/PDPIcon.svelte';
 	import PDPAlt from './components/PDPAlt.svelte';
 
+	/**
+	 * Props interface for the Persian DatePicker component
+	 * This component supports Jalali (Persian), Gregorian, and Hijri calendars
+	 * with various selection modes and customization options.
+	 */
 	interface Props {
+		/**
+		 * Callback fired when a date is selected (but not necessarily submitted)
+		 * @example <DatePicker select={(date) => console.log('Selected:', date.toString())} />
+		 */
 		select?: (date: PersianDate) => void;
+
+		/**
+		 * Callback fired when date selection is submitted/confirmed
+		 * @example <DatePicker submit={(dates) => console.log('Submitted:', dates)} />
+		 */
 		submit?: (date: PersianDate | PersianDate[]) => void;
+
+		/**
+		 * Callback fired when the input is cleared
+		 * @example <DatePicker clear={() => console.log('Input cleared')} />
+		 */
 		clear?: () => void;
+
+		/**
+		 * Callback fired when the datepicker opens
+		 * @example <DatePicker open={() => setIsOpen(true)} />
+		 */
 		open?: () => void;
+
+		/**
+		 * Callback fired when the datepicker closes
+		 * @example <DatePicker close={() => setIsOpen(false)} />
+		 */
 		close?: () => void;
+
+		/**
+		 * The datepicker model value - bindable prop that holds selected date(s)
+		 * @bindable - This prop is bindable and will update parent component
+		 * @example
+		 * // Single date
+		 * <DatePicker bind:model={selectedDate} />
+		 * // Multiple dates
+		 * <DatePicker mode="multiple" bind:model={selectedDates} />
+		 */
 		model?: PersianDate | PersianDate[] | string | string[];
+
+		/**
+		 * Date format for the model value (always stored in Gregorian)
+		 * @default 'YYYY-MM-DD' for date, 'YYYY-MM-DD HH:mm' for datetime, 'HH:mm' for time
+		 * @example format="YYYY/MM/DD"
+		 */
 		format?: string;
+
+		/**
+		 * Format for user input parsing - determined by input_calendar setting
+		 * @default Auto-determined based on input_calendar and locale
+		 * @example input_format="jYYYY/jMM/jDD" for Jalali calendar
+		 */
 		input_format?: string;
+
+		/**
+		 * Format for displaying dates in the UI
+		 * @default Auto-determined based on locale and calendar
+		 * @example display_format="?jD ?jMMMM ?jYYYY" for Persian display
+		 */
 		display_format?: string;
+
+		/**
+		 * Calendar system to use for input display and parsing
+		 * @default 'auto' - uses locale's default calendar
+		 * - 'auto': Automatically determined by locale
+		 * - 'jalali': Persian/Jalali calendar
+		 * - 'gregorian': Gregorian calendar
+		 */
 		input_calendar?: 'auto' | 'jalali' | 'gregorian';
+
+		/**
+		 * Type of date/time picker to display
+		 * @default 'date'
+		 * - 'date': Date selection only
+		 * - 'time': Time selection only
+		 * - 'datetime': Both date and time selection
+		 */
 		type?: 'date' | 'time' | 'datetime';
+
+		/**
+		 * Minimum selectable date/time
+		 * @default '1300' for date/datetime, '' for time
+		 * @example from="1400/01/01" or from="09:00" for time
+		 */
 		from?: string;
+
+		/**
+		 * Maximum selectable date/time
+		 * @default '1430' for date/datetime, '23:59' for time
+		 * @example to="1410/12/29" or to="18:00" for time
+		 */
 		to?: string;
+
+		/**
+		 * Controls whether the datepicker is initially visible
+		 * @default false
+		 */
 		show?: boolean;
+
+		/**
+		 * Defines which elements can trigger the datepicker to open
+		 * @default 'all'
+		 * - 'all': Click on input or icon
+		 * - 'input': Click only on input field
+		 * - 'icon': Click only on calendar icon
+		 * - 'none': No click interaction (programmatic only)
+		 */
 		click_on?: 'all' | 'input' | 'icon' | 'none';
+
+		/**
+		 * Whether to show datepicker as a modal overlay
+		 * @default false
+		 */
 		modal?: boolean;
+
+		/**
+		 * Label text to display above the input
+		 * @example label="Select Date"
+		 */
 		label?: string;
+
+		/**
+		 * Number of calendar columns to display or responsive breakpoints
+		 * @default 1
+		 * @example column={2} or column={{768: 1, 1024: 2}} for responsive
+		 */
 		column?: number | Record<number, number>;
+
+		/**
+		 * Whether to automatically submit when selection is complete
+		 * @default true
+		 * - true: Auto-submit on single/range completion
+		 * - false: Requires manual submit button click
+		 */
 		auto_submit?: boolean;
+
+		/**
+		 * Date selection mode
+		 * @default 'single'
+		 * - 'single': Select one date
+		 * - 'range': Select a date range (start and end)
+		 * - 'multiple': Select multiple individual dates
+		 */
 		mode?: 'single' | 'range' | 'multiple';
+
+		/**
+		 * Locale for language and calendar system
+		 * @default 'fa' (Persian/Farsi)
+		 * @example locale="en" for English, locale="ar" for Arabic
+		 * Multiple locales: locale="fa,en" (user can toggle)
+		 */
 		locale?: string;
+
+		/**
+		 * Whether to show a clear button for the input
+		 * @default true
+		 */
 		clearable?: boolean;
+
+		/**
+		 * Disable specific dates, date ranges, or patterns
+		 * @example
+		 * // Disable specific dates
+		 * disable={['1403/01/01', '1403/01/02']}
+		 * // Disable with function
+		 * disable={(date) => date.day() === 6} // Disable Fridays
+		 */
 		disable?: Disable;
+
+		/**
+		 * Custom locale configuration to override defaults
+		 * @example locale_config={{fa: {months: ['Jan', 'Feb', ...]}}}
+		 */
 		locale_config?: RecursivePartial<Langs>;
+
+		/**
+		 * Custom CSS styles to apply to the component
+		 * @example styles={{input: {backgroundColor: '#f0f0f0'}}}
+		 */
 		styles?: Styles;
+
+		/**
+		 * Pre-defined color theme for the datepicker
+		 * @default undefined (uses default theme)
+		 */
 		color?: 'blue' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray';
+
+		/**
+		 * Use separate input fields for range selection (from/to inputs)
+		 * @default false
+		 * Only applicable when mode="range"
+		 */
 		dual_input?: boolean;
+
+		/**
+		 * Position the calendar icon inside the input field
+		 * @default false
+		 */
 		icon_inside?: boolean;
+
+		/**
+		 * Enable shortcut buttons for quick date selection
+		 * @default false
+		 * @example
+		 * shortcut={true} // Use default shortcuts
+		 * shortcut={{'Today': [new PersianDate()], 'Yesterday': [new PersianDate().subDay()]}}
+		 */
 		shortcut?: boolean | Shortcuts;
 	}
 
@@ -92,33 +277,88 @@
 		...restAttrs
 	}: Props & HTMLInputAttributes = $props();
 
-	// Reactive state
+	// ====================================================================
+	// REACTIVE STATE VARIABLES
+	// Core component state that drives the datepicker behavior
+	// ====================================================================
+
+	/** Core PersianDate instance for calendar operations and current time */
 	let coreState = $state(new PersianDate());
+
+	/** Currently displayed month/year in the calendar view */
 	let onDisplayState: PersianDate | undefined = $state();
+
+	/** Array of selected dates (handles single, range, and multiple modes) */
 	let selectedDatesState: PersianDate[] = $state([]);
+
+	/** Array of selected times (for datetime and time types) */
 	let selectedTimesState: PersianDate[] = $state([]);
+
+	/** Controls visibility of the datepicker popup */
 	let showDatePickerState = $state(showProp);
+
+	/** Controls visibility of year selection dropdown */
 	let showYearSelectState = $state(false);
+
+	/** Controls visibility of month selection dropdown */
 	let showMonthSelectState = $state(false);
+
+	/** Display values for input fields (formatted strings) */
 	let displayValueState: string[] = $state([]);
+
+	/** Currently focused input field ('firstInput' | 'secondInput') */
 	let inputNameState: Inputs = $state('firstInput');
+
+	/** Position calculations for datepicker popup placement */
 	let pickerPlaceState: PickerPlace = $state({} as PickerPlace);
+
+	/** Current window width for responsive column calculations */
 	let documentWidthState = $state(typeof window !== 'undefined' ? window.innerWidth : Infinity);
+
+	/** Current active locale from the comma-separated locale prop */
 	let currentLocaleState = $state(localeProp.split(',')[0]);
+
+	/** Copy of selected dates that have been submitted/confirmed */
 	let submitedValueState: PersianDate[] = $state([]);
 
+	// ====================================================================
+	// COMPONENT REFERENCES AND INTERVALS
+	// DOM references and timer management for the component
+	// ====================================================================
+
+	/** Core language configuration object from the Persian date library */
 	let langs = Core.langs;
+
+	/** Interval reference for time picker increment/decrement operations */
 	let interval: ReturnType<typeof setInterval> | null = $state(null);
+
+	/** Reference to the main datepicker popup element */
 	let pdpPicker: HTMLElement | undefined = $state();
+
+	/** Reference to the main calendar container element */
 	let pdpMain = $state();
+
+	/** Reference to the year selection dropdown element */
 	let pdpSelectYear: HTMLElement | undefined = $state();
 
+	/** Array of input element references (for single or dual input modes) */
 	let inputsElement: (HTMLInputElement | undefined)[] = $state([]);
+
+	/** Reference to the root component element */
 	let rootElement: HTMLElement;
 
+	// ====================================================================
+	// DERIVED REACTIVE VALUES
+	// Computed values that update automatically based on state changes
+	// ====================================================================
+
+	/** Current language configuration based on active locale */
 	let lang: Langs[string] = $derived(langs[currentLocaleState]);
 
-	// Determine which calendar to use for input display based on input_calendar prop
+	/**
+	 * Determines which calendar system to use for input display and parsing
+	 * Based on input_calendar prop - 'auto' uses the language's default calendar
+	 */
 	let inputDisplayCalendar = $derived.by((): string => {
 		if (inputCalendarProp === 'auto') {
 			return lang.calendar;
@@ -126,16 +366,28 @@
 		return inputCalendarProp;
 	});
 
+	/** Array of input field names - single input or dual inputs for range mode */
 	let inputs: Inputs[] = dualInputProp ? ['firstInput', 'secondInput'] : ['firstInput'];
 
+	/**
+	 * Default date range configuration for validation and boundaries
+	 * Combines date and time components for datetime type
+	 */
 	let defaultDate = $derived({
 		from: (typeProp === 'time' ? coreState.toString('jYYYY/jMM/jDD') + ' ' : '') + fromProp,
 		to: (typeProp === 'time' ? coreState.toString('jYYYY/jMM/jDD') + ' ' : '') + toProp
 	});
 
+	/** Minimum selectable date/time boundary */
 	let fromDateState: PersianDate = $state(new PersianDate());
+
+	/** Maximum selectable date/time boundary */
 	let toDateState: PersianDate = $state(new PersianDate());
 
+	/**
+	 * Initialize date boundaries based on from/to props and current core state
+	 * Updates whenever defaultDate, lang, or related dependencies change
+	 */
 	$effect(() => {
 		fromDateState = coreState.clone().parse(defaultDate.from).calendar(lang.calendar);
 		toDateState = coreState
@@ -145,31 +397,52 @@
 			.calendar(lang.calendar);
 	});
 
+	// ====================================================================
+	// COMPONENT INITIALIZATION
+	// Setup and initialization logic when component mounts
+	// ====================================================================
+
 	onMount(() => {
+		// Apply theme colors and custom styles to root element
 		Core.setColor(colorProp, rootElement as HTMLElement);
 		Core.setStyles(stylesProp, rootElement as HTMLElement);
 
+		// Initialize component with model value if provided
 		const val = modelValueProp as string | string[];
 		if (val) {
 			setDate(val);
 		} else {
+			// Set default display to today if no model value provided
 			const today = () => coreState.clone();
 			if (typeProp == 'date') today().startOf('date');
 			if (checkDate(today(), 'date')) {
 				onDisplayState = today();
 			} else {
+				// If today is not valid, use nearest valid date
 				onDisplayState = nearestDate(today()).startOf('date');
 			}
 		}
 
+		// Setup responsive window resize listener for column calculations
 		window.addEventListener('resize', () => {
 			documentWidthState = window.innerWidth;
 		});
+
+		// For time-based pickers, sync display with current time
 		if (typeProp != 'date') {
 			onDisplayState!.time(coreState as PersianDate);
 		}
 	});
 
+	// ====================================================================
+	// ATTRIBUTE CONFIGURATION
+	// Dynamic attribute generation for different UI elements
+	// ====================================================================
+
+	/**
+	 * Generates dynamic attributes for various UI elements (inputs, labels, etc.)
+	 * Processes custom attributes passed via props and applies styling classes
+	 */
 	let attrs = $derived.by((): Attrs => {
 		const attrsLocal: Attrs = {
 			div: { class: 'pdp-group' },
@@ -180,15 +453,19 @@
 			secondInput: { class: 'pdp-input' }
 		};
 
+		// Process custom attributes with prefixes (e.g., div-class, input-placeholder)
 		for (const [key, value] of Object.entries(restAttrs)) {
 			const match = key.match(/(div|label|alt|picker|firstInput|secondInput)-(.*)/);
 			if (match) {
 				const [, group, attr] = match as [string, keyof Attrs, string];
 				attrsLocal[group][attr] = value as string;
 			} else {
+				// Default attributes go to firstInput
 				attrsLocal.firstInput[key] = value as string;
 			}
 		}
+
+		// Apply picker positioning and direction classes
 		attrsLocal.picker.class = [
 			attrsLocal.picker.class,
 			{
@@ -199,9 +476,12 @@
 			lang.dir.picker
 		];
 
+		// For single mode with dual input, disable second input
 		if (modeProp == 'single' && dualInputProp) {
 			attrsLocal['secondInput'].disabled = 'disabled';
 		}
+
+		// Add focus class to active input when picker is open
 		if (showDatePickerState) {
 			attrsLocal[inputNameState].class += ' pdp-focus';
 		}
@@ -209,12 +489,26 @@
 		return attrsLocal;
 	});
 
+	// ====================================================================
+	// DATE FORMAT CONFIGURATION
+	// Handles different date formats for model, input, and display
+	// ====================================================================
+
+	/**
+	 * Configures date formats for different purposes:
+	 * - model: Always Gregorian for consistent data storage
+	 * - input: Calendar-specific for user input parsing
+	 * - display: Calendar-specific for UI presentation
+	 * - alt: For alternative/hidden inputs
+	 */
 	const formats = $derived.by((): Formats => {
+		// Default display formats for different picker types
 		const displayFormatLocal: Obj<string, TypePart | 'datetime'> = {
 			date: '?D ?MMMM',
 			datetime: '?D ?MMMM HH:mm',
 			time: 'HH:mm'
 		};
+
 		// Model format is always Gregorian for consistent data handling
 		const gregorianFormatLocal: Obj<string, TypePart | 'datetime'> = {
 			date: 'YYYY-MM-DD',
@@ -484,7 +778,15 @@
 		}
 	});
 
-	// Effect to update displayValueState when selectedDatesState or inputDisplayCalendar changes
+	// ====================================================================
+	// REACTIVE EFFECTS
+	// Side effects that respond to state changes
+	// ====================================================================
+
+	/**
+	 * Updates input display values when selected dates or display calendar changes
+	 * Formats dates according to the configured input display calendar
+	 */
 	$effect(() => {
 		if (selectedDatesState.length > 0) {
 			const displayDate = selectedDatesState.map((el) => {
@@ -504,10 +806,28 @@
 		}
 	});
 
+	// ====================================================================
+	// MODEL AND VALUE MANAGEMENT FUNCTIONS
+	// Functions that handle data binding and model updates
+	// ====================================================================
+
+	/**
+	 * Updates the bindable model value with new date(s)
+	 * @param date - The new date value(s) to set
+	 */
 	function updateValue(date: PersianDate | PersianDate[] | string | string[]) {
 		modelValueProp = date; // Update the prop directly
 	}
 
+	// ====================================================================
+	// CALENDAR NAVIGATION FUNCTIONS
+	// Functions for navigating between months, years, and calendar views
+	// ====================================================================
+
+	/**
+	 * Shows/toggles different calendar parts (month/year selection)
+	 * @param part - Which calendar part to show ('month' | 'year')
+	 */
 	function showPart(part: CalendarPart) {
 		if (part === 'year') {
 			showMonthSelectState = false;
@@ -518,6 +838,10 @@
 		}
 	}
 
+	/**
+	 * Changes the currently displayed month in the calendar
+	 * @param month - Month to navigate to ('add'|'sub' for relative, number for absolute)
+	 */
 	function changeSelectedMonth(month: 'add' | 'sub' | number): void {
 		if (month == 'add') {
 			onDisplayState = onDisplayState?.clone().addMonth();
@@ -534,6 +858,10 @@
 		//  else onDisplayState = onDisplayState?.clone();
 	}
 
+	/**
+	 * Changes the currently displayed year in the calendar
+	 * @param year - Year to navigate to (absolute value)
+	 */
 	function changeSelectedYear(year: number): void {
 		const cloneLocal = onDisplayState!.clone();
 		cloneLocal.year(year);
@@ -544,11 +872,28 @@
 		onDisplayState = cloneLocal;
 	}
 
+	// ====================================================================
+	// DATE VALIDATION AND CHECKING FUNCTIONS
+	// Functions for validating dates against constraints and boundaries
+	// ====================================================================
+
+	/**
+	 * Validates if a date is selectable (within bounds and not disabled)
+	 * @param date - Date to validate
+	 * @param part - Type of validation ('date' | 'time' | 'month' | 'year')
+	 * @returns true if date is valid and selectable
+	 */
 	function validate(date: PersianDate, part: TypePart): boolean {
 		if (!checkDate(date, part) || isInDisable(date)) return false;
 		return true;
 	}
 
+	/**
+	 * Checks if any dates between two dates are disabled (for range selection)
+	 * @param first - Start date of range
+	 * @param second - End date of range
+	 * @returns true if any date in range is disabled
+	 */
 	function isDisableBetween(first: PersianDate, second: PersianDate): boolean {
 		if (!disableProp) return false;
 		if (typeProp != 'datetime' && Core.isString(disableProp)) {
@@ -1158,7 +1503,7 @@
 	// $inspect('fromDateState', fromDateState);
 	// $inspect('toDateState', toDateState);
 	// $inspect('inputs', inputs);
-	$inspect('inputCalendarProp>>>', inputCalendarProp);
+	// $inspect('inputCalendarProp>>>', inputCalendarProp);
 </script>
 
 <div

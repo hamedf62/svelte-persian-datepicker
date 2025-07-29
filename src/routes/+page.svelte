@@ -1,464 +1,926 @@
 <script lang="ts">
 	import DatePicker, { PersianDate } from '$lib/DatePicker.svelte';
 
-	// Different types of values for different modes
-	let singleValue: string = $state(
-		new Date('Mon Feb 17 2025 07:50:58 GMT+0330 (Iran Standard Time)').toISOString().split('T')[0]
-	);
-	let rangeValue: string[] = $state([]);
-	let multipleValue: string[] = $state([]);
-	let timeValue: string = $state('14:30');
-	let datetimeValue: string = $state(
-		new Date('Mon Feb 17 2025 14:30:00 GMT+0330 (Iran Standard Time)').toISOString()
-	);
+	// Configuration state for testing
+	let config = $state({
+		type: 'date' as 'date' | 'time' | 'datetime',
+		mode: 'single' as 'single' | 'range' | 'multiple',
+		color: 'blue' as 'blue' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray',
+		locale: 'fa',
+		column: 1,
+		clearable: true,
+		auto_submit: true,
+		dual_input: false,
+		icon_inside: false,
+		shortcut: false,
+		modal: false,
+		from: '1300',
+		to: '1430',
+		format: 'YYYY-MM-DD',
+		input_format: 'YYYY-MM-DD',
+		display_format: 'YYYY-MM-DD',
+		input_calendar: 'auto' as 'auto' | 'jalali' | 'gregorian'
+	});
 
-	// Configuration
-	let format = 'YYYY-MM-DD';
-	let inputFormat = 'YYYY-MM-DD';
-	let displayFormat = 'YYYY-MM-DD';
+	// Values for different modes
+	let testValue: string | string[] = $state('');
+	let resultLog: string[] = $state([]);
 
-	function submitSingle(val: PersianDate | PersianDate[]) {
-		console.log('Single date result:', val);
+	// Dynamic format updates based on type
+	$effect(() => {
+		if (config.type === 'time') {
+			config.format = 'HH:mm';
+			config.input_format = 'HH:mm';
+			config.display_format = 'HH:mm';
+			config.from = '00:00';
+			config.to = '23:59';
+		} else if (config.type === 'datetime') {
+			config.format = 'YYYY-MM-DD HH:mm';
+			config.input_format = 'YYYY-MM-DD HH:mm';
+			config.display_format = 'YYYY-MM-DD HH:mm';
+			config.from = '1300';
+			config.to = '1430';
+		} else {
+			config.format = 'YYYY-MM-DD';
+			config.input_format = 'YYYY-MM-DD';
+			config.display_format = 'YYYY-MM-DD';
+			config.from = '1300';
+			config.to = '1430';
+		}
+	});
+
+	// Reset value when mode or type changes
+	$effect(() => {
+		if (config.mode === 'single') {
+			testValue = '';
+		} else {
+			testValue = [];
+		}
+		resultLog = [];
+	});
+
+	// Automatically adjust auto_submit behavior based on mode for better UX
+	$effect(() => {
+		// For multiple selection, we want to disable auto_submit to allow multiple selections
+		// before confirming, but keep it enabled for single/range for immediate feedback
+		if (config.mode === 'multiple') {
+			config.auto_submit = false;
+		} else {
+			config.auto_submit = true;
+		}
+	});
+
+	function onSubmit(val: PersianDate | PersianDate[]) {
+		const timestamp = new Date().toLocaleTimeString();
+		const logEntry = `[${timestamp}] ${config.mode} ${config.type} submitted: ${JSON.stringify(val)}`;
+		resultLog = [logEntry, ...resultLog.slice(0, 9)]; // Keep last 10 entries
+		console.log('DatePicker submitted:', val);
 	}
 
-	function submitRange(val: PersianDate | PersianDate[]) {
-		console.log('Range result:', val);
+	function onSelect(date: PersianDate) {
+		const timestamp = new Date().toLocaleTimeString();
+		const logEntry = `[${timestamp}] Date selected: ${date.toString()}`;
+		resultLog = [logEntry, ...resultLog.slice(0, 9)];
+		console.log('Date selected:', date);
 	}
 
-	function submitMultiple(val: PersianDate | PersianDate[]) {
-		console.log('Multiple dates result:', val);
+	function clearValue() {
+		if (config.mode === 'single') {
+			testValue = '';
+		} else {
+			testValue = [];
+		}
+		resultLog = [];
 	}
 
-	function submitTime(val: PersianDate | PersianDate[]) {
-		console.log('Time result:', val);
+	function logCurrentValue() {
+		const timestamp = new Date().toLocaleTimeString();
+		const logEntry = `[${timestamp}] Current value: ${JSON.stringify(testValue)}`;
+		resultLog = [logEntry, ...resultLog.slice(0, 9)];
+		console.log('Current value:', testValue);
 	}
 
-	function submitDateTime(val: PersianDate | PersianDate[]) {
-		console.log('DateTime result:', val);
-	}
+	function generateCodeSnippet() {
+		let snippet = '<script lang="ts">\n';
+		snippet += '\timport DatePicker from "$lib/DatePicker.svelte";\n\n';
 
-	function preSubmit() {
-		console.log('Form submitted.');
+		// Add variable declaration based on mode
+		if (config.mode === 'single') {
+			snippet += '\tlet selectedValue = "";\n';
+		} else {
+			snippet += '\tlet selectedValue: string[] = [];\n';
+		}
+
+		snippet += '<\/script>\n\n';
+		snippet += '<DatePicker\n';
+		snippet += '\tbind:model={selectedValue}\n';
+
+		// Only include non-default props
+		if (config.type !== 'date') snippet += `\ttype="${config.type}"\n`;
+		if (config.mode !== 'single') snippet += `\tmode="${config.mode}"\n`;
+		if (config.color !== 'blue') snippet += `\tcolor="${config.color}"\n`;
+		if (config.locale !== 'fa') snippet += `\tlocale="${config.locale}"\n`;
+		if (config.column !== 1) snippet += `\tcolumn={${config.column}}\n`;
+		if (!config.clearable) snippet += `\tclearable={false}\n`;
+		if (!config.auto_submit) snippet += `\tauto_submit={false}\n`;
+		if (config.dual_input) snippet += `\tdual_input={true}\n`;
+		if (config.icon_inside) snippet += `\ticon_inside={true}\n`;
+		if (config.modal) snippet += `\tmodal={true}\n`;
+		if (config.shortcut) snippet += `\tshortcut={true}\n`;
+
+		// Date range props (only for date/datetime types)
+		if (config.type !== 'time') {
+			if (config.from !== '1300') snippet += `\tfrom="${config.from}"\n`;
+			if (config.to !== '1430') snippet += `\tto="${config.to}"\n`;
+		}
+
+		// Format props (only if different from defaults)
+		const defaultFormat =
+			config.type === 'time'
+				? 'HH:mm'
+				: config.type === 'datetime'
+					? 'YYYY-MM-DD HH:mm'
+					: 'YYYY-MM-DD';
+
+		if (config.format !== defaultFormat) snippet += `\tformat="${config.format}"\n`;
+		if (config.input_format !== defaultFormat)
+			snippet += `\tinput_format="${config.input_format}"\n`;
+		if (config.display_format !== defaultFormat)
+			snippet += `\tdisplay_format="${config.display_format}"\n`;
+		if (config.input_calendar !== 'auto')
+			snippet += `\tinput_calendar="${config.input_calendar}"\n`;
+
+		// Event handlers
+		snippet += '\tsubmit={(value) => {\n';
+		snippet += '\t\tconsole.log("Date selected:", value);\n';
+		snippet += '\t\t// Handle the selected date(s)\n';
+		snippet += '\t}}\n';
+
+		snippet += '\tselect={(date) => {\n';
+		snippet += '\t\tconsole.log("Date picked:", date);\n';
+		snippet += '\t\t// Handle individual date selection\n';
+		snippet += '\t}}\n';
+
+		snippet += '\tlabel="Select Date"\n';
+		snippet += '/>';
+
+		return snippet;
 	}
 </script>
 
-<main class="container">
-	<div class="card">
-		<h1 class="title">Persian DatePicker Demo</h1>
-		<p class="subtitle">Comprehensive date, time, and datetime selection with multiple modes</p>
+<main class="testing-container">
+	<div class="testing-header">
+		<h1>Persian DatePicker Testing Interface</h1>
+		<p>Interactive testing tool to explore all DatePicker features and configurations</p>
+	</div>
 
-		<form onsubmit={() => preSubmit()}>
-			<div class="grid">
-				<!-- Single Date Selection -->
-				<div class="demo-section">
-					<h2 class="section-title">Single Date Selection</h2>
-					<div class="form-group">
-						<span class="label">Selected Value:</span>
-						<div class="value-display">
-							{singleValue || 'No date selected'}
-						</div>
-					</div>
-					<div class="form-group">
-						<DatePicker
-							bind:model={singleValue}
-							mode="single"
-							type="date"
-							input_format={inputFormat}
-							submit={submitSingle}
-							color="blue"
-							clearable={true}
-							auto_submit={true}
-						/>
-					</div>
-				</div>
+	<div class="testing-layout">
+		<!-- Configuration Panel -->
+		<div class="config-panel">
+			<h2>Configuration</h2>
 
-				<!-- Range Date Selection -->
-				<div class="demo-section">
-					<h2 class="section-title">Date Range Selection</h2>
-					<div class="form-group">
-						<span class="label">Selected Range:</span>
-						<div class="value-display">
-							{rangeValue.length > 0 ? rangeValue.join(' → ') : 'No range selected'}
-						</div>
-					</div>
-					<div class="form-group">
-						<DatePicker
-							bind:model={rangeValue}
-							mode="range"
-							type="date"
-							input_format={inputFormat}
-							submit={submitRange}
-							color="green"
-							clearable={true}
-							auto_submit={true}
-						/>
-					</div>
-					<button
-						onclick={() => console.log('Current rangeValue:', rangeValue)}
-						style="margin-top: 10px; padding: 5px 10px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;"
-					>
-						Log Current Value
-					</button>
-				</div>
-
-				<!-- Multiple Date Selection -->
-				<div class="demo-section">
-					<h2 class="section-title">Multiple Date Selection</h2>
-					<div class="form-group">
-						<span class="label">Selected Dates:</span>
-						<div class="value-display">
-							{multipleValue.length > 0 ? multipleValue.join(', ') : 'No dates selected'}
-						</div>
-					</div>
-					<div class="form-group">
-						<DatePicker
-							bind:model={multipleValue}
-							mode="multiple"
-							type="date"
-							input_format={inputFormat}
-							submit={submitMultiple}
-							color="purple"
-							clearable={true}
-							auto_submit={true}
-						/>
-					</div>
-					<button
-						onclick={() => console.log('Current multipleValue:', multipleValue)}
-						style="margin-top: 10px; padding: 5px 10px; background: #8b5cf6; color: white; border: none; border-radius: 4px; cursor: pointer;"
-					>
-						Log Current Value
-					</button>
-				</div>
-
-				<!-- Time Selection -->
-				<div class="demo-section">
-					<h2 class="section-title">Time Selection</h2>
-					<div class="form-group">
-						<span class="label">Selected Time:</span>
-						<div class="value-display">
-							{timeValue || 'No time selected'}
-						</div>
-					</div>
-					<div class="form-group">
-						<DatePicker
-							bind:model={timeValue}
-							mode="single"
-							type="time"
-							input_format="HH:mm"
-							submit={submitTime}
-							color="orange"
-							clearable={true}
-							auto_submit={true}
-						/>
-					</div>
-				</div>
-
-				<!-- DateTime Selection -->
-				<div class="demo-section">
-					<h2 class="section-title">DateTime Selection</h2>
-					<div class="form-group">
-						<span class="label">Selected DateTime:</span>
-						<div class="value-display">
-							{datetimeValue || 'No datetime selected'}
-						</div>
-					</div>
-					<div class="form-group">
-						<DatePicker
-							bind:model={datetimeValue}
-							mode="single"
-							type="datetime"
-							input_format="YYYY-MM-DD HH:mm"
-							submit={submitDateTime}
-							color="red"
-							clearable={true}
-							auto_submit={true}
-						/>
-					</div>
-				</div>
-
-				<!-- DateTime Range Selection -->
-				<div class="demo-section">
-					<h2 class="section-title">DateTime Range Selection</h2>
-					<div class="form-group">
-						<span class="label">Selected DateTime Range:</span>
-						<div class="value-display">Example: Select from one datetime to another</div>
-					</div>
-					<div class="form-group">
-						<DatePicker
-							mode="range"
-							type="datetime"
-							input_format="YYYY-MM-DD HH:mm"
-							submit={(val) => console.log('DateTime range:', val)}
-							color="pink"
-							clearable={true}
-							auto_submit={true}
-						/>
-					</div>
-				</div>
-
-				<!-- Calendar Display Demo -->
-				<div class="demo-section">
-					<h2 class="section-title">Input Calendar Display Options</h2>
-					<div class="form-group">
-						<span class="label">Auto (follows locale - Persian):</span>
-						<DatePicker
-							mode="single"
-							type="date"
-							locale="fa"
-							input_calendar="auto"
-							color="blue"
-							clearable={true}
-							auto_submit={false}
-						/>
-					</div>
-					<div class="form-group">
-						<span class="label">Force Jalali/Persian Calendar:</span>
-						<DatePicker
-							mode="single"
-							type="date"
-							locale="en"
-							input_calendar="jalali"
-							color="green"
-							clearable={true}
-							auto_submit={false}
-						/>
-					</div>
-					<div class="form-group">
-						<span class="label">Force Gregorian Calendar:</span>
-						<DatePicker
-							mode="single"
-							type="date"
-							locale="fa"
-							input_calendar="gregorian"
-							color="orange"
-							clearable={true}
-							auto_submit={false}
-						/>
-					</div>
-				</div>
-			</div>
-
-			<!-- Configuration Info -->
+			<!-- Basic Configuration -->
 			<div class="config-section">
-				<h2 class="section-title">Configuration</h2>
-				<div class="config-grid">
-					<div class="config-item">
-						<span class="label">Format:</span>
-						<div class="config-value">{format}</div>
-					</div>
-					<div class="config-item">
-						<span class="label">Input Format:</span>
-						<div class="config-value">{inputFormat}</div>
-					</div>
-					<div class="config-item">
-						<span class="label">Display Format:</span>
-						<div class="config-value">{displayFormat}</div>
-					</div>
+				<h3>Basic Settings</h3>
+
+				<div class="config-item">
+					<label for="type">Type:</label>
+					<select bind:value={config.type} id="type">
+						<option value="date">Date</option>
+						<option value="time">Time</option>
+						<option value="datetime">DateTime</option>
+					</select>
+				</div>
+
+				<div class="config-item">
+					<label for="mode">Selection Mode:</label>
+					<select bind:value={config.mode} id="mode">
+						<option value="single">Single</option>
+						<option value="range">Range</option>
+						<option value="multiple">Multiple</option>
+					</select>
+				</div>
+
+				<div class="config-item">
+					<label for="color">Color Theme:</label>
+					<select bind:value={config.color} id="color">
+						<option value="blue">Blue</option>
+						<option value="red">Red</option>
+						<option value="pink">Pink</option>
+						<option value="orange">Orange</option>
+						<option value="green">Green</option>
+						<option value="purple">Purple</option>
+						<option value="gray">Gray</option>
+					</select>
+				</div>
+
+				<div class="config-item">
+					<label for="locale">Locale:</label>
+					<select bind:value={config.locale} id="locale">
+						<option value="fa">Persian (فارسی)</option>
+						<option value="en">English</option>
+						<option value="ar">Hijri (هجري)</option>
+						<option value="fa,en">Persian + English Toggle</option>
+						<option value="fa,ar">Persian + Hijri Toggle</option>
+						<option value="en,ar">English + Hijri Toggle</option>
+						<option value="fa,en,ar">All Calendars Toggle</option>
+					</select>
 				</div>
 			</div>
 
-			<button type="submit" class="submit-btn">Submit All Values</button>
-		</form>
+			<!-- Layout Configuration -->
+			<div class="config-section">
+				<h3>Layout & Display</h3>
 
-		<!-- Feature Overview -->
-		<div class="features-section">
-			<h2 class="section-title">Features Overview</h2>
-			<ul class="features-list">
-				<li><strong>Single Date:</strong> Select one date</li>
-				<li><strong>Date Range:</strong> Select from one date to another</li>
-				<li><strong>Multiple Dates:</strong> Select multiple individual dates (click to toggle)</li>
-				<li><strong>Time Only:</strong> Select time without date</li>
-				<li><strong>DateTime:</strong> Select both date and time</li>
-				<li><strong>DateTime Range:</strong> Select from one datetime to another datetime</li>
-				<li><strong>Persian Calendar:</strong> Full support for Persian/Jalali calendar</li>
-				<li><strong>Customizable:</strong> Colors, formats, validation, and more</li>
-			</ul>
+				<div class="config-item">
+					<label for="column">Column Count:</label>
+					<select bind:value={config.column} id="column">
+						<option value={1}>1 Month</option>
+						<option value={2}>2 Months</option>
+						<option value={3}>3 Months</option>
+						<option value={4}>4 Months</option>
+					</select>
+				</div>
+
+				<div class="config-item">
+					<label>
+						<input type="checkbox" bind:checked={config.dual_input} />
+						Dual Input (Range Mode)
+					</label>
+				</div>
+
+				<div class="config-item">
+					<label>
+						<input type="checkbox" bind:checked={config.icon_inside} />
+						Icon Inside Input
+					</label>
+				</div>
+
+				<div class="config-item">
+					<label>
+						<input type="checkbox" bind:checked={config.modal} />
+						Modal Mode
+					</label>
+				</div>
+
+				<div class="config-item">
+					<label>
+						<input type="checkbox" bind:checked={config.shortcut} />
+						Show Shortcuts
+					</label>
+				</div>
+			</div>
+
+			<!-- Behavior Configuration -->
+			<div class="config-section">
+				<h3>Behavior</h3>
+
+				<div class="config-item">
+					<label>
+						<input type="checkbox" bind:checked={config.clearable} />
+						Clearable
+					</label>
+				</div>
+
+				<div class="config-item">
+					<label>
+						<input type="checkbox" bind:checked={config.auto_submit} />
+						Auto Submit
+					</label>
+				</div>
+			</div>
+
+			<!-- Date Range Configuration -->
+			{#if config.type !== 'time'}
+				<div class="config-section">
+					<h3>Date Range</h3>
+
+					<div class="config-item">
+						<label for="from">From Year/Date:</label>
+						<input type="text" bind:value={config.from} id="from" placeholder="e.g., 1300" />
+					</div>
+
+					<div class="config-item">
+						<label for="to">To Year/Date:</label>
+						<input type="text" bind:value={config.to} id="to" placeholder="e.g., 1430" />
+					</div>
+				</div>
+			{/if}
+
+			<!-- Format Configuration -->
+			<div class="config-section">
+				<h3>Format Settings</h3>
+
+				<div class="config-item">
+					<label for="format">Model Format:</label>
+					<input type="text" bind:value={config.format} id="format" placeholder="YYYY-MM-DD" />
+				</div>
+
+				<div class="config-item">
+					<label for="input_format">Input Format:</label>
+					<input
+						type="text"
+						bind:value={config.input_format}
+						id="input_format"
+						placeholder="YYYY-MM-DD"
+					/>
+				</div>
+
+				<div class="config-item">
+					<label for="display_format">Display Format:</label>
+					<input
+						type="text"
+						bind:value={config.display_format}
+						id="display_format"
+						placeholder="YYYY-MM-DD"
+					/>
+				</div>
+
+				<div class="config-item">
+					<label for="input_calendar">Input Calendar:</label>
+					<select bind:value={config.input_calendar} id="input_calendar">
+						<option value="auto">Auto (follows locale)</option>
+						<option value="jalali">Persian (Jalali)</option>
+						<option value="gregorian">Gregorian</option>
+					</select>
+				</div>
+			</div>
+
+			<!-- Actions -->
+			<div class="config-actions">
+				<button class="btn btn-secondary" onclick={clearValue}> Clear Value </button>
+				<button class="btn btn-info" onclick={logCurrentValue}> Log Current Value </button>
+			</div>
+		</div>
+
+		<!-- Testing Area -->
+		<div class="testing-area">
+			<h2>Live Testing</h2>
+
+			<!-- DatePicker Instance -->
+			<div class="datepicker-container">
+				<h3>DatePicker Component</h3>
+				<div class="picker-wrapper">
+					<DatePicker
+						bind:model={testValue}
+						type={config.type}
+						mode={config.mode}
+						color={config.color}
+						locale={config.locale}
+						column={config.column}
+						clearable={config.clearable}
+						auto_submit={config.auto_submit}
+						dual_input={config.dual_input}
+						icon_inside={config.icon_inside}
+						modal={config.modal}
+						shortcut={config.shortcut}
+						from={config.from}
+						to={config.to}
+						format={config.format}
+						input_format={config.input_format}
+						display_format={config.display_format}
+						input_calendar={config.input_calendar}
+						submit={onSubmit}
+						select={onSelect}
+						label="Test DatePicker"
+					/>
+				</div>
+			</div>
+
+			<!-- Current Value Display -->
+			<div class="value-display">
+				<h3>Current Value</h3>
+				<div class="value-explanation">
+					<p>
+						<strong>Display Format:</strong> Shows dates in selected calendar format (Persian, Gregorian,
+						or Hijri)
+					</p>
+					<p>
+						<strong>Model Format:</strong> Always stored in Gregorian format for consistent data handling
+					</p>
+				</div>
+				<div class="value-content">
+					<pre>{JSON.stringify(testValue, null, 2)}</pre>
+				</div>
+				<div class="value-type">
+					Type: {Array.isArray(testValue) ? 'Array' : typeof testValue}
+					{#if Array.isArray(testValue)}
+						| Length: {testValue.length}
+					{/if}
+				</div>
+				<div class="value-note">
+					<strong>Note:</strong> The value above is always in Gregorian format (YYYY-MM-DD), regardless
+					of the selected calendar display format.
+				</div>
+			</div>
+
+			<!-- Event Log -->
+			<div class="event-log">
+				<h3>Event Log</h3>
+				<div class="log-content">
+					{#if resultLog.length === 0}
+						<p class="no-events">No events yet. Interact with the DatePicker to see logs.</p>
+					{:else}
+						{#each resultLog as log}
+							<div class="log-entry">{log}</div>
+						{/each}
+					{/if}
+				</div>
+			</div>
+
+			<!-- Code Snippet Section -->
+			<div class="code-snippet">
+				<h3>Generated Code Snippet</h3>
+				<p class="snippet-description">
+					Copy this code to use the DatePicker with your current configuration:
+				</p>
+				<div class="code-block">
+					<div class="code-header">
+						<span class="code-title">Svelte Component Usage</span>
+						<button
+							class="copy-btn"
+							onclick={(event) => {
+								const codeText = generateCodeSnippet();
+								navigator.clipboard.writeText(codeText);
+								// Show feedback
+								const btn = event.currentTarget as HTMLButtonElement;
+								if (btn) {
+									btn.textContent = 'Copied!';
+									setTimeout(() => (btn.textContent = 'Copy'), 2000);
+								}
+							}}
+						>
+							Copy
+						</button>
+					</div>
+					<pre class="code-content"><code>{generateCodeSnippet()}</code></pre>
+				</div>
+			</div>
+
+			<!-- Testing Instructions -->
+			<div class="instructions">
+				<h3>Testing Instructions</h3>
+				<div class="instruction-content">
+					<h4>Multiple Selection Testing:</h4>
+					<ul>
+						<li>Set mode to "Multiple" and type to "Date"</li>
+						<li>Click on different dates to select multiple dates</li>
+						<li><strong>Modal stays open</strong> while you select multiple dates</li>
+						<li>Navigate between months using arrows to select dates across months</li>
+						<li>
+							For example: Select 15th of current month, then navigate to next month and select 10th
+						</li>
+						<li>Selected dates will be highlighted and accumulated</li>
+						<li><strong>Click "Confirm" button</strong> to finalize selection and close modal</li>
+						<li>Or click "Cancel" to close modal without saving changes</li>
+					</ul>
+
+					<h4>Cross-Month Selection:</h4>
+					<ul>
+						<li>Use column count 2+ to see multiple months at once</li>
+						<li>Or use single column and navigate with arrows</li>
+						<li>In multiple mode, selections persist across month navigation</li>
+						<li>Perfect for selecting dates like "15 June to 10 September"</li>
+						<li>The footer shows count of selected dates</li>
+					</ul>
+
+					<h4>Best Practices for Multiple Selection:</h4>
+					<ul>
+						<li>Auto-submit is automatically disabled for multiple mode</li>
+						<li>Modal remains open until user confirms or cancels</li>
+						<li>Clear visual feedback shows selected dates with checkmarks</li>
+						<li>Footer displays selection count and control buttons</li>
+					</ul>
+
+					<h4>Calendar Display vs Model Value:</h4>
+					<ul>
+						<li>
+							<strong>Display Format:</strong> Input box shows dates in selected calendar format
+						</li>
+						<li><strong>Persian (fa):</strong> Shows "1403/07/28" format</li>
+						<li><strong>Gregorian (en):</strong> Shows "2025-01-28" format</li>
+						<li><strong>Hijri (ar):</strong> Shows Islamic calendar format with Arabic months</li>
+						<li>
+							<strong>Model Value:</strong> Always stored as Gregorian (YYYY-MM-DD) for data consistency
+						</li>
+					</ul>
+
+					<h4>Advanced Testing:</h4>
+					<ul>
+						<li>Try different column counts (1-4 months visible)</li>
+						<li>Test dual input mode with range selection</li>
+						<li>Experiment with different color themes</li>
+						<li>Test locale switching (Persian/English/Hijri)</li>
+						<li>
+							<strong>Hijri Calendar Testing:</strong> Select "Hijri" locale to see lunar dates in input
+							box
+						</li>
+						<li>Try multi-calendar toggle options (Persian + Hijri, etc.)</li>
+						<li>Try modal mode for overlay display</li>
+					</ul>
+				</div>
+			</div>
 		</div>
 	</div>
 </main>
 
-<style>
-	:global(body) {
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		min-height: 100vh;
-		margin: 0;
-		font-family:
-			'Inter',
-			system-ui,
-			-apple-system,
-			sans-serif;
-	}
-
-	.container {
-		padding-top: 2rem;
-		padding-bottom: 2rem;
+<style lang="scss">
+	.testing-container {
 		max-width: 1400px;
 		margin: 0 auto;
-		padding-left: 2rem;
-		padding-right: 2rem;
+		padding: 20px;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	}
 
-	.card {
-		background: white;
-		border-radius: 12px;
-		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-		padding: 2rem;
-	}
-
-	.title {
-		font-size: 2.5rem;
-		font-weight: bold;
-		color: #374151;
-		margin-bottom: 0.5rem;
+	.testing-header {
 		text-align: center;
+		margin-bottom: 30px;
+
+		h1 {
+			color: #1f2937;
+			margin-bottom: 10px;
+			font-size: 2.5rem;
+			font-weight: 700;
+		}
+
+		p {
+			color: #6b7280;
+			font-size: 1.1rem;
+		}
 	}
 
-	.subtitle {
-		font-size: 1.1rem;
-		color: #6b7280;
-		text-align: center;
-		margin-bottom: 2rem;
-	}
-
-	.grid {
+	.testing-layout {
 		display: grid;
-		gap: 2rem;
-		margin-bottom: 2rem;
-	}
+		grid-template-columns: 350px 1fr;
+		gap: 30px;
+		align-items: start;
 
-	@media (min-width: 768px) {
-		.grid {
-			grid-template-columns: repeat(2, 1fr);
+		@media (max-width: 1024px) {
+			grid-template-columns: 1fr;
+			gap: 20px;
 		}
 	}
 
-	@media (min-width: 1200px) {
-		.grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-
-	.demo-section {
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-		padding: 1.5rem;
+	.config-panel {
 		background: #f9fafb;
-	}
-
-	.section-title {
-		font-size: 1.25rem;
-		font-weight: 600;
-		color: #374151;
-		border-bottom: 2px solid #e5e7eb;
-		padding-bottom: 0.5rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.form-group {
-		margin-bottom: 1rem;
-	}
-
-	.label {
-		display: block;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: #6b7280;
-		margin-bottom: 0.5rem;
-	}
-
-	.value-display {
-		background: white;
-		padding: 0.75rem;
-		border-radius: 6px;
 		border: 1px solid #e5e7eb;
-		font-size: 0.875rem;
-		font-family: monospace;
-		min-height: 1.2rem;
-		color: #374151;
+		border-radius: 12px;
+		padding: 24px;
+		position: sticky;
+		top: 20px;
+		max-height: calc(100vh - 40px);
+		overflow-y: auto;
+
+		h2 {
+			color: #1f2937;
+			margin-bottom: 20px;
+			font-size: 1.5rem;
+			font-weight: 600;
+		}
 	}
 
 	.config-section {
-		background: #f3f4f6;
-		border-radius: 8px;
-		padding: 1.5rem;
-		margin-bottom: 2rem;
-	}
+		margin-bottom: 24px;
 
-	.config-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-		gap: 1rem;
+		h3 {
+			color: #374151;
+			margin-bottom: 12px;
+			font-size: 1.1rem;
+			font-weight: 600;
+			border-bottom: 1px solid #e5e7eb;
+			padding-bottom: 8px;
+		}
 	}
 
 	.config-item {
+		margin-bottom: 12px;
+
+		label {
+			display: block;
+			color: #4b5563;
+			font-weight: 500;
+			margin-bottom: 4px;
+			font-size: 0.9rem;
+		}
+
+		select,
+		input[type='text'] {
+			width: 100%;
+			padding: 8px 12px;
+			border: 1px solid #d1d5db;
+			border-radius: 6px;
+			font-size: 0.9rem;
+			background: white;
+
+			&:focus {
+				outline: none;
+				border-color: #3b82f6;
+				box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+			}
+		}
+
+		input[type='checkbox'] {
+			margin-right: 8px;
+		}
+
+		label:has(input[type='checkbox']) {
+			display: flex;
+			align-items: center;
+			cursor: pointer;
+		}
+	}
+
+	.config-actions {
 		display: flex;
-		flex-direction: column;
+		gap: 8px;
+		margin-top: 20px;
 	}
 
-	.config-value {
-		font-size: 0.875rem;
-		color: #374151;
-		font-family: monospace;
-		background: white;
-		padding: 0.5rem;
-		border-radius: 4px;
-		border: 1px solid #e5e7eb;
-	}
-
-	.submit-btn {
-		width: 100%;
-		background: #2563eb;
-		color: white;
-		font-weight: 500;
-		padding: 0.75rem 1.5rem;
-		border-radius: 8px;
+	.btn {
+		padding: 8px 16px;
 		border: none;
+		border-radius: 6px;
+		font-size: 0.9rem;
+		font-weight: 500;
 		cursor: pointer;
-		transition: background-color 0.2s;
-		margin-bottom: 2rem;
-		font-size: 1rem;
+		transition: all 0.2s;
+
+		&.btn-secondary {
+			background: #6b7280;
+			color: white;
+
+			&:hover {
+				background: #4b5563;
+			}
+		}
+
+		&.btn-info {
+			background: #3b82f6;
+			color: white;
+
+			&:hover {
+				background: #2563eb;
+			}
+		}
 	}
 
-	.submit-btn:hover {
-		background: #1d4ed8;
+	.testing-area {
+		background: white;
+		border: 1px solid #e5e7eb;
+		border-radius: 12px;
+		padding: 24px;
+
+		h2 {
+			color: #1f2937;
+			margin-bottom: 24px;
+			font-size: 1.5rem;
+			font-weight: 600;
+		}
+
+		h3 {
+			color: #374151;
+			margin-bottom: 16px;
+			font-size: 1.2rem;
+			font-weight: 600;
+		}
 	}
 
-	.features-section {
-		background: #f8fafc;
+	.code-snippet {
+		margin-bottom: 24px;
+		padding: 16px;
+		background: #f9fafb;
+		border: 1px solid #e5e7eb;
 		border-radius: 8px;
-		padding: 1.5rem;
-		border-left: 4px solid #2563eb;
 	}
 
-	.features-list {
-		list-style: none;
-		padding: 0;
+	.snippet-description {
+		color: #6b7280;
+		margin-bottom: 12px;
+		font-size: 0.9rem;
+	}
+
+	.code-block {
+		background: #1f2937;
+		border-radius: 8px;
+		overflow: hidden;
+		border: 1px solid #374151;
+	}
+
+	.code-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 12px 16px;
+		background: #374151;
+		border-bottom: 1px solid #4b5563;
+	}
+
+	.code-title {
+		color: #f9fafb;
+		font-size: 0.9rem;
+		font-weight: 500;
+	}
+
+	.copy-btn {
+		background: #3b82f6;
+		color: white;
+		border: none;
+		padding: 6px 12px;
+		border-radius: 4px;
+		font-size: 0.8rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s;
+
+		&:hover {
+			background: #2563eb;
+		}
+
+		&:active {
+			transform: translateY(1px);
+		}
+	}
+
+	.code-content {
+		padding: 16px;
 		margin: 0;
+		color: #f9fafb;
+		font-family: 'Monaco', 'Consolas', 'Fira Code', monospace;
+		font-size: 0.85rem;
+		line-height: 1.6;
+		overflow-x: auto;
+		white-space: pre;
+
+		code {
+			color: inherit;
+			background: none;
+			padding: 0;
+			font-family: inherit;
+		}
 	}
 
-	.features-list li {
-		padding: 0.5rem 0;
+	.datepicker-container {
+		margin-bottom: 24px;
+		padding: 20px;
+		border: 2px dashed #d1d5db;
+		border-radius: 8px;
+		background: #fafafa;
+	}
+
+	.picker-wrapper {
+		display: flex;
+		justify-content: center;
+		padding: 20px 0;
+	}
+
+	.value-display {
+		margin-bottom: 24px;
+		padding: 16px;
+		background: #f9fafb;
+		border: 1px solid #e5e7eb;
+		border-radius: 8px;
+	}
+
+	.value-explanation {
+		margin-bottom: 12px;
+		padding: 12px;
+		background: #eff6ff;
+		border: 1px solid #bfdbfe;
+		border-radius: 6px;
+
+		p {
+			margin: 4px 0;
+			font-size: 0.9rem;
+			color: #1e40af;
+		}
+	}
+
+	.value-content {
+		background: #1f2937;
+		color: #f9fafb;
+		padding: 12px;
+		border-radius: 4px;
+		font-family: 'Monaco', 'Consolas', monospace;
+		font-size: 0.9rem;
+		overflow-x: auto;
+
+		pre {
+			margin: 0;
+			white-space: pre-wrap;
+		}
+	}
+
+	.value-type {
+		margin-top: 8px;
+		font-size: 0.8rem;
+		color: #6b7280;
+		font-weight: 500;
+	}
+
+	.value-note {
+		margin-top: 12px;
+		padding: 8px;
+		background: #fef3c7;
+		border: 1px solid #f59e0b;
+		border-radius: 4px;
+		font-size: 0.85rem;
+		color: #92400e;
+	}
+	.event-log {
+		margin-bottom: 24px;
+		padding: 16px;
+		background: #f9fafb;
+		border: 1px solid #e5e7eb;
+		border-radius: 8px;
+		max-height: 300px;
+		overflow-y: auto;
+	}
+
+	.log-content {
+		font-family: 'Monaco', 'Consolas', monospace;
+		font-size: 0.85rem;
+	}
+
+	.no-events {
+		color: #9ca3af;
+		font-style: italic;
+		text-align: center;
+		padding: 20px;
+	}
+
+	.log-entry {
+		padding: 4px 0;
 		border-bottom: 1px solid #e5e7eb;
 		color: #374151;
+
+		&:last-child {
+			border-bottom: none;
+		}
 	}
 
-	.features-list li:last-child {
-		border-bottom: none;
+	.instructions {
+		padding: 20px;
+		background: #eff6ff;
+		border: 1px solid #bfdbfe;
+		border-radius: 8px;
 	}
 
-	.features-list strong {
-		color: #2563eb;
+	.instruction-content {
+		h4 {
+			color: #1e40af;
+			margin: 16px 0 8px 0;
+			font-size: 1rem;
+			font-weight: 600;
+
+			&:first-child {
+				margin-top: 0;
+			}
+		}
+
+		ul {
+			margin: 0 0 16px 0;
+			padding-left: 20px;
+
+			li {
+				color: #374151;
+				margin-bottom: 4px;
+				line-height: 1.5;
+			}
+		}
 	}
 
-	/* Custom styles for multiple selection */
+	/* Custom styles for multiple selection visual feedback */
 	:global(.pdp-multiple .pdp-day.selected) {
-		background-color: #8b5cf6 !important;
+		background-color: var(--primary-color, #3b82f6) !important;
 		color: white !important;
 		border-radius: 4px;
 		font-weight: 600;
+		position: relative;
 	}
 
 	:global(.pdp-multiple .pdp-day.selected:hover) {
-		background-color: #7c3aed !important;
+		opacity: 0.9;
+	}
+
+	:global(.pdp-multiple .pdp-day.selected::after) {
+		content: '✓';
+		position: absolute;
+		top: 2px;
+		right: 2px;
+		font-size: 10px;
+		font-weight: bold;
+	}
+
+	/* Enhanced range selection styling */
+	:global(.pdp-range .pdp-day.start-range) {
+		border-radius: 4px 0 0 4px;
+	}
+
+	:global(.pdp-range .pdp-day.end-range) {
+		border-radius: 0 4px 4px 0;
+	}
+
+	:global(.pdp-range .pdp-day.start-range.end-range) {
+		border-radius: 4px;
 	}
 </style>

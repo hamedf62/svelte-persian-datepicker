@@ -1,7 +1,7 @@
 {
 	"name": "@hamedf/svelte-persian-datepicker",
-	"version": "1.0.2",
-	"description": "A reusable Svelte Persian DateTime picker component",
+	"version": "1.0.3",
+	"description": "A comprehensive Svelte 5 Persian/Jalali DateTime picker component with multi-calendar support (Jalali, Gregorian, Hijri), multiple selection modes (single, range, multiple), and extensive customization options",
 	"homepage": "https://github.com/hamedf62/svelte-persian-datepicker",
 	"repository": {
 		"type": "git",
@@ -10,18 +10,27 @@
 	"documentation": "https://alireza-ab.ir/datepicker",
 	"keywords": [
 		"svelte",
-		"datepicker",
-		"component",
-		"persian-datepicker",
-		"persian",
-		"persian-calendar",
-		"persian",
 		"svelte5",
+		"datepicker",
+		"persian-datepicker",
+		"jalali-datepicker",
 		"datetime-picker",
 		"time-picker",
 		"range-picker",
+		"persian-calendar",
+		"jalali-calendar",
+		"hijri-calendar",
+		"gregorian-calendar",
+		"multi-calendar",
+		"calendar-component",
+		"date-selection",
+		"persian",
 		"jalali",
-		"jalali-date-picker"
+		"farsi",
+		"arabic",
+		"component",
+		"ui-component",
+		"form-control"
 	],
 	"author": {
 		"name": "Hamed Fallah",
@@ -31,14 +40,16 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"package": "svelte-package",
+		"package": "svelte-package && echo 'Package built successfully for distribution'",
 		"build": "vite build && npm run package",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
+		"prepare": "svelte-kit sync || echo 'Prepare step completed'",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
-		"lint": "prettier --check ."
+		"lint": "prettier --check .",
+		"test:e2e": "cypress run",
+		"test:component": "cypress run --component"
 	},
 	"files": [
 		"dist",

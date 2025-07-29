@@ -275,3 +275,120 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 | Persian calendar | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Keyboard navigation | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Custom validation | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+## 🤖 AI/LLM Integration Guide
+
+This component has been optimized for AI coding assistants and LLMs. Here's how to work with it effectively:
+
+### 📋 Quick Reference for AI Agents
+
+```javascript
+// COMPONENT SIGNATURE FOR AI REFERENCE
+/**
+ * @component PersianDatePicker
+ * @description A comprehensive Svelte 5 Persian/Jalali DateTime picker
+ * @props {Object} Props - See interface below for all available props
+ * @bindable model - The selected date(s) value
+ * @example
+ * // Single date selection
+ * <DatePicker bind:model={selectedDate} />
+ * 
+ * // Range selection  
+ * <DatePicker mode="range" bind:model={dateRange} />
+ * 
+ * // Multiple dates
+ * <DatePicker mode="multiple" bind:model={multipleDates} />
+ * 
+ * // With custom validation
+ * <DatePicker 
+ *   bind:model={date}
+ *   from="1400/01/01" 
+ *   to="1405/12/29"
+ *   disable={['1403/01/01', '1403/05/15']}
+ * />
+ */
+```
+
+### 🎯 Common AI Prompts & Solutions
+
+#### For Setting Up Basic Date Selection:
+```typescript
+// AI: "Create a basic Persian date picker"
+let selectedDate: string;
+
+<DatePicker 
+  bind:model={selectedDate}
+  locale="fa"
+  type="date"
+  mode="single"
+/>
+```
+
+#### For Range Selection:
+```typescript  
+// AI: "Create a date range picker for Persian calendar"
+let dateRange: string[];
+
+<DatePicker
+  bind:model={dateRange}
+  mode="range"
+  locale="fa"
+  dual_input={true}
+/>
+```
+
+#### For Time Selection:
+```typescript
+// AI: "Add time picker functionality"
+let selectedTime: string;
+
+<DatePicker
+  bind:model={selectedTime}
+  type="time"
+  from="08:00"
+  to="20:00"
+/>
+```
+
+#### For Multi-Calendar Support:
+```typescript
+// AI: "Support both Persian and Gregorian calendars"
+let date: string;
+
+<DatePicker
+  bind:model={date}
+  locale="fa,en"
+  input_calendar="auto"
+/>
+```
+
+### 🔧 Props Reference for AI
+
+**Essential Props for Common Use Cases:**
+- `bind:model` - The selected date value(s) - ALWAYS BINDABLE
+- `mode` - Selection type: "single" | "range" | "multiple"
+- `type` - Picker type: "date" | "time" | "datetime"  
+- `locale` - Language/calendar: "fa" | "en" | "ar" | "fa,en"
+- `from`/`to` - Date boundaries (e.g., "1400/01/01", "1405/12/29")
+- `disable` - Disabled dates/times (array, function, or regex)
+
+**Styling & UI Props:**
+- `color` - Theme: "blue" | "red" | "pink" | "orange" | "green" | "purple" | "gray"
+- `dual_input` - Separate inputs for range mode
+- `modal` - Show as modal overlay
+- `clearable` - Show clear button
+
+**Advanced Props:**
+- `format` - Model data format (always Gregorian)
+- `input_format` - Input parsing format
+- `display_format` - UI display format
+- `input_calendar` - Calendar for input: "auto" | "jalali" | "gregorian"
+
+### 💡 AI Best Practices
+
+1. **Always use `bind:model`** for data binding
+2. **Check `mode` prop** for selection behavior
+3. **Use `from`/`to` props** for date boundaries
+4. **Use `disable` prop** for validation rules
+5. **Set `locale` appropriately** for language/calendar
+6. **Consider `dual_input`** for better range UX
