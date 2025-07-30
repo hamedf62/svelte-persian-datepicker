@@ -7,6 +7,9 @@
 		"type": "git",
 		"url": "https://github.com/hamedf62/svelte-persian-datepicker.git"
 	},
+	"bugs": {
+		"url": "https://github.com/hamedf62/svelte-persian-datepicker/issues"
+	},
 	"documentation": "https://alireza-ab.ir/datepicker",
 	"keywords": [
 		"svelte",
@@ -38,10 +41,16 @@
 	},
 	"license": "MIT",
 	"type": "module",
+	"main": "./dist/DatePicker.svelte",
+	"module": "./dist/DatePicker.svelte",
+	"svelte": "./dist/DatePicker.svelte",
+	"types": "./dist/DatePicker.svelte.d.ts",
+	"sideEffects": false,
 	"scripts": {
 		"dev": "vite dev",
-		"package": "rm -rf dist && svelte-package && echo 'Package built successfully for distribution'",
-		"build": "vite build && npm run package",
+		"package": "svelte-package",
+		"build": "vite build",
+		"build:package": "vite build && npm run package",
 		"build:gh-pages": "BASE_PATH=/svelte-persian-datepicker vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo 'Prepare step completed'",
@@ -51,12 +60,12 @@
 		"lint": "prettier --check .",
 		"test:e2e": "cypress run",
 		"test:component": "cypress run --component",
-		"prepublishOnly": "npm run build"
+		"prepublishOnly": "npm run package"
 	},
 	"files": [
 		"dist",
 		"README.md",
-		"CHANGELOG.md",
+		"LICENSE",
 		"!dist/**/*.test.*",
 		"!dist/**/*.spec.*"
 	],
@@ -69,13 +78,16 @@
 		"./ai-guide": {
 			"types": "./dist/ai-guide.d.ts",
 			"import": "./dist/ai-guide.js",
-			"require": "./dist/ai-guide.js"
-		}
+			"default": "./dist/ai-guide.js"
+		},
+		"./package.json": "./package.json"
 	},
-	"svelte": "./dist/DatePicker.svelte",
-	"types": "./dist/DatePicker.svelte.d.ts",
 	"peerDependencies": {
 		"svelte": "^5.0.0"
+	},
+	"engines": {
+		"node": ">=18.0.0",
+		"pnpm": ">=8.0.0"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^4.0.0",
