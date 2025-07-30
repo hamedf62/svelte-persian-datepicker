@@ -1,6 +1,6 @@
 {
 	"name": "@hamedf/svelte-persian-datepicker",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "A comprehensive Svelte 5 Persian/Jalali DateTime picker component with multi-calendar support (Jalali, Gregorian, Hijri), multiple selection modes (single, range, multiple), and extensive customization options",
 	"homepage": "https://github.com/hamedf62/svelte-persian-datepicker",
 	"repository": {
@@ -41,7 +41,8 @@
 	"scripts": {
 		"dev": "vite dev",
 		"package": "svelte-package && echo 'Package built successfully for distribution'",
-		"build": "vite build && npm run package",
+		"build": "vite build",
+		"build:gh-pages": "BASE_PATH=/svelte-persian-datepicker vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo 'Prepare step completed'",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

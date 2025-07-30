@@ -1,5 +1,7 @@
 # Persian DatePicker Component (Svelte 5)
 
+**🌟 [Live Demo](https://hamedf62.github.io/svelte-persian-datepicker/) 🌟**
+
 A highly customizable and feature-rich date picker component built with Svelte 5, supporting Persian (Jalali), Gregorian, and Arabic calendars. This component is inspired by and converted from [Alireza's Vue3 Persian DatePicker](https://github.com/alireza-ab/vue3-persian-datepicker).
 
 ## ✨ Features

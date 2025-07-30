@@ -1,0 +1,2 @@
+# This file tells GitHub Pages to skip Jekyll processing
+# This is required for SvelteKit static sites to work correctly
