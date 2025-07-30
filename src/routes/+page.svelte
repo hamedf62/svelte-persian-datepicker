@@ -3,10 +3,28 @@
 	import { base } from '$app/paths';
 
 	// Configuration state for testing
-	let config = $state({
-		type: 'date' as 'date' | 'time' | 'datetime',
-		mode: 'single' as 'single' | 'range' | 'multiple',
-		color: 'blue' as 'blue' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray',
+	let config: {
+		type: 'date' | 'time' | 'datetime';
+		mode: 'single' | 'range' | 'multiple';
+		color: 'blue' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray';
+		locale: string;
+		column: number;
+		clearable: boolean;
+		auto_submit: boolean;
+		dual_input: boolean;
+		icon_inside: boolean;
+		shortcut: boolean;
+		modal: boolean;
+		from: Date | undefined;
+		to: Date | undefined;
+		format: string;
+		input_format: string;
+		display_format: string;
+		input_calendar: 'auto' | 'jalali' | 'gregorian';
+	} = $state({
+		type: 'date',
+		mode: 'single',
+		color: 'blue',
 		locale: 'fa',
 		column: 1,
 		clearable: true,
@@ -15,12 +33,12 @@
 		icon_inside: false,
 		shortcut: false,
 		modal: false,
-		from: '1300',
-		to: '1430',
+		from: new Date('1921-03-22'), // Persian year 1300
+		to: new Date('2051-03-21'), // Persian year 1430
 		format: 'YYYY-MM-DD',
 		input_format: 'YYYY-MM-DD',
 		display_format: 'YYYY-MM-DD',
-		input_calendar: 'auto' as 'auto' | 'jalali' | 'gregorian'
+		input_calendar: 'auto'
 	});
 
 	// Values for different modes
@@ -33,20 +51,20 @@
 			config.format = 'HH:mm';
 			config.input_format = 'HH:mm';
 			config.display_format = 'HH:mm';
-			config.from = '00:00';
-			config.to = '23:59';
+			config.from = undefined; // Time type doesn't use date bounds
+			config.to = undefined;
 		} else if (config.type === 'datetime') {
 			config.format = 'YYYY-MM-DD HH:mm';
 			config.input_format = 'YYYY-MM-DD HH:mm';
 			config.display_format = 'YYYY-MM-DD HH:mm';
-			config.from = '1300';
-			config.to = '1430';
+			config.from = new Date('1921-03-22'); // Persian year 1300
+			config.to = new Date('2051-03-21'); // Persian year 1430
 		} else {
 			config.format = 'YYYY-MM-DD';
 			config.input_format = 'YYYY-MM-DD';
 			config.display_format = 'YYYY-MM-DD';
-			config.from = '1300';
-			config.to = '1430';
+			config.from = new Date('1921-03-22'); // Persian year 1300
+			config.to = new Date('2051-03-21'); // Persian year 1430
 		}
 	});
 
@@ -131,8 +149,14 @@
 
 		// Date range props (only for date/datetime types)
 		if (config.type !== 'time') {
-			if (config.from !== '1300') snippet += `\tfrom="${config.from}"\n`;
-			if (config.to !== '1430') snippet += `\tto="${config.to}"\n`;
+			const defaultFrom = new Date('1921-03-22'); // Persian year 1300
+			const defaultTo = new Date('2051-03-21'); // Persian year 1430
+			if (config.from && config.from.getTime() !== defaultFrom.getTime()) {
+				snippet += `\tfrom={new Date('${config.from.toISOString().split('T')[0]}')}\n`;
+			}
+			if (config.to && config.to.getTime() !== defaultTo.getTime()) {
+				snippet += `\tto={new Date('${config.to.toISOString().split('T')[0]}')}\n`;
+			}
 		}
 
 		// Format props (only if different from defaults)

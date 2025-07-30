@@ -4,17 +4,17 @@
 
 	// Convert Persian dates to JavaScript Date objects
 	// 1405/01/01 ≈ March 21, 2026
-	const fromDate = new Date('2025');
+	const fromDate = new Date('2025-01-01');
 	// 1407/12/29 ≈ March 19, 2029
 	const toDate = new Date('2025-08-19');
 
 	// Test different scenarios
-	// let testValue2 = $state<string[]>([]);
-	// let testValue3 = $state<string[]>([]);
+	let testValue2 = $state<string[]>([]);
+	let testValue3 = $state<string[]>([]);
 
 	// Time picker test - Date objects for time should only affect the time part
-	// const fromTime = new Date('2024-01-01T09:00:00');
-	// const toTime = new Date('2024-01-01T18:00:00');
+	const fromTime = new Date('2024-01-01T09:00:00');
+	const toTime = new Date('2024-01-01T18:00:00');
 </script>
 
 <div>
@@ -32,14 +32,22 @@
 	/>
 	<p>Selected Date: {testValue && testValue.length ? testValue.join(' to ') : 'None'}</p>
 	<p>
-		From Date Object: {fromDate.toISOString().split('T')[0]} (Persian: {new PersianDate(
-			fromDate
-		).toString()})
+		From Date Object: {fromDate.toISOString().split('T')[0]} (Persian: {(() => {
+			try {
+				return new PersianDate(fromDate).toString();
+			} catch (e) {
+				return 'Error converting date';
+			}
+		})()})
 	</p>
-	<!-- <p>
-		To Date Object: {toDate.toISOString().split('T')[0]} (Persian: {new PersianDate(
-			toDate
-		).toString()})
+	<p>
+		To Date Object: {toDate.toISOString().split('T')[0]} (Persian: {(() => {
+			try {
+				return new PersianDate(toDate).toString();
+			} catch (e) {
+				return 'Error converting date';
+			}
+		})()})
 	</p>
 
 	<hr />
@@ -65,7 +73,7 @@
 		Time bounds: {fromTime.toTimeString().substring(0, 5)} to {toTime
 			.toTimeString()
 			.substring(0, 5)}
-	</p> -->
+	</p>
 </div>
 
 <style>

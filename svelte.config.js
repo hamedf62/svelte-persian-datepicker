@@ -19,7 +19,7 @@ const config = {
 			assets: 'build',
 			fallback: undefined,
 			precompress: false,
-			strict: true
+			strict: false // Allow dynamic routes for development pages
 		}),
 		paths: {
 			base: dev ? '' : process.env.BASE_PATH
