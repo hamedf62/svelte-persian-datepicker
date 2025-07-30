@@ -32,7 +32,7 @@
 	 * This component supports Jalali (Persian), Gregorian, and Hijri calendars
 	 * with various selection modes and customization options.
 	 */
-	interface Props {
+	export interface DatePickerProps {
 		/**
 		 * Callback fired when a date is selected (but not necessarily submitted)
 		 * @example <DatePicker select={(date) => console.log('Selected:', date.toString())} />
@@ -115,17 +115,17 @@
 
 		/**
 		 * Minimum selectable date/time
-		 * @default '1300' for date/datetime, '' for time
-		 * @example from="1400/01/01" or from="09:00" for time
+		 * @default new Date() set to year 1921 for date/datetime, undefined for time
+		 * @example from={new Date('2024-01-01')} or leave undefined for time
 		 */
-		from?: string;
+		from?: Date;
 
 		/**
 		 * Maximum selectable date/time
-		 * @default '1430' for date/datetime, '23:59' for time
-		 * @example to="1410/12/29" or to="18:00" for time
+		 * @default new Date() set to year 2051 for date/datetime, undefined for time
+		 * @example to={new Date('2030-12-31')} or leave undefined for time
 		 */
-		to?: string;
+		to?: Date;
 
 		/**
 		 * Controls whether the datepicker is initially visible
@@ -219,7 +219,7 @@
 		 * Pre-defined color theme for the datepicker
 		 * @default undefined (uses default theme)
 		 */
-		color?: 'blue' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray';
+		color?: 'primary' | 'blue' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray';
 
 		/**
 		 * Use separate input fields for range selection (from/to inputs)
@@ -244,20 +244,24 @@
 		shortcut?: boolean | Shortcuts;
 	}
 
+	// Type alias for internal use - this helps TypeScript understand the component's props
+	type Props = DatePickerProps;
+	type $$Props = Props;
+
 	let {
-		select: onSelect = () => {}, // Default to no-op function,
-		submit: onSubmit = () => {}, // Default to no-op function,
-		clear: onClear = () => {}, // Default to no-op function,
-		open: onOpen = () => {}, // Default to no-op function
-		close: onClose = () => {}, // Default to no-op function
+		select: onSelect = () => {},
+		submit: onSubmit = () => {},
+		clear: onClear = () => {},
+		open: onOpen = () => {},
+		close: onClose = () => {},
 		model: modelValueProp = $bindable(),
 		format: formatProp,
 		input_format: inputFormatProp,
 		display_format: displayFormatProp,
 		input_calendar: inputCalendarProp = 'auto',
 		type: typeProp = 'date',
-		from: fromProp = typeProp === 'time' ? '' : '1300',
-		to: toProp = typeProp === 'time' ? '23:59' : '1430',
+		from: fromProp = typeProp === 'time' ? undefined : new Date('1921-03-22'), // Persian year 1300
+		to: toProp = typeProp === 'time' ? undefined : new Date('2051-03-21'), // Persian year 1430
 		show: showProp = false,
 		click_on: clickOnProp = 'all',
 		modal: modalProp = false,
@@ -371,11 +375,25 @@
 
 	/**
 	 * Default date range configuration for validation and boundaries
-	 * Combines date and time components for datetime type
+	 * Handles both Date objects and undefined values for time type
 	 */
 	let defaultDate = $derived({
-		from: (typeProp === 'time' ? coreState.toString('jYYYY/jMM/jDD') + ' ' : '') + fromProp,
-		to: (typeProp === 'time' ? coreState.toString('jYYYY/jMM/jDD') + ' ' : '') + toProp
+		from:
+			typeProp === 'time'
+				? fromProp
+					? new PersianDate(fromProp).toString('HH:mm')
+					: '00:00'
+				: fromProp
+					? new PersianDate(fromProp)
+					: new PersianDate('1300'),
+		to:
+			typeProp === 'time'
+				? toProp
+					? new PersianDate(toProp).toString('HH:mm')
+					: '23:59'
+				: toProp
+					? new PersianDate(toProp)
+					: new PersianDate('1430')
 	});
 
 	/** Minimum selectable date/time boundary */
@@ -389,12 +407,26 @@
 	 * Updates whenever defaultDate, lang, or related dependencies change
 	 */
 	$effect(() => {
-		fromDateState = coreState.clone().parse(defaultDate.from).calendar(lang.calendar);
-		toDateState = coreState
-			.clone()
-			.parse(defaultDate.to)
-			.endOf(Core.getLastUnit(toProp, typeProp))
-			.calendar(lang.calendar);
+		if (typeProp === 'time') {
+			// For time type, use current date with time boundaries
+			const currentDate = coreState.toString('jYYYY/jMM/jDD');
+			fromDateState = coreState
+				.clone()
+				.parse(currentDate + ' ' + defaultDate.from)
+				.calendar(lang.calendar);
+			toDateState = coreState
+				.clone()
+				.parse(currentDate + ' ' + defaultDate.to)
+				.calendar(lang.calendar);
+		} else {
+			// For date/datetime type, use the PersianDate objects directly
+			fromDateState = (
+				defaultDate.from instanceof PersianDate ? defaultDate.from : coreState.clone()
+			).calendar(lang.calendar);
+			toDateState = (defaultDate.to instanceof PersianDate ? defaultDate.to : coreState.clone())
+				.endOf('date') // Default to end of date for Date objects
+				.calendar(lang.calendar);
+		}
 	});
 
 	// ====================================================================
@@ -409,10 +441,10 @@
 
 		// Initialize component with model value if provided
 		const val = modelValueProp as string | string[];
-		if (val) {
+		if (val && (typeof val === 'string' || (Array.isArray(val) && val.length > 0))) {
 			setDate(val);
 		} else {
-			// Set default display to today if no model value provided
+			// Set default display to today if no model value provided or empty array
 			const today = () => coreState.clone();
 			if (typeProp == 'date') today().startOf('date');
 			if (checkDate(today(), 'date')) {
@@ -1449,7 +1481,7 @@
 	}
 
 	function setDate(dates: string | string[]) {
-		if (!dates) return;
+		if (!dates || (Array.isArray(dates) && dates.length === 0)) return;
 
 		if (modeProp == 'single' && typeof dates === 'string') dates = [dates];
 		selectedDatesState = [];
