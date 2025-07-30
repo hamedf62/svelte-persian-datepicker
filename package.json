@@ -40,8 +40,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"package": "svelte-package && echo 'Package built successfully for distribution'",
-		"build": "vite build",
+		"package": "rm -rf dist && svelte-package && echo 'Package built successfully for distribution'",
+		"build": "vite build && npm run package",
 		"build:gh-pages": "BASE_PATH=/svelte-persian-datepicker vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo 'Prepare step completed'",
@@ -50,10 +50,13 @@
 		"format": "prettier --write .",
 		"lint": "prettier --check .",
 		"test:e2e": "cypress run",
-		"test:component": "cypress run --component"
+		"test:component": "cypress run --component",
+		"prepublishOnly": "npm run build"
 	},
 	"files": [
 		"dist",
+		"README.md",
+		"CHANGELOG.md",
 		"!dist/**/*.test.*",
 		"!dist/**/*.spec.*"
 	],
@@ -62,6 +65,11 @@
 			"types": "./dist/DatePicker.svelte.d.ts",
 			"svelte": "./dist/DatePicker.svelte",
 			"default": "./dist/DatePicker.svelte"
+		},
+		"./ai-guide": {
+			"types": "./dist/ai-guide.d.ts",
+			"import": "./dist/ai-guide.js",
+			"require": "./dist/ai-guide.js"
 		}
 	},
 	"svelte": "./dist/DatePicker.svelte",
