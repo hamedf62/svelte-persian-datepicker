@@ -1,6 +1,5 @@
 <script lang="ts">
 	import DatePicker, { PersianDate } from '$lib/DatePicker.svelte';
-	import { base } from '$app/paths';
 
 	// Configuration state for testing
 	let config: {

@@ -74,13 +74,7 @@
 			"types": "./dist/DatePicker.svelte.d.ts",
 			"svelte": "./dist/DatePicker.svelte",
 			"default": "./dist/DatePicker.svelte"
-		},
-		"./ai-guide": {
-			"types": "./dist/ai-guide.d.ts",
-			"import": "./dist/ai-guide.js",
-			"default": "./dist/ai-guide.js"
-		},
-		"./package.json": "./package.json"
+		}
 	},
 	"peerDependencies": {
 		"svelte": "^5.0.0"
@@ -91,19 +85,20 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^4.0.0",
-		"@sveltejs/adapter-static": "^3.0.8",
-		"@sveltejs/kit": "^2.26.1",
-		"@sveltejs/package": "^2.4.0",
+		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/kit": "^2.49.0",
+		"@sveltejs/package": "^2.5.7",
 		"@sveltejs/vite-plugin-svelte": "^5.1.1",
-		"cypress": "^14.5.3",
-		"prettier": "^3.6.2",
+		"cypress": "^14.5.4",
+		"prettier": "^3.7.1",
 		"prettier-plugin-svelte": "^3.4.0",
-		"sass": "^1.89.2",
-		"sass-embedded": "^1.89.2",
-		"svelte": "^5.37.1",
-		"svelte-check": "^4.3.0",
-		"typescript": "^5.8.3",
-		"vite": "^6.3.5"
+		"sass": "^1.94.2",
+		"sass-embedded": "^1.93.3",
+		"svelte": "^5.45.2",
+		"svelte-check": "^4.3.4",
+		"svelte-preprocess": "^6.0.3",
+		"typescript": "^5.9.3",
+		"vite": "^6.4.1"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [

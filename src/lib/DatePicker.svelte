@@ -27,6 +27,20 @@
 	import PDPIcon from './components/PDPIcon.svelte';
 	import PDPAlt from './components/PDPAlt.svelte';
 
+	function safePersianDate(date: Date | string | number | PersianDate): PersianDate {
+		if (date instanceof Date) {
+			return new PersianDate([
+				date.getFullYear(),
+				date.getMonth() + 1,
+				date.getDate(),
+				date.getHours(),
+				date.getMinutes(),
+				date.getSeconds()
+			]);
+		}
+		return new PersianDate(date);
+	}
+
 	/**
 	 * Props interface for the Persian DatePicker component
 	 * This component supports Jalali (Persian), Gregorian, and Hijri calendars
@@ -381,18 +395,18 @@
 		from:
 			typeProp === 'time'
 				? fromProp
-					? new PersianDate(fromProp).toString('HH:mm')
+					? safePersianDate(fromProp).toString('HH:mm')
 					: '00:00'
 				: fromProp
-					? new PersianDate(fromProp)
+					? safePersianDate(fromProp)
 					: new PersianDate('1300'),
 		to:
 			typeProp === 'time'
 				? toProp
-					? new PersianDate(toProp).toString('HH:mm')
+					? safePersianDate(toProp).toString('HH:mm')
 					: '23:59'
 				: toProp
-					? new PersianDate(toProp)
+					? safePersianDate(toProp)
 					: new PersianDate('1430')
 	});
 
