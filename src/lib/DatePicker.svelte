@@ -838,7 +838,7 @@
 			const displayDate = selectedDatesState.map((el) => {
 				// Use the configured input display calendar
 				const calendarDate = el.clone().calendar(inputDisplayCalendar as 'jalali' | 'gregorian');
-				return calendarDate.toString();
+				return calendarDate.toString(formats.input);
 			});
 			if (dualInputProp) {
 				displayValueState = displayDate;
