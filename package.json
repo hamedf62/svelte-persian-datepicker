@@ -1,6 +1,6 @@
 {
 	"name": "@hamedf/svelte-persian-datepicker",
-	"version": "1.0.12",
+	"version": "1.0.13",
 	"description": "A comprehensive Svelte 5 Persian/Jalali DateTime picker component with multi-calendar support (Jalali, Gregorian, Hijri), multiple selection modes (single, range, multiple), and extensive customization options",
 	"homepage": "https://github.com/hamedf62/svelte-persian-datepicker",
 	"repository": {
