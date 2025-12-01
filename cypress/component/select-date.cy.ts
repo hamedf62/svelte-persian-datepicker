@@ -2,14 +2,14 @@
 
 describe('select date - range', () => {
   before(() => {
-    cy.changeProps();
+    cy.changeProps('mode', 'range');
     cy.changeSlots();
   });
 
   it('with click on dates', () => {
     cy.get('.pdp-input').focus();
-    cy.contains('10').click();
-    cy.contains('15').click();
+    cy.get('.pdp-day').not('.empty').not('.disabled').contains('10').click();
+    cy.get('.pdp-day').not('.empty').not('.disabled').contains('15').click();
     cy.get('.pdp-input').should('have.value', '1399/06/10 - 1399/06/15');
   });
 
@@ -26,6 +26,7 @@ describe('select date - range', () => {
     cy.get('.pdp-input')
       .focus()
       .type('1399/06/10{enter}')
+      .clear()
       .type('1399/06/15{enter}')
       .should('have.value', '1399/06/10 - 1399/06/15');
   });
@@ -38,7 +39,7 @@ describe('select date - single', () => {
 
   it('with click on dates', () => {
     cy.get('.pdp-input').focus();
-    cy.contains('10').click();
+    cy.get('.pdp-day').not('.empty').not('.disabled').contains('10').click();
     cy.get('.pdp-input').should('have.value', '1399/06/10');
   });
 
@@ -60,7 +61,7 @@ describe('select date - single', () => {
 
 describe('select date with disable date - single', () => {
   before(() => {
-    cy.changeProps('disable', '1399/6/5');
+    cy.changeProps('disable', '1399/06/05');
   });
 
   it('with click on dates', () => {
@@ -96,18 +97,18 @@ describe('select date with disable date - single', () => {
 
 describe('select date with disable date - range', () => {
   before(() => {
-    cy.changeProps({ disable: '1399/6/5', mode: 'range' });
+    cy.changeProps({ disable: '1399/06/05', mode: 'range' });
   });
 
   it('with click on dates', () => {
     cy.get('.pdp-input').focus();
     cy.contains('5').click();
     cy.get('.pdp-input').should('have.value', '');
-    cy.get('.pdp-day[value="3"]').first().click();
+    cy.get('.pdp-day').contains(/^3$/).click();
     cy.get('.pdp-day.start-range').should('contain.text', '3');
-    cy.get('.pdp-day[value="6"]').first().click();
-    cy.get('.pdp-day[value="5"]').first().click();
-    cy.get('.pdp-day[value="4"]').first().click();
+    cy.get('.pdp-day').contains(/^6$/).click();
+    cy.get('.pdp-day').contains(/^5$/).click();
+    cy.get('.pdp-day').contains(/^4$/).click();
     cy.get('.pdp-input')
       .focus()
       .should('have.value', '1399/06/03 - 1399/06/04');
@@ -137,9 +138,10 @@ describe('select date with disable date - range', () => {
       .should('have.value', '1399/06/05')
       .clear()
       .type('1399/06/03{enter}')
-      .should('have.value', '');
+      .should('have.value', '1399/06/03');
     cy.get('.pdp-day.start-range').should('contain.text', '3');
     cy.get('.pdp-input')
+      .clear()
       .type('1399/06/06{enter}')
       .should('have.value', '1399/06/06')
       .clear()
@@ -178,6 +180,7 @@ describe('select date in en locale - range', () => {
     cy.get('.pdp-input')
       .focus()
       .type('2020-09-10{enter}')
+      .clear()
       .type('2020-09-15{enter}')
       .should('have.value', '2020-09-10 - 2020-09-15');
   });

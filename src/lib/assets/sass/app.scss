@@ -108,7 +108,6 @@
 .font-fa,
 .pdp {
   direction: rtl;
-  font-family: Shabnam;
 }
 
 .pdp {
@@ -215,7 +214,6 @@
         border-top-right-radius: var(--radius);
         border-bottom-right-radius: variable.$radius;
         border-bottom-right-radius: var(--radius);
-        font-family: sans-serif;
       }
 
       .pdp-clear {
@@ -402,13 +400,7 @@
         }
       }
 
-      .pdp-select-year,
-      .pdp-days,
-      .pdp-header .pdp-year,
-      .pdp-footer small,
-      .pdp-time {
-        font-family: sans-serif !important;
-      }
+
 
       .pdp-shortcut {
         border-right: unset;

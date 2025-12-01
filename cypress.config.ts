@@ -46,10 +46,10 @@ export default defineConfig({
     // specPattern: "cypress/*/*.ts",
   },
 
-  // e2e: {
-  //   supportFile: 'cypress/support/e2e.ts',
-  //   setupNodeEvents(on, config) {
-  //     // implement node event listeners here
-  //   },
-  // },
+  e2e: {
+    supportFile: 'cypress/support/e2e.ts',
+    setupNodeEvents(on, config) {
+      // implement node event listeners here
+    },
+  },
 });
