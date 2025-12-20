@@ -7,6 +7,7 @@ A highly customizable and feature-rich date picker component built with Svelte 5
 ## ✨ Features
 
 ### 📅 Selection Modes
+
 - **Single Date**: Select one date
 - **Date Range**: Select from one date to another
 - **Multiple Dates**: Select multiple individual dates (click to toggle)
@@ -15,12 +16,14 @@ A highly customizable and feature-rich date picker component built with Svelte 5
 - **DateTime Range**: Select from one datetime to another datetime
 
 ### 🌍 Localization & Calendar Support
+
 - **Persian (Jalali)**: Full support for Persian calendar
 - **Gregorian**: Standard international calendar
 - **Arabic**: Arabic calendar support
 - **RTL/LTR**: Automatic direction support based on locale
 
 ### 🎨 Customization
+
 - **Colors**: Multiple color themes (blue, red, pink, orange, green, purple, gray)
 - **Formats**: Customizable display formats, input formats
 - **Styles**: Full CSS customization support
@@ -28,6 +31,7 @@ A highly customizable and feature-rich date picker component built with Svelte 5
 - **Shortcuts**: Predefined shortcuts for quick selections
 
 ### 💡 User Experience
+
 - **Clearable Input**: Option to clear selected dates
 - **Auto Submit**: Automatic submission on selection
 - **Keyboard Navigation**: Full keyboard support
@@ -49,128 +53,134 @@ yarn add @hamedf/svelte-persian-datepicker
 
 ```svelte
 <script>
-  import DatePicker from '@hamedf/svelte-persian-datepicker';
-  
-  let selectedDate = '';
-  
-  function handleSubmit(date) {
-    console.log('Selected date:', date);
-  }
+	import DatePicker from '@hamedf/svelte-persian-datepicker';
+
+	let selectedDate = '';
+
+	function handleSubmit(date) {
+		console.log('Selected date:', date);
+	}
 </script>
 
 <DatePicker
-  bind:model={selectedDate}
-  mode="single"
-  type="date"
-  submit={handleSubmit}
-  color="blue"
-  clearable={true}
+	bind:model={selectedDate}
+	mode="single"
+	type="date"
+	submit={handleSubmit}
+	color="blue"
+	clearable={true}
 />
 ```
 
 ## 🎯 Usage Examples
 
 ### Single Date Selection
+
 ```svelte
 <DatePicker
-  bind:model={singleDate}
-  mode="single"
-  type="date"
-  submit={handleSingleDate}
-  color="blue"
+	bind:model={singleDate}
+	mode="single"
+	type="date"
+	submit={handleSingleDate}
+	color="blue"
 />
 ```
 
 ### Date Range Selection
+
 ```svelte
 <DatePicker
-  bind:model={dateRange}
-  mode="range"
-  type="date"
-  submit={handleDateRange}
-  color="green"
+	bind:model={dateRange}
+	mode="range"
+	type="date"
+	submit={handleDateRange}
+	color="green"
 />
 ```
 
 ### Multiple Date Selection
+
 ```svelte
 <DatePicker
-  bind:model={multipleDates}
-  mode="multiple"
-  type="date"
-  submit={handleMultipleDates}
-  color="purple"
-  auto_submit={false}
+	bind:model={multipleDates}
+	mode="multiple"
+	type="date"
+	submit={handleMultipleDates}
+	color="purple"
+	auto_submit={false}
 />
 ```
 
 ### Time Selection
+
 ```svelte
 <DatePicker
-  bind:model={selectedTime}
-  mode="single"
-  type="time"
-  input_format="HH:mm"
-  submit={handleTime}
-  color="orange"
+	bind:model={selectedTime}
+	mode="single"
+	type="time"
+	input_format="HH:mm"
+	submit={handleTime}
+	color="orange"
 />
 ```
 
 ### DateTime Selection
+
 ```svelte
 <DatePicker
-  bind:model={selectedDateTime}
-  mode="single"
-  type="datetime"
-  input_format="YYYY-MM-DD HH:mm"
-  submit={handleDateTime}
-  color="red"
+	bind:model={selectedDateTime}
+	mode="single"
+	type="datetime"
+	input_format="YYYY-MM-DD HH:mm"
+	submit={handleDateTime}
+	color="red"
 />
 ```
 
 ### DateTime Range Selection
+
 ```svelte
 <DatePicker
-  bind:model={dateTimeRange}
-  mode="range"
-  type="datetime"
-  input_format="YYYY-MM-DD HH:mm"
-  submit={handleDateTimeRange}
-  color="pink"
+	bind:model={dateTimeRange}
+	mode="range"
+	type="datetime"
+	input_format="YYYY-MM-DD HH:mm"
+	submit={handleDateTimeRange}
+	color="pink"
 />
 ```
 
 ## ⚙️ Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `model` | `string \| string[] \| PersianDate \| PersianDate[]` | `undefined` | The selected value(s) |
-| `mode` | `'single' \| 'range' \| 'multiple'` | `'single'` | Selection mode |
-| `type` | `'date' \| 'time' \| 'datetime'` | `'date'` | Type of picker |
-| `format` | `string` | `undefined` | Output format |
-| `input_format` | `string` | `undefined` | Input format |
-| `display_format` | `string` | `undefined` | Display format |
-| `color` | `'blue' \| 'red' \| 'pink' \| 'orange' \| 'green' \| 'purple' \| 'gray'` | `undefined` | Color theme |
-| `locale` | `string` | `'fa'` | Locale (fa, en, ar) |
-| `clearable` | `boolean` | `true` | Show clear button |
-| `auto_submit` | `boolean` | `true` | Auto submit on selection |
-| `modal` | `boolean` | `false` | Display as modal |
-| `dual_input` | `boolean` | `false` | Separate inputs for range |
-| `shortcut` | `boolean \| object` | `false` | Enable shortcuts |
-| `column` | `number \| object` | `1` | Number of calendar columns |
-| `from` | `string` | `'1300'` | Minimum date/time |
-| `to` | `string` | `'1430'` | Maximum date/time |
-| `disable` | `object` | `undefined` | Disable rules |
+| Prop             | Type                                                                     | Default     | Description                |
+| ---------------- | ------------------------------------------------------------------------ | ----------- | -------------------------- |
+| `model`          | `string \| string[] \| PersianDate \| PersianDate[]`                     | `undefined` | The selected value(s)      |
+| `mode`           | `'single' \| 'range' \| 'multiple'`                                      | `'single'`  | Selection mode             |
+| `type`           | `'date' \| 'time' \| 'datetime'`                                         | `'date'`    | Type of picker             |
+| `format`         | `string`                                                                 | `undefined` | Output format              |
+| `input_format`   | `string`                                                                 | `undefined` | Input format               |
+| `display_format` | `string`                                                                 | `undefined` | Display format             |
+| `color`          | `'blue' \| 'red' \| 'pink' \| 'orange' \| 'green' \| 'purple' \| 'gray'` | `undefined` | Color theme                |
+| `locale`         | `string`                                                                 | `'fa'`      | Locale (fa, en, ar)        |
+| `clearable`      | `boolean`                                                                | `true`      | Show clear button          |
+| `auto_submit`    | `boolean`                                                                | `true`      | Auto submit on selection   |
+| `modal`          | `boolean`                                                                | `false`     | Display as modal           |
+| `dual_input`     | `boolean`                                                                | `false`     | Separate inputs for range  |
+| `shortcut`       | `boolean \| object`                                                      | `false`     | Enable shortcuts           |
+| `column`         | `number \| object`                                                       | `1`         | Number of calendar columns |
+| `from`           | `string`                                                                 | `'1300'`    | Minimum date/time          |
+| `to`             | `string`                                                                 | `'1430'`    | Maximum date/time          |
+| `disable`        | `object`                                                                 | `undefined` | Disable rules              |
 
 ## 🎨 Events
 
-| Event | Parameters | Description |
-|-------|------------|-------------|
+| Event    | Parameters                           | Description                  |
+| -------- | ------------------------------------ | ---------------------------- |
 | `submit` | `date: PersianDate \| PersianDate[]` | Fired when date is submitted |
-| `select` | `date: PersianDate` | Fired when date is selected |
-| `clear` | `none` | Fired when picker is cleared |
-| `open` | `none` | Fired when picker opens |
-| `close` | `none` | Fired when picker closes |
+| `select` | `date: PersianDate`                  | Fired when date is selected  |
+| `clear`  | `none`                               | Fired when picker is cleared |
+| `open`   | `none`                               | Fired when picker opens      |
+| `close`  | `none`                               | Fired when picker closes     |
 
 ## 🎨 Styling
 
@@ -179,25 +189,27 @@ The component supports full CSS customization. You can override the default styl
 ```css
 /* Custom styling for multiple selection */
 :global(.pdp-multiple .pdp-day.selected) {
-  background-color: #8b5cf6 !important;
-  color: white !important;
-  border-radius: 4px;
-  font-weight: 600;
+	background-color: #8b5cf6 !important;
+	color: white !important;
+	border-radius: 4px;
+	font-weight: 600;
 }
 
 /* Custom range styling */
 :global(.pdp-range .pdp-day.start-range) {
-  background-color: your-color;
+	background-color: your-color;
 }
 ```
 
 ## 🔧 Development
 
 ### Prerequisites
+
 - Node.js 18+
 - pnpm
 
 ### Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/hamedf62/svelte-persian-datepicker
@@ -268,15 +280,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📊 Features Comparison
 
-| Feature | Single | Range | Multiple | Time | DateTime | DateTime Range |
-|---------|--------|-------|----------|------|----------|---------------|
-| Select one date | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Select date range | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ |
-| Select multiple dates | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Time selection | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Persian calendar | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Keyboard navigation | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Custom validation | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Feature               | Single | Range | Multiple | Time | DateTime | DateTime Range |
+| --------------------- | ------ | ----- | -------- | ---- | -------- | -------------- |
+| Select one date       | ✅     | ❌    | ❌       | ❌   | ✅       | ❌             |
+| Select date range     | ❌     | ✅    | ❌       | ❌   | ❌       | ✅             |
+| Select multiple dates | ❌     | ❌    | ✅       | ❌   | ❌       | ❌             |
+| Time selection        | ❌     | ❌    | ❌       | ✅   | ✅       | ✅             |
+| Persian calendar      | ✅     | ✅    | ✅       | ✅   | ✅       | ✅             |
+| Keyboard navigation   | ✅     | ✅    | ✅       | ✅   | ✅       | ✅             |
+| Custom validation     | ✅     | ✅    | ✅       | ✅   | ✅       | ✅             |
 
 ## 🤖 AI/LLM Integration Guide
 
@@ -294,17 +306,17 @@ This component has been optimized for AI coding assistants and LLMs. Here's how 
  * @example
  * // Single date selection
  * <DatePicker bind:model={selectedDate} />
- * 
- * // Range selection  
+ *
+ * // Range selection
  * <DatePicker mode="range" bind:model={dateRange} />
- * 
+ *
  * // Multiple dates
  * <DatePicker mode="multiple" bind:model={multipleDates} />
- * 
+ *
  * // With custom validation
- * <DatePicker 
+ * <DatePicker
  *   bind:model={date}
- *   from="1400/01/01" 
+ *   from="1400/01/01"
  *   to="1405/12/29"
  *   disable={['1403/01/01', '1403/05/15']}
  * />
@@ -314,11 +326,12 @@ This component has been optimized for AI coding assistants and LLMs. Here's how 
 ### 🎯 Common AI Prompts & Solutions
 
 #### For Setting Up Basic Date Selection:
+
 ```typescript
 // AI: "Create a basic Persian date picker"
 let selectedDate: string;
 
-<DatePicker 
+<DatePicker
   bind:model={selectedDate}
   locale="fa"
   type="date"
@@ -327,7 +340,8 @@ let selectedDate: string;
 ```
 
 #### For Range Selection:
-```typescript  
+
+```typescript
 // AI: "Create a date range picker for Persian calendar"
 let dateRange: string[];
 
@@ -340,6 +354,7 @@ let dateRange: string[];
 ```
 
 #### For Time Selection:
+
 ```typescript
 // AI: "Add time picker functionality"
 let selectedTime: string;
@@ -353,6 +368,7 @@ let selectedTime: string;
 ```
 
 #### For Multi-Calendar Support:
+
 ```typescript
 // AI: "Support both Persian and Gregorian calendars"
 let date: string;
@@ -367,20 +383,23 @@ let date: string;
 ### 🔧 Props Reference for AI
 
 **Essential Props for Common Use Cases:**
+
 - `bind:model` - The selected date value(s) - ALWAYS BINDABLE
 - `mode` - Selection type: "single" | "range" | "multiple"
-- `type` - Picker type: "date" | "time" | "datetime"  
+- `type` - Picker type: "date" | "time" | "datetime"
 - `locale` - Language/calendar: "fa" | "en" | "ar" | "fa,en"
 - `from`/`to` - Date boundaries (e.g., "1400/01/01", "1405/12/29")
 - `disable` - Disabled dates/times (array, function, or regex)
 
 **Styling & UI Props:**
+
 - `color` - Theme: "blue" | "red" | "pink" | "orange" | "green" | "purple" | "gray"
 - `dual_input` - Separate inputs for range mode
 - `modal` - Show as modal overlay
 - `clearable` - Show clear button
 
 **Advanced Props:**
+
 - `format` - Model data format (always Gregorian)
 - `input_format` - Input parsing format
 - `display_format` - UI display format

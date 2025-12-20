@@ -3,17 +3,17 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [sveltekit()],
-  // Tell Vite to treat your static directory as a public directory
-//   publicDir: 'static',
+	// Tell Vite to treat your static directory as a public directory
+	//   publicDir: 'static',
 	css: {
 		preprocessorOptions: {
-		  scss: {
-			// Optional: Add global SCSS imports or variables
-			// additionalData: `@use 'src/styles/variables.scss' as *;`
-		  }
+			scss: {
+				// Optional: Add global SCSS imports or variables
+				// additionalData: `@use 'src/styles/variables.scss' as *;`
+			}
 		}
-	  },
-	 // Configure asset handling
+	}
+	// Configure asset handling
 	//  build: {
 	// 	assetsInlineLimit: 0, // Don't inline any assets
 	// 	rollupOptions: {

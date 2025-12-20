@@ -1,66 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DatePicker Test</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        .test-section {
-            margin: 20px 0;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-        .selected-values {
-            background: #f0f0f0;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-        }
-    </style>
-</head>
-<body>
-    <h1>DatePicker Tests</h1>
-    
-    <div class="test-section">
-        <h2>Multiple Date Selection Test</h2>
-        <div class="selected-values">
-            Selected: <span id="multiple-values">None</span>
-        </div>
-        <div id="multiple-picker"></div>
-    </div>
-    
-    <div class="test-section">
-        <h2>Range Date Selection Test</h2>
-        <div class="selected-values">
-            Selected: <span id="range-values">None</span>
-        </div>
-        <div id="range-picker"></div>
-    </div>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>DatePicker Test</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				padding: 20px;
+			}
+			.test-section {
+				margin: 20px 0;
+				padding: 20px;
+				border: 1px solid #ccc;
+				border-radius: 8px;
+			}
+			.selected-values {
+				background: #f0f0f0;
+				padding: 10px;
+				margin: 10px 0;
+				border-radius: 4px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>DatePicker Tests</h1>
 
-    <script>
-        // Simple test to verify functionality
-        console.log('Test page loaded');
-        
-        // Check if the datepicker elements are being created
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM ready');
-            
-            // Look for datepicker elements
-            const pickers = document.querySelectorAll('.pdp');
-            console.log('Found pickers:', pickers.length);
-            
-            // Listen for clicks on calendar days
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('pdp-day')) {
-                    console.log('Day clicked:', e.target.textContent, e.target.classList);
-                }
-            });
-        });
-    </script>
-</body>
+		<div class="test-section">
+			<h2>Multiple Date Selection Test</h2>
+			<div class="selected-values">Selected: <span id="multiple-values">None</span></div>
+			<div id="multiple-picker"></div>
+		</div>
+
+		<div class="test-section">
+			<h2>Range Date Selection Test</h2>
+			<div class="selected-values">Selected: <span id="range-values">None</span></div>
+			<div id="range-picker"></div>
+		</div>
+
+		<script>
+			// Simple test to verify functionality
+			console.log('Test page loaded');
+
+			// Check if the datepicker elements are being created
+			document.addEventListener('DOMContentLoaded', function () {
+				console.log('DOM ready');
+
+				// Look for datepicker elements
+				const pickers = document.querySelectorAll('.pdp');
+				console.log('Found pickers:', pickers.length);
+
+				// Listen for clicks on calendar days
+				document.addEventListener('click', function (e) {
+					if (e.target.classList.contains('pdp-day')) {
+						console.log('Day clicked:', e.target.textContent, e.target.classList);
+					}
+				});
+			});
+		</script>
+	</body>
 </html>

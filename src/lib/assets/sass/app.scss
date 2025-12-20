@@ -1,877 +1,872 @@
 @use '_variable';
 
 @mixin little-flag {
-  &:after {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    //--- right of datepicker ---//
-    // right: 1.2em;
-    //--- center of datepicker ---//
-    /* left: 50%; transform: translateX(-50%); */
-    //--- left of datepicker ---//
-    /* left: 1.2em; */
-    border: solid transparent;
-    border-bottom-color: variable.$background;
-    border-bottom-color: var(--background);
-    border-width: 0.4em;
-  }
+	&:after {
+		content: '';
+		position: absolute;
+		bottom: 100%;
+		//--- right of datepicker ---//
+		// right: 1.2em;
+		//--- center of datepicker ---//
+		/* left: 50%; transform: translateX(-50%); */
+		//--- left of datepicker ---//
+		/* left: 1.2em; */
+		border: solid transparent;
+		border-bottom-color: variable.$background;
+		border-bottom-color: var(--background);
+		border-width: 0.4em;
+	}
 }
 
 @mixin scrollbar {
-  &::-webkit-scrollbar {
-    -webkit-appearance: none;
-  }
+	&::-webkit-scrollbar {
+		-webkit-appearance: none;
+	}
 
-  &::-webkit-scrollbar:vertical {
-    width: 0.4em;
-  }
+	&::-webkit-scrollbar:vertical {
+		width: 0.4em;
+	}
 
-  &::-webkit-scrollbar-thumb {
-    border-radius: variable.$radius;
-    border-radius: var(--radius);
-    border: 0.1em solid white;
-    /* should match background, can't be transparent */
-    background: variable.$border-color;
-    background: var(--border-color);
-  }
+	&::-webkit-scrollbar-thumb {
+		border-radius: variable.$radius;
+		border-radius: var(--radius);
+		border: 0.1em solid white;
+		/* should match background, can't be transparent */
+		background: variable.$border-color;
+		background: var(--border-color);
+	}
 }
 
 @keyframes start {
-  from {
-    transform: inherit scale(0.5);
-    opacity: 0;
-  }
+	from {
+		transform: inherit scale(0.5);
+		opacity: 0;
+	}
 
-  to {
-    transform: inherit scale(1);
-    opacity: 1;
-  }
+	to {
+		transform: inherit scale(1);
+		opacity: 1;
+	}
 }
 
 @keyframes startModal {
-  from {
-    transform: translate(-50%, -50%) scale(0.5);
-    opacity: 0;
-  }
+	from {
+		transform: translate(-50%, -50%) scale(0.5);
+		opacity: 0;
+	}
 
-  to {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
+	to {
+		transform: translate(-50%, -50%) scale(1);
+		opacity: 1;
+	}
 }
 
 @keyframes tada {
-  0% {
-    transform: scale(1);
-  }
+	0% {
+		transform: scale(1);
+	}
 
-  10%,
-  20% {
-    transform: scale(0.9) rotate(-3deg);
-  }
+	10%,
+	20% {
+		transform: scale(0.9) rotate(-3deg);
+	}
 
-  30%,
-  50%,
-  70%,
-  90% {
-    transform: scale(1.1) rotate(3deg);
-  }
+	30%,
+	50%,
+	70%,
+	90% {
+		transform: scale(1.1) rotate(3deg);
+	}
 
-  40%,
-  60%,
-  80% {
-    transform: scale(1.1) rotate(-3deg);
-  }
+	40%,
+	60%,
+	80% {
+		transform: scale(1.1) rotate(-3deg);
+	}
 
-  100% {
-    transform: scale(1) rotate(0);
-  }
+	100% {
+		transform: scale(1) rotate(0);
+	}
 }
 
 @media (max-width: 700px) {
-  .pdp-picker {
-    flex-direction: column-reverse;
-  }
+	.pdp-picker {
+		flex-direction: column-reverse;
+	}
 
-  .pdp-shortcut {
-    flex-direction: row !important;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    padding: 0 !important;
-    border: none !important;
-  }
+	.pdp-shortcut {
+		flex-direction: row !important;
+		flex-wrap: wrap;
+		justify-content: space-evenly;
+		padding: 0 !important;
+		border: none !important;
+	}
 }
 
 @charset "UTF-8";
 
 .font-fa,
 .pdp {
-  direction: rtl;
+	direction: rtl;
 }
 
 .pdp {
-  position: relative;
-
-  &:not(.pdp-range) .pdp-day.start-range {
-    border-radius: variable.$radius !important;
-    border-radius: var(--radius) !important;
-  }
-
-  &.pdp-range .pdp-picker.rtl .pdp-day.start-range {
-    border-radius: 0 variable.$radius variable.$radius 0 !important;
-    border-radius: 0 var(--radius) var(--radius) 0 !important;
-  }
-
-  &.pdp-range .pdp-picker.rtl .pdp-day.end-range {
-    border-radius: variable.$radius 0 0 variable.$radius !important;
-    border-radius: var(--radius) 0 0 var(--radius) !important;
-  }
-
-  &.pdp-range .pdp-picker.rtl .pdp-day.end-range.start-range {
-    border-radius: variable.$radius !important;
-    border-radius: var(--radius) !important;
-  }
-
-  &.pdp-range .pdp-picker.ltr .pdp-day.start-range {
-    border-radius: variable.$radius 0 0 variable.$radius !important;
-    border-radius: var(--radius) 0 0 var(--radius) !important;
-  }
-
-  &.pdp-range .pdp-picker.ltr .pdp-day.end-range {
-    border-radius: 0 variable.$radius variable.$radius 0 !important;
-    border-radius: 0 var(--radius) var(--radius) 0 !important;
-  }
-
-  &.pdp-range .pdp-picker.ltr .pdp-day.end-range.start-range {
-    border-radius: variable.$radius !important;
-    border-radius: var(--radius) !important;
-  }
-
-  &.rtl {
-    direction: rtl;
-    text-align: right;
-
-    .pdp-group {
-
-      :first-child:not(.pdp-inside),
-      .pdp-inside:first-child+input {
-        border-top-right-radius: variable.$radius;
-        border-top-right-radius: var(--radius);
-        border-bottom-right-radius: variable.$radius;
-        border-bottom-right-radius: var(--radius);
-        margin-left: -1px;
-      }
-
-      input:last-of-type {
-        border-top-left-radius: variable.$radius;
-        border-top-left-radius: var(--radius);
-        border-bottom-left-radius: variable.$radius;
-        border-bottom-left-radius: var(--radius);
-      }
-
-      .pdp-icon.pdp-inside {
-        &:nth-of-type(2) {
-          right: 50%;
-        }
-
-        +input {
-          padding-right: 3em;
-        }
-      }
-    }
-
-    &.pdp-dual {
-      .pdp-clear {
-        &:nth-of-type(1) {
-          left: calc(50% + 0.5em) !important;
-        }
-      }
-    }
-
-    .pdp-picker::after {
-      right: 1.2em;
-    }
-  }
-
-  &.ltr {
-    direction: ltr;
-    text-align: left;
-
-    .pdp-group {
-
-      :first-child:not(.pdp-inside),
-      .pdp-inside:first-child+input {
-        border-top-left-radius: variable.$radius;
-        border-top-left-radius: var(--radius);
-        border-bottom-left-radius: variable.$radius;
-        border-bottom-left-radius: var(--radius);
-        margin-right: -1px;
-      }
-
-      input:last-of-type {
-        border-top-right-radius: variable.$radius;
-        border-top-right-radius: var(--radius);
-        border-bottom-right-radius: variable.$radius;
-        border-bottom-right-radius: var(--radius);
-      }
-
-      .pdp-clear {
-        left: unset;
-        right: 0.5em;
-      }
-
-      .pdp-icon.pdp-inside {
-        &:nth-of-type(2) {
-          left: 50%;
-        }
-
-        +input {
-          padding-left: 3em;
-        }
-      }
-    }
-
-    &.pdp-dual {
-      .pdp-clear {
-        &:nth-of-type(1) {
-          right: calc(50% + 0.5em) !important;
-        }
-      }
-    }
-
-    .pdp-picker::after {
-      left: 1.2em;
-    }
-  }
-
-  &.pdp-dual {
-    .pdp-picker {
-      left: 50%;
-      transform: translateX(-50%);
-
-      &::after {
-        right: unset;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-    }
-  }
-
-  &.pdp-modal {
-    .pdp-overlay {
-      background: rgba(0, 0, 0, 0.5) !important;
-    }
-
-    .pdp-picker {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      animation: startModal 0.1s;
-
-      &::after {
-        all: unset !important;
-      }
-    }
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  input,
-  button {
-    font-family: inherit;
-  }
-
-  .pdp-label {
-    display: inline-block;
-    margin-bottom: 0.5em;
-  }
-
-  .pdp-group {
-    position: relative;
-    display: flex;
-    align-items: stretch;
-    width: 100%;
-
-    .pdp-input {
-      display: block;
-      height: calc(1.5em + 0.75em + 2px);
-      padding: 0.375em 0.75em;
-      font-size: 1em;
-      font-weight: 400;
-      line-height: 1.5;
-      background-clip: padding-box;
-      border: 1px solid variable.$border-color;
-      border: 1px solid var(--border-color);
-      transition:
-        border-color 0.15s ease-in-out,
-        box-shadow 0.15s ease-in-out;
-      position: relative;
-      flex: 1 1 auto;
-      width: 100%;
-
-      &.pdp-focus {
-        outline: none;
-        border-bottom: 2px solid variable.$primary-color;
-        border-bottom: 2px solid var(--primary-color);
-      }
-    }
-
-    .pdp-icon {
-      padding: 0.375em 0.75em;
-      line-height: 1.5;
-      font-size: 1em;
-      color: variable.$text-color;
-      color: var(--text-color);
-      background: variable.$icon-background;
-      background: var(--icon-background);
-      border: 1px solid variable.$border-color;
-      border: 1px solid var(--border-color);
-      max-height: calc(1.5em + 0.75em + 2px);
-
-      &:nth-of-type(2) {
-        margin-left: -1px;
-        margin-right: -1px;
-      }
-
-      &.pdp-inside {
-        background: transparent;
-        border: none;
-        position: absolute;
-        z-index: 1;
-      }
-    }
-
-    .pdp-clear {
-      border: none;
-      background-color: transparent;
-      position: absolute;
-      left: 0.5em;
-      top: 0;
-      bottom: 0;
-      z-index: 1;
-      cursor: pointer;
-      padding: 0 0.5em;
-    }
-  }
-
-  .pdp-overlay {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    z-index: calc(var(--z-index) - 1);
-    background: variable.$overlay-color;
-    background: var(--overlay-color);
-  }
-
-  .pdp-picker {
-    display: flex;
-    position: absolute;
-    color: variable.$text-color;
-    color: var(--text-color);
-    background: variable.$background;
-    background: var(--background);
-    box-shadow: variable.$main-box-shadow;
-    box-shadow: var(--main-box-shadow);
-    z-index: variable.$z-index;
-    z-index: var(--z-index);
-    border-radius: variable.$radius;
-    border-radius: var(--radius);
-    transition: all 1s ease;
-    margin-top: 0.5em;
-    padding: 0.3em 0.6em;
-    animation: start 0.1s;
-
-    &.ltr {
-      direction: ltr;
-
-      .pdp-header .bottom {
-        flex-direction: row-reverse;
-
-        &>div {
-          display: flex;
-          flex-direction: row-reverse;
-        }
-      }
-
-
-
-      .pdp-shortcut {
-        border-right: unset;
-        border-left: 1px solid variable.$border-color;
-        border-left: 1px solid var(--border-color);
-      }
-    }
-
-    &.rtl {
-      direction: rtl;
-    }
-
-    &.pdp-top {
-      bottom: calc(1.5em + 0.75em + 2px);
-      margin-top: unset;
-      margin-bottom: 0.5em;
-
-      &::after {
-        bottom: unset;
-        top: 100%;
-        transform: rotate(180deg);
-      }
-    }
-
-    &.pdp-left {
-      left: 0;
-      right: unset;
-
-      &::after {
-        right: unset;
-        left: 1.2em;
-      }
-    }
-
-    &.pdp-right {
-      left: unset;
-      right: 0;
-
-      &::after {
-        left: unset;
-        right: 1.2em;
-      }
-    }
-
-    @include little-flag();
-
-    ::selection {
-      all: unset;
-    }
-
-    .pdp-auto {
-
-      &,
-      &>div {
-        background: inherit;
-      }
-    }
-
-    .pdp-select-year,
-    .pdp-select-month {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      font-size: 0.8em;
-      background: inherit;
-      list-style: none;
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 3.5em;
-      bottom: 3.5em;
-      padding: 0;
-      margin: 0;
-      z-index: 1;
-      animation: start 0.1s;
-      overflow: auto;
-
-      button {
-        border: 0;
-        background: inherit;
-        cursor: pointer;
-
-        &:focus {
-          outline: 0;
-        }
-      }
-
-      li {
-        width: 5em;
-        height: 4em;
-        padding: 0.2em;
-        cursor: pointer;
-        margin: 0.15em;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        flex: 30% 0;
-
-        &:not(.disabled):hover {
-          border-radius: variable.$radius;
-          border-radius: var(--radius);
-          border: 2px solid variable.$primary-color;
-          border: 2px solid var(--primary-color);
-        }
-
-        &.disabled {
-          text-shadow: unset;
-          box-shadow: unset;
-          cursor: default !important;
-          opacity: variable.$disabled-opacity;
-          opacity: var(--disabled-opacity);
-        }
-
-        &.selected {
-          border: 2px solid variable.$primary-color;
-          border: 2px solid var(--primary-color);
-          border-radius: variable.$radius;
-          border-radius: var(--radius);
-          background: variable.$primary-color !important;
-          background: var(--primary-color) !important;
-          color: variable.$background;
-          color: var(--background);
-        }
-      }
-
-      @include scrollbar();
-    }
-
-    .pdp-header {
-      &>div:first-child {
-        border-bottom: 1px solid variable.$border-color;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 0.5em;
-      }
-
-      .top {
-        padding: 0.75em 0.3em 1em 0.3em;
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.9em;
-        direction: rtl;
-
-        button {
-          border: 0;
-          background: inherit;
-          cursor: pointer;
-          color: variable.$primary-color;
-          color: var(--primary-color);
-          padding: 0 0.5em;
-        }
-      }
-
-      .bottom {
-        padding: 0.3em;
-        display: flex;
-        align-items: center;
-        height: 3em;
-        direction: rtl;
-
-        &>div {
-          display: flex;
-          flex-grow: 1;
-          justify-content: space-around;
-
-          .pdp-month,
-          .pdp-year {
-            color: variable.$primary-color;
-            color: var(--primary-color);
-            font-size: 1em;
-          }
-        }
-
-        button {
-          border: 0;
-          background: inherit;
-          cursor: pointer;
-
-          &:focus {
-            outline: 0;
-          }
-        }
-
-        .pdp-arrow.disabled {
-          opacity: variable.$disabled-opacity;
-          opacity: var(--disabled-opacity);
-        }
-
-        .pdp-arrow:not(.disabled):hover {
-          opacity: variable.$disabled-opacity;
-          opacity: var(--disabled-opacity);
-        }
-      }
-    }
-
-    .pdp-main {
-      position: relative;
-
-      .pdp-date {
-        display: flex;
-        justify-content: center;
-
-        .pdp-column {
-          margin: 0 1em;
-
-          .pdp-week {
-            background: inherit;
-            margin-bottom: 0.3em;
-            display: flex;
-            justify-content: space-around;
-
-            .pdp-weekday {
-              width: variable.$day-dimensions;
-              width: var(--day-dimensions);
-              height: variable.$day-dimensions;
-              height: var(--day-dimensions);
-              line-height: variable.$day-dimensions;
-              line-height: var(--day-dimensions);
-              font-size: 0.8em;
-              text-align: center;
-            }
-          }
-
-          .pdp-days {
-            background: inherit;
-
-            .pdp-day {
-              display: inline-flex;
-              justify-content: center;
-              align-items: center;
-              margin: 0.1em 0;
-              font-size: 0.8em;
-              width: variable.$day-dimensions;
-              width: var(--day-dimensions);
-              height: variable.$day-dimensions;
-              height: var(--day-dimensions);
-              border-radius: variable.$radius;
-              border-radius: var(--radius);
-              padding: 0;
-              cursor: pointer;
-              transition-property: background-color, box-shadow;
-              transition-duration: 0.1s;
-              contain: content;
-
-              &.friday {
-                color: variable.$primary-color;
-                color: var(--primary-color);
-              }
-
-              &.empty {
-                visibility: hidden;
-              }
-
-              &.start-range,
-              &.end-range {
-                background: variable.$primary-color;
-                background: var(--primary-color);
-                color: variable.$background;
-                color: var(--background);
-              }
-
-              &.selected {
-                background: variable.$primary-color;
-                background: var(--primary-color);
-                color: variable.$background;
-                color: var(--background);
-                font-weight: 600;
-              }
-
-              &.disabled {
-                box-shadow: unset;
-                text-shadow: unset;
-                cursor: default !important;
-                border-color: transparent;
-                opacity: variable.$disabled-opacity;
-                opacity: var(--disabled-opacity);
-              }
-
-              &.hover {
-                background: variable.$primary-color;
-                background: var(--primary-color);
-                color: variable.$background;
-                color: var(--background);
-                // background: variable.$secondary-color !important;
-                // background: var(--secondary-color) !important;
-                // color: variable.$hover-color;
-                // color: var(--hover-color);
-              }
-
-              &.in-range {
-                background: variable.$in-range-background;
-                background: var(--in-range-background);
-                color: variable.$hover-color;
-                color: var(--hover-color);
-                border-radius: 0 !important;
-              }
-
-              &:not(.disabled):hover,
-              &.today {
-                border: 2px solid variable.$primary-color;
-                border: 2px solid var(--primary-color);
-              }
-
-              &.tada {
-                animation: tada 1s;
-                background: variable.$secondary-color;
-                background: var(--secondary-color);
-                box-shadow: inset 0 4px 9px rgba(0, 0, 0, 0.24);
-                color: #000;
-                position: relative;
-                z-index: 1;
-              }
-            }
-          }
-        }
-      }
-
-      .pdp-time {
-        background: inherit;
-
-        &:not(.inline) {
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          right: 0;
-          left: 0;
-        }
-
-        .pdp-moment {
-          margin-bottom: 1em;
-          font-size: calc(2em * variable.$time-scale);
-          font-size: calc(2em * var(--time-scale));
-          display: flex;
-          justify-content: space-around;
-          height: 100%;
-
-          &.column-direction {
-            flex-direction: column;
-          }
-
-          >div {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            direction: ltr;
-            width: 100%;
-            padding: 1em 0;
-
-            &.disabled {
-              opacity: variable.$disabled-opacity;
-              opacity: var(--disabled-opacity);
-            }
-
-            div {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              padding: 0 0.8em;
-
-              button {
-                border: none;
-                background: none;
-                cursor: pointer;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    .pdp-footer {
-      text-align: center;
-      min-height: 3em;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-top: 1px solid variable.$border-color;
-      border-top: 1px solid var(--border-color);
-      padding: 0.3em;
-
-      .pdp-today,
-      .pdp-submit {
-        font-size: 0.8em;
-        padding: 0.25em 0.5em;
-        margin: 0 0.3em;
-        line-height: 1.5;
-        color: variable.$background;
-        color: var(--background);
-        text-decoration: none;
-        border: none;
-        border-radius: variable.$radius;
-        border-radius: var(--radius);
-        background: variable.$primary-color;
-        background: var(--primary-color);
-        cursor: pointer;
-
-        &:hover {
-          filter: brightness(0.9);
-        }
-      }
-
-      .pdp-cancel {
-        font-size: 0.8em;
-        padding: 0.25em 0.5em;
-        margin: 0 0.3em;
-        line-height: 1.5;
-        color: variable.$primary-color;
-        color: var(--primary-color);
-        text-decoration: none;
-        border: 1px solid variable.$primary-color;
-        border: 1px solid var(--primary-color);
-        border-radius: variable.$radius;
-        border-radius: var(--radius);
-        background: transparent;
-        cursor: pointer;
-
-        &:hover {
-          background: variable.$primary-color;
-          background: var(--primary-color);
-          color: variable.$background;
-          color: var(--background);
-        }
-      }
-
-      >div {
-        display: flex;
-      }
-    }
-
-    .pdp-shortcut {
-      margin: 0;
-      padding: 0.5em;
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      border-right: 1px solid variable.$border-color;
-      border-right: 1px solid var(--border-color);
-
-      li {
-        margin: 0;
-        padding: 0.5em 1em;
-        text-align: center;
-        cursor: pointer;
-        border-radius: variable.$radius;
-        border-radius: var(--radius);
-        margin: 0.25em 0;
-        color: variable.$hover-color;
-        color: var(--hover-color);
-        font-weight: 500;
-
-        &:hover {
-          background: variable.$in-range-background;
-          background: var(--in-range-background);
-        }
-
-        &.selected {
-          background: variable.$primary-color;
-          background: var(--primary-color);
-          color: variable.$background;
-          color: var(--background);
-        }
-      }
-    }
-  }
-
-  .pdp-pointer {
-    cursor: pointer;
-  }
-
-  .pdp-auto {
-    margin: auto;
-    position: relative;
-  }
+	position: relative;
+
+	&:not(.pdp-range) .pdp-day.start-range {
+		border-radius: variable.$radius !important;
+		border-radius: var(--radius) !important;
+	}
+
+	&.pdp-range .pdp-picker.rtl .pdp-day.start-range {
+		border-radius: 0 variable.$radius variable.$radius 0 !important;
+		border-radius: 0 var(--radius) var(--radius) 0 !important;
+	}
+
+	&.pdp-range .pdp-picker.rtl .pdp-day.end-range {
+		border-radius: variable.$radius 0 0 variable.$radius !important;
+		border-radius: var(--radius) 0 0 var(--radius) !important;
+	}
+
+	&.pdp-range .pdp-picker.rtl .pdp-day.end-range.start-range {
+		border-radius: variable.$radius !important;
+		border-radius: var(--radius) !important;
+	}
+
+	&.pdp-range .pdp-picker.ltr .pdp-day.start-range {
+		border-radius: variable.$radius 0 0 variable.$radius !important;
+		border-radius: var(--radius) 0 0 var(--radius) !important;
+	}
+
+	&.pdp-range .pdp-picker.ltr .pdp-day.end-range {
+		border-radius: 0 variable.$radius variable.$radius 0 !important;
+		border-radius: 0 var(--radius) var(--radius) 0 !important;
+	}
+
+	&.pdp-range .pdp-picker.ltr .pdp-day.end-range.start-range {
+		border-radius: variable.$radius !important;
+		border-radius: var(--radius) !important;
+	}
+
+	&.rtl {
+		direction: rtl;
+		text-align: right;
+
+		.pdp-group {
+			:first-child:not(.pdp-inside),
+			.pdp-inside:first-child + input {
+				border-top-right-radius: variable.$radius;
+				border-top-right-radius: var(--radius);
+				border-bottom-right-radius: variable.$radius;
+				border-bottom-right-radius: var(--radius);
+				margin-left: -1px;
+			}
+
+			input:last-of-type {
+				border-top-left-radius: variable.$radius;
+				border-top-left-radius: var(--radius);
+				border-bottom-left-radius: variable.$radius;
+				border-bottom-left-radius: var(--radius);
+			}
+
+			.pdp-icon.pdp-inside {
+				&:nth-of-type(2) {
+					right: 50%;
+				}
+
+				+ input {
+					padding-right: 3em;
+				}
+			}
+		}
+
+		&.pdp-dual {
+			.pdp-clear {
+				&:nth-of-type(1) {
+					left: calc(50% + 0.5em) !important;
+				}
+			}
+		}
+
+		.pdp-picker::after {
+			right: 1.2em;
+		}
+	}
+
+	&.ltr {
+		direction: ltr;
+		text-align: left;
+
+		.pdp-group {
+			:first-child:not(.pdp-inside),
+			.pdp-inside:first-child + input {
+				border-top-left-radius: variable.$radius;
+				border-top-left-radius: var(--radius);
+				border-bottom-left-radius: variable.$radius;
+				border-bottom-left-radius: var(--radius);
+				margin-right: -1px;
+			}
+
+			input:last-of-type {
+				border-top-right-radius: variable.$radius;
+				border-top-right-radius: var(--radius);
+				border-bottom-right-radius: variable.$radius;
+				border-bottom-right-radius: var(--radius);
+			}
+
+			.pdp-clear {
+				left: unset;
+				right: 0.5em;
+			}
+
+			.pdp-icon.pdp-inside {
+				&:nth-of-type(2) {
+					left: 50%;
+				}
+
+				+ input {
+					padding-left: 3em;
+				}
+			}
+		}
+
+		&.pdp-dual {
+			.pdp-clear {
+				&:nth-of-type(1) {
+					right: calc(50% + 0.5em) !important;
+				}
+			}
+		}
+
+		.pdp-picker::after {
+			left: 1.2em;
+		}
+	}
+
+	&.pdp-dual {
+		.pdp-picker {
+			left: 50%;
+			transform: translateX(-50%);
+
+			&::after {
+				right: unset;
+				left: 50%;
+				transform: translateX(-50%);
+			}
+		}
+	}
+
+	&.pdp-modal {
+		.pdp-overlay {
+			background: rgba(0, 0, 0, 0.5) !important;
+		}
+
+		.pdp-picker {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			animation: startModal 0.1s;
+
+			&::after {
+				all: unset !important;
+			}
+		}
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	input,
+	button {
+		font-family: inherit;
+	}
+
+	.pdp-label {
+		display: inline-block;
+		margin-bottom: 0.5em;
+	}
+
+	.pdp-group {
+		position: relative;
+		display: flex;
+		align-items: stretch;
+		width: 100%;
+
+		.pdp-input {
+			display: block;
+			height: calc(1.5em + 0.75em + 2px);
+			padding: 0.375em 0.75em;
+			font-size: 1em;
+			font-weight: 400;
+			line-height: 1.5;
+			background-clip: padding-box;
+			border: 1px solid variable.$border-color;
+			border: 1px solid var(--border-color);
+			transition:
+				border-color 0.15s ease-in-out,
+				box-shadow 0.15s ease-in-out;
+			position: relative;
+			flex: 1 1 auto;
+			width: 100%;
+
+			&.pdp-focus {
+				outline: none;
+				border-bottom: 2px solid variable.$primary-color;
+				border-bottom: 2px solid var(--primary-color);
+			}
+		}
+
+		.pdp-icon {
+			padding: 0.375em 0.75em;
+			line-height: 1.5;
+			font-size: 1em;
+			color: variable.$text-color;
+			color: var(--text-color);
+			background: variable.$icon-background;
+			background: var(--icon-background);
+			border: 1px solid variable.$border-color;
+			border: 1px solid var(--border-color);
+			max-height: calc(1.5em + 0.75em + 2px);
+
+			&:nth-of-type(2) {
+				margin-left: -1px;
+				margin-right: -1px;
+			}
+
+			&.pdp-inside {
+				background: transparent;
+				border: none;
+				position: absolute;
+				z-index: 1;
+			}
+		}
+
+		.pdp-clear {
+			border: none;
+			background-color: transparent;
+			position: absolute;
+			left: 0.5em;
+			top: 0;
+			bottom: 0;
+			z-index: 1;
+			cursor: pointer;
+			padding: 0 0.5em;
+		}
+	}
+
+	.pdp-overlay {
+		position: fixed;
+		top: 0;
+		bottom: 0;
+		right: 0;
+		left: 0;
+		z-index: calc(var(--z-index) - 1);
+		background: variable.$overlay-color;
+		background: var(--overlay-color);
+	}
+
+	.pdp-picker {
+		display: flex;
+		position: absolute;
+		color: variable.$text-color;
+		color: var(--text-color);
+		background: variable.$background;
+		background: var(--background);
+		box-shadow: variable.$main-box-shadow;
+		box-shadow: var(--main-box-shadow);
+		z-index: variable.$z-index;
+		z-index: var(--z-index);
+		border-radius: variable.$radius;
+		border-radius: var(--radius);
+		transition: all 1s ease;
+		margin-top: 0.5em;
+		padding: 0.3em 0.6em;
+		animation: start 0.1s;
+
+		&.ltr {
+			direction: ltr;
+
+			.pdp-header .bottom {
+				flex-direction: row-reverse;
+
+				& > div {
+					display: flex;
+					flex-direction: row-reverse;
+				}
+			}
+
+			.pdp-shortcut {
+				border-right: unset;
+				border-left: 1px solid variable.$border-color;
+				border-left: 1px solid var(--border-color);
+			}
+		}
+
+		&.rtl {
+			direction: rtl;
+		}
+
+		&.pdp-top {
+			bottom: calc(1.5em + 0.75em + 2px);
+			margin-top: unset;
+			margin-bottom: 0.5em;
+
+			&::after {
+				bottom: unset;
+				top: 100%;
+				transform: rotate(180deg);
+			}
+		}
+
+		&.pdp-left {
+			left: 0;
+			right: unset;
+
+			&::after {
+				right: unset;
+				left: 1.2em;
+			}
+		}
+
+		&.pdp-right {
+			left: unset;
+			right: 0;
+
+			&::after {
+				left: unset;
+				right: 1.2em;
+			}
+		}
+
+		@include little-flag();
+
+		::selection {
+			all: unset;
+		}
+
+		.pdp-auto {
+			&,
+			& > div {
+				background: inherit;
+			}
+		}
+
+		.pdp-select-year,
+		.pdp-select-month {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
+			font-size: 0.8em;
+			background: inherit;
+			list-style: none;
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 3.5em;
+			bottom: 3.5em;
+			padding: 0;
+			margin: 0;
+			z-index: 1;
+			animation: start 0.1s;
+			overflow: auto;
+
+			button {
+				border: 0;
+				background: inherit;
+				cursor: pointer;
+
+				&:focus {
+					outline: 0;
+				}
+			}
+
+			li {
+				width: 5em;
+				height: 4em;
+				padding: 0.2em;
+				cursor: pointer;
+				margin: 0.15em;
+				display: inline-flex;
+				justify-content: center;
+				align-items: center;
+				flex: 30% 0;
+
+				&:not(.disabled):hover {
+					border-radius: variable.$radius;
+					border-radius: var(--radius);
+					border: 2px solid variable.$primary-color;
+					border: 2px solid var(--primary-color);
+				}
+
+				&.disabled {
+					text-shadow: unset;
+					box-shadow: unset;
+					cursor: default !important;
+					opacity: variable.$disabled-opacity;
+					opacity: var(--disabled-opacity);
+				}
+
+				&.selected {
+					border: 2px solid variable.$primary-color;
+					border: 2px solid var(--primary-color);
+					border-radius: variable.$radius;
+					border-radius: var(--radius);
+					background: variable.$primary-color !important;
+					background: var(--primary-color) !important;
+					color: variable.$background;
+					color: var(--background);
+				}
+			}
+
+			@include scrollbar();
+		}
+
+		.pdp-header {
+			& > div:first-child {
+				border-bottom: 1px solid variable.$border-color;
+				border-bottom: 1px solid var(--border-color);
+				margin-bottom: 0.5em;
+			}
+
+			.top {
+				padding: 0.75em 0.3em 1em 0.3em;
+				display: flex;
+				justify-content: space-between;
+				font-size: 0.9em;
+				direction: rtl;
+
+				button {
+					border: 0;
+					background: inherit;
+					cursor: pointer;
+					color: variable.$primary-color;
+					color: var(--primary-color);
+					padding: 0 0.5em;
+				}
+			}
+
+			.bottom {
+				padding: 0.3em;
+				display: flex;
+				align-items: center;
+				height: 3em;
+				direction: rtl;
+
+				& > div {
+					display: flex;
+					flex-grow: 1;
+					justify-content: space-around;
+
+					.pdp-month,
+					.pdp-year {
+						color: variable.$primary-color;
+						color: var(--primary-color);
+						font-size: 1em;
+					}
+				}
+
+				button {
+					border: 0;
+					background: inherit;
+					cursor: pointer;
+
+					&:focus {
+						outline: 0;
+					}
+				}
+
+				.pdp-arrow.disabled {
+					opacity: variable.$disabled-opacity;
+					opacity: var(--disabled-opacity);
+				}
+
+				.pdp-arrow:not(.disabled):hover {
+					opacity: variable.$disabled-opacity;
+					opacity: var(--disabled-opacity);
+				}
+			}
+		}
+
+		.pdp-main {
+			position: relative;
+
+			.pdp-date {
+				display: flex;
+				justify-content: center;
+
+				.pdp-column {
+					margin: 0 1em;
+
+					.pdp-week {
+						background: inherit;
+						margin-bottom: 0.3em;
+						display: flex;
+						justify-content: space-around;
+
+						.pdp-weekday {
+							width: variable.$day-dimensions;
+							width: var(--day-dimensions);
+							height: variable.$day-dimensions;
+							height: var(--day-dimensions);
+							line-height: variable.$day-dimensions;
+							line-height: var(--day-dimensions);
+							font-size: 0.8em;
+							text-align: center;
+						}
+					}
+
+					.pdp-days {
+						background: inherit;
+
+						.pdp-day {
+							display: inline-flex;
+							justify-content: center;
+							align-items: center;
+							margin: 0.1em 0;
+							font-size: 0.8em;
+							width: variable.$day-dimensions;
+							width: var(--day-dimensions);
+							height: variable.$day-dimensions;
+							height: var(--day-dimensions);
+							border-radius: variable.$radius;
+							border-radius: var(--radius);
+							padding: 0;
+							cursor: pointer;
+							transition-property: background-color, box-shadow;
+							transition-duration: 0.1s;
+							contain: content;
+
+							&.friday {
+								color: variable.$primary-color;
+								color: var(--primary-color);
+							}
+
+							&.empty {
+								visibility: hidden;
+							}
+
+							&.start-range,
+							&.end-range {
+								background: variable.$primary-color;
+								background: var(--primary-color);
+								color: variable.$background;
+								color: var(--background);
+							}
+
+							&.selected {
+								background: variable.$primary-color;
+								background: var(--primary-color);
+								color: variable.$background;
+								color: var(--background);
+								font-weight: 600;
+							}
+
+							&.disabled {
+								box-shadow: unset;
+								text-shadow: unset;
+								cursor: default !important;
+								border-color: transparent;
+								opacity: variable.$disabled-opacity;
+								opacity: var(--disabled-opacity);
+							}
+
+							&.hover {
+								background: variable.$primary-color;
+								background: var(--primary-color);
+								color: variable.$background;
+								color: var(--background);
+								// background: variable.$secondary-color !important;
+								// background: var(--secondary-color) !important;
+								// color: variable.$hover-color;
+								// color: var(--hover-color);
+							}
+
+							&.in-range {
+								background: variable.$in-range-background;
+								background: var(--in-range-background);
+								color: variable.$hover-color;
+								color: var(--hover-color);
+								border-radius: 0 !important;
+							}
+
+							&:not(.disabled):hover,
+							&.today {
+								border: 2px solid variable.$primary-color;
+								border: 2px solid var(--primary-color);
+							}
+
+							&.tada {
+								animation: tada 1s;
+								background: variable.$secondary-color;
+								background: var(--secondary-color);
+								box-shadow: inset 0 4px 9px rgba(0, 0, 0, 0.24);
+								color: #000;
+								position: relative;
+								z-index: 1;
+							}
+						}
+					}
+				}
+			}
+
+			.pdp-time {
+				background: inherit;
+
+				&:not(.inline) {
+					position: absolute;
+					top: 0;
+					bottom: 0;
+					right: 0;
+					left: 0;
+				}
+
+				.pdp-moment {
+					margin-bottom: 1em;
+					font-size: calc(2em * variable.$time-scale);
+					font-size: calc(2em * var(--time-scale));
+					display: flex;
+					justify-content: space-around;
+					height: 100%;
+
+					&.column-direction {
+						flex-direction: column;
+					}
+
+					> div {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						direction: ltr;
+						width: 100%;
+						padding: 1em 0;
+
+						&.disabled {
+							opacity: variable.$disabled-opacity;
+							opacity: var(--disabled-opacity);
+						}
+
+						div {
+							display: flex;
+							flex-direction: column;
+							align-items: center;
+							padding: 0 0.8em;
+
+							button {
+								border: none;
+								background: none;
+								cursor: pointer;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.pdp-footer {
+			text-align: center;
+			min-height: 3em;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			border-top: 1px solid variable.$border-color;
+			border-top: 1px solid var(--border-color);
+			padding: 0.3em;
+
+			.pdp-today,
+			.pdp-submit {
+				font-size: 0.8em;
+				padding: 0.25em 0.5em;
+				margin: 0 0.3em;
+				line-height: 1.5;
+				color: variable.$background;
+				color: var(--background);
+				text-decoration: none;
+				border: none;
+				border-radius: variable.$radius;
+				border-radius: var(--radius);
+				background: variable.$primary-color;
+				background: var(--primary-color);
+				cursor: pointer;
+
+				&:hover {
+					filter: brightness(0.9);
+				}
+			}
+
+			.pdp-cancel {
+				font-size: 0.8em;
+				padding: 0.25em 0.5em;
+				margin: 0 0.3em;
+				line-height: 1.5;
+				color: variable.$primary-color;
+				color: var(--primary-color);
+				text-decoration: none;
+				border: 1px solid variable.$primary-color;
+				border: 1px solid var(--primary-color);
+				border-radius: variable.$radius;
+				border-radius: var(--radius);
+				background: transparent;
+				cursor: pointer;
+
+				&:hover {
+					background: variable.$primary-color;
+					background: var(--primary-color);
+					color: variable.$background;
+					color: var(--background);
+				}
+			}
+
+			> div {
+				display: flex;
+			}
+		}
+
+		.pdp-shortcut {
+			margin: 0;
+			padding: 0.5em;
+			list-style: none;
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			border-right: 1px solid variable.$border-color;
+			border-right: 1px solid var(--border-color);
+
+			li {
+				margin: 0;
+				padding: 0.5em 1em;
+				text-align: center;
+				cursor: pointer;
+				border-radius: variable.$radius;
+				border-radius: var(--radius);
+				margin: 0.25em 0;
+				color: variable.$hover-color;
+				color: var(--hover-color);
+				font-weight: 500;
+
+				&:hover {
+					background: variable.$in-range-background;
+					background: var(--in-range-background);
+				}
+
+				&.selected {
+					background: variable.$primary-color;
+					background: var(--primary-color);
+					color: variable.$background;
+					color: var(--background);
+				}
+			}
+		}
+	}
+
+	.pdp-pointer {
+		cursor: pointer;
+	}
+
+	.pdp-auto {
+		margin: auto;
+		position: relative;
+	}
 }

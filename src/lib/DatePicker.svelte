@@ -313,7 +313,7 @@
 	let selectedTimesState: PersianDate[] = $state([]);
 
 	/** Controls visibility of the datepicker popup */
-	let showDatePickerState = $state(showProp);
+	let showDatePickerState = $state(false);
 
 	$effect(() => {
 		showDatePickerState = showProp;
@@ -338,7 +338,7 @@
 	let documentWidthState = $state(typeof window !== 'undefined' ? window.innerWidth : Infinity);
 
 	/** Current active locale from the comma-separated locale prop */
-	let currentLocaleState = $state(localeProp.split(',')[0]);
+	let currentLocaleState = $state('');
 
 	$effect(() => {
 		currentLocaleState = localeProp.split(',')[0];
