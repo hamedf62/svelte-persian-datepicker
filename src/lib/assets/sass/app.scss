@@ -6,15 +6,15 @@
     position: absolute;
     bottom: 100%;
     //--- right of datepicker ---//
-    // right: 1.2rem;
+    // right: 1.2em;
     //--- center of datepicker ---//
     /* left: 50%; transform: translateX(-50%); */
     //--- left of datepicker ---//
-    /* left: 1.2rem; */
+    /* left: 1.2em; */
     border: solid transparent;
     border-bottom-color: variable.$background;
     border-bottom-color: var(--background);
-    border-width: 0.4rem;
+    border-width: 0.4em;
   }
 }
 
@@ -24,13 +24,13 @@
   }
 
   &::-webkit-scrollbar:vertical {
-    width: 0.4rem;
+    width: 0.4em;
   }
 
   &::-webkit-scrollbar-thumb {
     border-radius: variable.$radius;
     border-radius: var(--radius);
-    border: 0.1rem solid white;
+    border: 0.1em solid white;
     /* should match background, can't be transparent */
     background: variable.$border-color;
     background: var(--border-color);
@@ -176,7 +176,7 @@
         }
 
         +input {
-          padding-right: 3rem;
+          padding-right: 3em;
         }
       }
     }
@@ -184,13 +184,13 @@
     &.pdp-dual {
       .pdp-clear {
         &:nth-of-type(1) {
-          left: calc(50% + 0.5rem) !important;
+          left: calc(50% + 0.5em) !important;
         }
       }
     }
 
     .pdp-picker::after {
-      right: 1.2rem;
+      right: 1.2em;
     }
   }
 
@@ -218,7 +218,7 @@
 
       .pdp-clear {
         left: unset;
-        right: 0.5rem;
+        right: 0.5em;
       }
 
       .pdp-icon.pdp-inside {
@@ -227,7 +227,7 @@
         }
 
         +input {
-          padding-left: 3rem;
+          padding-left: 3em;
         }
       }
     }
@@ -235,13 +235,13 @@
     &.pdp-dual {
       .pdp-clear {
         &:nth-of-type(1) {
-          right: calc(50% + 0.5rem) !important;
+          right: calc(50% + 0.5em) !important;
         }
       }
     }
 
     .pdp-picker::after {
-      left: 1.2rem;
+      left: 1.2em;
     }
   }
 
@@ -287,7 +287,7 @@
 
   .pdp-label {
     display: inline-block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.5em;
   }
 
   .pdp-group {
@@ -298,9 +298,9 @@
 
     .pdp-input {
       display: block;
-      height: calc(1.5em + 0.75rem + 2px);
-      padding: 0.375rem 0.75rem;
-      font-size: 1rem;
+      height: calc(1.5em + 0.75em + 2px);
+      padding: 0.375em 0.75em;
+      font-size: 1em;
       font-weight: 400;
       line-height: 1.5;
       background-clip: padding-box;
@@ -321,16 +321,16 @@
     }
 
     .pdp-icon {
-      padding: 0.375rem 0.75rem;
+      padding: 0.375em 0.75em;
       line-height: 1.5;
-      font-size: 1rem;
+      font-size: 1em;
       color: variable.$text-color;
       color: var(--text-color);
       background: variable.$icon-background;
       background: var(--icon-background);
       border: 1px solid variable.$border-color;
       border: 1px solid var(--border-color);
-      max-height: calc(1.5em + 0.75rem + 2px);
+      max-height: calc(1.5em + 0.75em + 2px);
 
       &:nth-of-type(2) {
         margin-left: -1px;
@@ -349,12 +349,12 @@
       border: none;
       background-color: transparent;
       position: absolute;
-      left: 0.5rem;
+      left: 0.5em;
       top: 0;
       bottom: 0;
       z-index: 1;
       cursor: pointer;
-      padding: 0 0.5rem;
+      padding: 0 0.5em;
     }
   }
 
@@ -364,8 +364,7 @@
     bottom: 0;
     right: 0;
     left: 0;
-    z-index: variable.$z-index;
-    z-index: var(--z-index);
+    z-index: calc(var(--z-index) - 1);
     background: variable.$overlay-color;
     background: var(--overlay-color);
   }
@@ -379,13 +378,13 @@
     background: var(--background);
     box-shadow: variable.$main-box-shadow;
     box-shadow: var(--main-box-shadow);
-    z-index: variable.$z-index + 1;
-    z-index: calc(var(--z-index) + 1);
+    z-index: variable.$z-index;
+    z-index: var(--z-index);
     border-radius: variable.$radius;
     border-radius: var(--radius);
     transition: all 1s ease;
-    margin-top: 0.5rem;
-    padding: 0.3rem 0.6rem;
+    margin-top: 0.5em;
+    padding: 0.3em 0.6em;
     animation: start 0.1s;
 
     &.ltr {
@@ -414,9 +413,9 @@
     }
 
     &.pdp-top {
-      bottom: calc(1.5em + 0.75rem + 2px);
+      bottom: calc(1.5em + 0.75em + 2px);
       margin-top: unset;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.5em;
 
       &::after {
         bottom: unset;
@@ -431,7 +430,7 @@
 
       &::after {
         right: unset;
-        left: 1.2rem;
+        left: 1.2em;
       }
     }
 
@@ -441,7 +440,7 @@
 
       &::after {
         left: unset;
-        right: 1.2rem;
+        right: 1.2em;
       }
     }
 
@@ -465,14 +464,14 @@
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      font-size: 0.8rem;
+      font-size: 0.8em;
       background: inherit;
       list-style: none;
       position: absolute;
       left: 0;
       right: 0;
-      top: 3.5rem;
-      bottom: 3.5rem;
+      top: 3.5em;
+      bottom: 3.5em;
       padding: 0;
       margin: 0;
       z-index: 1;
@@ -490,11 +489,11 @@
       }
 
       li {
-        width: 5rem;
-        height: 4rem;
-        padding: 0.2rem;
+        width: 5em;
+        height: 4em;
+        padding: 0.2em;
         cursor: pointer;
-        margin: 0.15rem;
+        margin: 0.15em;
         display: inline-flex;
         justify-content: center;
         align-items: center;
@@ -534,14 +533,14 @@
       &>div:first-child {
         border-bottom: 1px solid variable.$border-color;
         border-bottom: 1px solid var(--border-color);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.5em;
       }
 
       .top {
-        padding: 0.75rem 0.3rem 1rem 0.3rem;
+        padding: 0.75em 0.3em 1em 0.3em;
         display: flex;
         justify-content: space-between;
-        font-size: 0.9rem;
+        font-size: 0.9em;
         direction: rtl;
 
         button {
@@ -550,15 +549,15 @@
           cursor: pointer;
           color: variable.$primary-color;
           color: var(--primary-color);
-          padding: 0 0.5rem;
+          padding: 0 0.5em;
         }
       }
 
       .bottom {
-        padding: 0.3rem;
+        padding: 0.3em;
         display: flex;
         align-items: center;
-        height: 3rem;
+        height: 3em;
         direction: rtl;
 
         &>div {
@@ -570,7 +569,7 @@
           .pdp-year {
             color: variable.$primary-color;
             color: var(--primary-color);
-            font-size: 1rem;
+            font-size: 1em;
           }
         }
 
@@ -604,11 +603,11 @@
         justify-content: center;
 
         .pdp-column {
-          margin: 0 1rem;
+          margin: 0 1em;
 
           .pdp-week {
             background: inherit;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.3em;
             display: flex;
             justify-content: space-around;
 
@@ -619,7 +618,7 @@
               height: var(--day-dimensions);
               line-height: variable.$day-dimensions;
               line-height: var(--day-dimensions);
-              font-size: 0.8rem;
+              font-size: 0.8em;
               text-align: center;
             }
           }
@@ -631,8 +630,8 @@
               display: inline-flex;
               justify-content: center;
               align-items: center;
-              margin: 0.1rem 0;
-              font-size: 0.8rem;
+              margin: 0.1em 0;
+              font-size: 0.8em;
               width: variable.$day-dimensions;
               width: var(--day-dimensions);
               height: variable.$day-dimensions;
@@ -730,9 +729,9 @@
         }
 
         .pdp-moment {
-          margin-bottom: 1rem;
-          font-size: calc(2rem * variable.$time-scale);
-          font-size: calc(2rem * var(--time-scale));
+          margin-bottom: 1em;
+          font-size: calc(2em * variable.$time-scale);
+          font-size: calc(2em * var(--time-scale));
           display: flex;
           justify-content: space-around;
           height: 100%;
@@ -747,7 +746,7 @@
             align-items: center;
             direction: ltr;
             width: 100%;
-            padding: 1rem 0;
+            padding: 1em 0;
 
             &.disabled {
               opacity: variable.$disabled-opacity;
@@ -758,7 +757,7 @@
               display: flex;
               flex-direction: column;
               align-items: center;
-              padding: 0 0.8rem;
+              padding: 0 0.8em;
 
               button {
                 border: none;
@@ -773,19 +772,19 @@
 
     .pdp-footer {
       text-align: center;
-      min-height: 3rem;
+      min-height: 3em;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-top: 1px solid variable.$border-color;
       border-top: 1px solid var(--border-color);
-      padding: 0.3rem;
+      padding: 0.3em;
 
       .pdp-today,
       .pdp-submit {
-        font-size: 0.8rem;
-        padding: 0.25rem 0.5rem;
-        margin: 0 0.3rem;
+        font-size: 0.8em;
+        padding: 0.25em 0.5em;
+        margin: 0 0.3em;
         line-height: 1.5;
         color: variable.$background;
         color: var(--background);
@@ -803,9 +802,9 @@
       }
 
       .pdp-cancel {
-        font-size: 0.8rem;
-        padding: 0.25rem 0.5rem;
-        margin: 0 0.3rem;
+        font-size: 0.8em;
+        padding: 0.25em 0.5em;
+        margin: 0 0.3em;
         line-height: 1.5;
         color: variable.$primary-color;
         color: var(--primary-color);
@@ -832,7 +831,7 @@
 
     .pdp-shortcut {
       margin: 0;
-      padding: 0.5rem;
+      padding: 0.5em;
       list-style: none;
       display: flex;
       flex-direction: column;
@@ -842,12 +841,12 @@
 
       li {
         margin: 0;
-        padding: 0.5rem 1rem;
+        padding: 0.5em 1em;
         text-align: center;
         cursor: pointer;
         border-radius: variable.$radius;
         border-radius: var(--radius);
-        margin: 0.25rem 0;
+        margin: 0.25em 0;
         color: variable.$hover-color;
         color: var(--hover-color);
         font-weight: 500;

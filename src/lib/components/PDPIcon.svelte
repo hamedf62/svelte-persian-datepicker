@@ -6,7 +6,13 @@
 </script>
 
 {#if icon === 'clear'}
-	<svg viewBox="0 0 512 512" width="1rem" xmlns="http://www.w3.org/2000/svg" {...$$restProps}>
+	<svg
+		viewBox="0 0 512 512"
+		width="1em"
+		height="1em"
+		xmlns="http://www.w3.org/2000/svg"
+		{...$$restProps}
+	>
 		<metadata>Clear icon</metadata>
 		<path
 			d="M443.6,387.1L312.4,255.4l131.5-130c5.4-5.4,5.4-14.2,0-19.6l-37.4-37.6c-2.6-2.6-6.1-4-9.8-4c-3.7,0-7.2,1.5-9.8,4  L256,197.8L124.9,68.3c-2.6-2.6-6.1-4-9.8-4c-3.7,0-7.2,1.5-9.8,4L68,105.9c-5.4,5.4-5.4,14.2,0,19.6l131.5,130L68.4,387.1  c-2.6,2.6-4.1,6.1-4.1,9.8c0,3.7,1.4,7.2,4.1,9.8l37.4,37.6c2.7,2.7,6.2,4.1,9.8,4.1c3.5,0,7.1-1.3,9.8-4.1L256,313.1l130.7,131.1  c2.7,2.7,6.2,4.1,9.8,4.1c3.5,0,7.1-1.3,9.8-4.1l37.4-37.6c2.6-2.6,4.1-6.1,4.1-9.8C447.7,393.2,446.2,389.7,443.6,387.1z"
@@ -16,6 +22,8 @@
 	<svg
 		version="1.1"
 		viewBox="20.711000442504883 19.33300018310547 51.29999542236328 53.48200225830078"
+		width="1em"
+		height="1em"
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
 		{...$$restProps}
@@ -46,11 +54,18 @@
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
 		viewBox="7.146755218505859 47.93895721435547 195.70648193359375 201.1220703125"
+		width="1em"
+		height="1em"
 		version="1.1"
 		{...$$restProps}
 	>
 		<metadata>Calendar And Clock Icon</metadata>
-		<g id="g915" data-inkscape-label="calendar" data-inkscape-groupmode="layer" style="display: inline">
+		<g
+			id="g915"
+			data-inkscape-label="calendar"
+			data-inkscape-groupmode="layer"
+			style="display: inline"
+		>
 			<g id="g907" transform="matrix(3.2971191,0,0,3.2971191,-61.13988,-15.80425)">
 				<path
 					id="path893"
@@ -110,6 +125,8 @@
 		fill-rule="evenodd"
 		clip-rule="evenodd"
 		viewBox="0 0 24 24"
+		width="1em"
+		height="1em"
 		{...$$restProps}
 	>
 		<metadata>Clock Icon</metadata>

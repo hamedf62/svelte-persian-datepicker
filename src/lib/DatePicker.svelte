@@ -315,6 +315,10 @@
 	/** Controls visibility of the datepicker popup */
 	let showDatePickerState = $state(showProp);
 
+	$effect(() => {
+		showDatePickerState = showProp;
+	});
+
 	/** Controls visibility of year selection dropdown */
 	let showYearSelectState = $state(false);
 
@@ -335,6 +339,10 @@
 
 	/** Current active locale from the comma-separated locale prop */
 	let currentLocaleState = $state(localeProp.split(',')[0]);
+
+	$effect(() => {
+		currentLocaleState = localeProp.split(',')[0];
+	});
 
 	/** Copy of selected dates that have been submitted/confirmed */
 	let submitedValueState: PersianDate[] = $state([]);
@@ -385,7 +393,7 @@
 	});
 
 	/** Array of input field names - single input or dual inputs for range mode */
-	let inputs: Inputs[] = dualInputProp ? ['firstInput', 'secondInput'] : ['firstInput'];
+	let inputs: Inputs[] = $derived(dualInputProp ? ['firstInput', 'secondInput'] : ['firstInput']);
 
 	/**
 	 * Default date range configuration for validation and boundaries
@@ -435,10 +443,12 @@
 		} else {
 			// For date/datetime type, use the PersianDate objects directly
 			fromDateState = (
-				defaultDate.from instanceof PersianDate ? defaultDate.from : coreState.clone()
+				defaultDate.from instanceof PersianDate ? defaultDate.from.clone() : coreState.clone()
 			).calendar(lang.calendar);
-			toDateState = (defaultDate.to instanceof PersianDate ? defaultDate.to : coreState.clone())
-				.endOf('date') // Default to end of date for Date objects
+			toDateState = (
+				defaultDate.to instanceof PersianDate ? defaultDate.to.clone() : coreState.clone()
+			)
+				.endOf('day') // Default to end of day for Date objects
 				.calendar(lang.calendar);
 		}
 	});
@@ -504,23 +514,29 @@
 			const match = key.match(/(div|label|alt|picker|firstInput|secondInput)-(.*)/);
 			if (match) {
 				const [, group, attr] = match as [string, keyof Attrs, string];
-				attrsLocal[group][attr] = value as string;
+				if (attr === 'class' && attrsLocal[group][attr]) {
+					attrsLocal[group][attr] += ` ${value}`;
+				} else {
+					attrsLocal[group][attr] = value as string;
+				}
 			} else {
 				// Default attributes go to firstInput
-				attrsLocal.firstInput[key] = value as string;
+				if (key === 'class' && attrsLocal.firstInput.class) {
+					// Don't append to firstInput class if it's the main class prop
+					// as it's already handled on the root div
+				} else {
+					attrsLocal.firstInput[key] = value as string;
+				}
 			}
 		}
 
 		// Apply picker positioning and direction classes
-		attrsLocal.picker.class = [
-			attrsLocal.picker.class,
-			{
-				'pdp-top': pickerPlaceState.top,
-				'pdp-left': pickerPlaceState.left,
-				'pdp-right': pickerPlaceState.right
-			},
-			lang.dir.picker
-		];
+		const pickerClasses = ['pdp-picker'];
+		if (pickerPlaceState.top) pickerClasses.push('pdp-top');
+		if (pickerPlaceState.left) pickerClasses.push('pdp-left');
+		if (pickerPlaceState.right) pickerClasses.push('pdp-right');
+		pickerClasses.push(lang.dir.picker);
+		attrsLocal.picker.class = pickerClasses.join(' ');
 
 		// For single mode with dual input, disable second input
 		if (modeProp == 'single' && dualInputProp) {
@@ -1579,7 +1595,7 @@
 					}
 				}}
 			>
-				<PDPIcon icon={typeProp} width="23" height="23" />
+				<PDPIcon icon={typeProp} width="1em" height="1em" />
 			</div>
 
 			<input
@@ -1589,6 +1605,7 @@
 				autocomplete="off"
 				{...attrs[input]}
 				onfocus={() => showPicker('input', index as 0 | 1)}
+				onclick={() => showPicker('input', index as 0 | 1)}
 				onkeydown={selectWithArrow}
 			/>
 
