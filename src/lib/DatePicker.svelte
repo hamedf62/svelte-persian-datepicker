@@ -338,10 +338,13 @@
 	let documentWidthState = $state(typeof window !== 'undefined' ? window.innerWidth : Infinity);
 
 	/** Current active locale from the comma-separated locale prop */
-	let currentLocaleState = $state('');
+	let currentLocaleState = $state('fa');
 
 	$effect(() => {
-		currentLocaleState = localeProp.split(',')[0];
+		const localeArray = localeProp.split(',');
+		const index = localeArray.indexOf(currentLocaleState);
+		// If current locale is in the new array, keep it; otherwise use first locale
+		currentLocaleState = (index >= 0 ? localeArray[index] : localeArray[0]) || 'fa';
 	});
 
 	/** Copy of selected dates that have been submitted/confirmed */
