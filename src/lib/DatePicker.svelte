@@ -415,7 +415,7 @@
 					: '00:00'
 				: fromProp
 					? safePersianDate(fromProp)
-					: new PersianDate('1300'),
+					: new PersianDate().parse('1300/01/01'),
 		to:
 			typeProp === 'time'
 				? toProp
@@ -423,7 +423,7 @@
 					: '23:59'
 				: toProp
 					? safePersianDate(toProp)
-					: new PersianDate('1430')
+					: new PersianDate().parse('1430/01/01')
 	});
 
 	/** Minimum selectable date/time boundary */
@@ -456,7 +456,7 @@
 			toDateState = (
 				defaultDate.to instanceof PersianDate ? defaultDate.to.clone() : coreState.clone()
 			)
-				.endOf('day') // Default to end of day for Date objects
+				.endOf('date') // Default to end of day for Date objects
 				.calendar(lang.calendar);
 		}
 	});
