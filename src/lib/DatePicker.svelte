@@ -309,6 +309,9 @@
 	/** Array of selected dates (handles single, range, and multiple modes) */
 	let selectedDatesState: PersianDate[] = $state([]);
 
+	/** Currently hovered date for range selection preview */
+	let hoveredDateState: PersianDate | undefined = $state();
+
 	/** Array of selected times (for datetime and time types) */
 	let selectedTimesState: PersianDate[] = $state([]);
 
@@ -316,7 +319,9 @@
 	let showDatePickerState = $state(false);
 
 	$effect(() => {
-		showDatePickerState = showProp;
+		if (!showDatePickerState) {
+			hoveredDateState = undefined;
+		}
 	});
 
 	/** Controls visibility of year selection dropdown */
@@ -699,16 +704,27 @@
 								selectedDatesState[0] &&
 								selectedDatesState[0].isSame(selectedYear, selectedMonth, showDay),
 							endRange:
-								selectedDatesState[1] &&
-								selectedDatesState[1].isSame(selectedYear, selectedMonth, showDay),
+								(selectedDatesState[1] &&
+									selectedDatesState[1].isSame(selectedYear, selectedMonth, showDay)) ||
+								(modeProp === 'range' &&
+									selectedDatesState.length === 1 &&
+									hoveredDateState &&
+									hoveredDateState.isSame(selectedYear, selectedMonth, showDay)),
 							inRange:
-								selectedDatesState.length == 2 &&
-								coreState
-									.clone()
-									.parse(selectedYear, selectedMonth, showDay)
-									.isBetween(
-										...(selectedDatesState.map((date) => date.toString()) as [string, string])
-									),
+								(selectedDatesState.length == 2 &&
+									coreState
+										.clone()
+										.parse(selectedYear, selectedMonth, showDay)
+										.isBetween(
+											...(selectedDatesState.map((date) => date.toString()) as [string, string])
+										)) ||
+								(modeProp === 'range' &&
+									selectedDatesState.length === 1 &&
+									hoveredDateState &&
+									coreState
+										.clone()
+										.parse(selectedYear, selectedMonth, showDay)
+										.isBetween(selectedDatesState[0].toString(), hoveredDateState.toString())),
 							selected:
 								modeProp === 'multiple' &&
 								selectedDatesState.some((date) =>
@@ -716,7 +732,14 @@
 								),
 							disabled:
 								!checkDate(onDisplayState!.clone().addMonth(i).date(showDay), 'date') ||
-								isInDisable(onDisplayState!.clone().addMonth(i).date(showDay)),
+								isInDisable(onDisplayState!.clone().addMonth(i).date(showDay)) ||
+								(modeProp === 'range' &&
+									selectedDatesState.length === 1 &&
+									onDisplayState!
+										.clone()
+										.addMonth(i)
+										.date(showDay)
+										.isBefore(selectedDatesState[0])),
 							today: coreState.clone().isSame(selectedYear, selectedMonth, showDay),
 							val: showDay++
 						};
@@ -840,6 +863,28 @@
 	$effect(() => {
 		if (rootElement) {
 			Core.setColor(colorProp, rootElement);
+		}
+	});
+
+	/**
+	 * Reacts to external changes in the model prop
+	 * This ensures that if the parent component updates the model value,
+	 * the datepicker's internal state is synchronized.
+	 */
+	$effect(() => {
+		if (modelValueProp !== undefined) {
+			const currentModel = selectedDatesState.map((el) => {
+				const gregorianDate = el.clone().calendar('gregorian');
+				return gregorianDate.toString(formats.model);
+			});
+
+			const isSame = Array.isArray(modelValueProp)
+				? JSON.stringify(modelValueProp) === JSON.stringify(currentModel)
+				: modelValueProp === currentModel[0];
+
+			if (!isSame) {
+				setDate(modelValueProp as string | string[]);
+			}
 		}
 	});
 
@@ -1008,8 +1053,10 @@
 		if (modeProp == 'single') {
 			selectedDatesState = [date];
 		} else if (modeProp == 'range') {
-			(pdpMain as HTMLElement).addEventListener('mouseover', selectInRangeDate);
-			if (selectedDatesState.length === 0) {
+			if (selectedDatesState.length === 2) {
+				selectedDatesState = [date];
+				inputNameState = 'secondInput';
+			} else if (selectedDatesState.length === 0) {
 				selectedDatesState[0] = date;
 				inputNameState = 'secondInput';
 			} else if (inputNameState === 'secondInput') {
@@ -1017,18 +1064,14 @@
 				if (!date.isBefore(selectedDatesState[0] as PersianDate)) {
 					selectedDatesState[1] = date;
 				} else {
-					if (selectedDatesState.length === 1) selectedDatesState.unshift(date);
-					else {
-						selectedDatesState = [date];
-						inputNameState = 'secondInput';
-					}
+					selectedDatesState.unshift(date);
 				}
 			} else {
 				selectedDatesState = [date];
 				inputNameState = 'secondInput';
 			}
 			if (selectedDatesState.length == 2) {
-				(pdpMain as HTMLElement).removeEventListener('mouseover', selectInRangeDate);
+				hoveredDateState = undefined;
 			}
 		} else if (modeProp == 'multiple') {
 			// Check if date is already selected
@@ -1063,9 +1106,9 @@
 			submitDate();
 			return 1;
 		}
-		// For multiple selection, update the model but don't close the modal
+		// For multiple selection or partial range selection, update the model but don't close the modal
 		// The displayValueState is automatically updated by the $effect
-		if (modeProp === 'multiple') {
+		if (modeProp === 'multiple' || (modeProp === 'range' && selectedDatesState.length === 1)) {
 			setModel();
 		}
 		return 0;
@@ -1244,7 +1287,12 @@
 				}
 			}
 			if (modeProp === 'range' && selectedDatesState.length == 1) {
-				selectInRangeDate({ target: focusedDay });
+				const column = getColumn(focusedDay);
+				hoveredDateState = onDisplayState!
+					.clone()
+					.startOf('date')
+					.addMonth(column as number)
+					.date(focusedDay.innerText);
 			}
 		} else if (e.key == 'Enter') {
 			// 13 is key code of Enter key
@@ -1286,63 +1334,6 @@
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	function selectInRangeDate(e: any): void {
-		const target = e.target;
-		if (!target.classList.contains('pdp-day')) return;
-		document.querySelectorAll(`.pdp .pdp-day`).forEach((el) => {
-			el.classList.remove('in-range');
-		});
-
-		let column = getColumn(target);
-		const hoveredDate = onDisplayState!
-			.clone()
-			.startOf('date')
-			.addMonth(column)
-			.date(target.innerText);
-		const selectedDate = selectedDatesState[0].clone().startOf('date');
-		const number = hoveredDate.isAfter(selectedDate) ? 1 : -1;
-		const selectedDateDOM = document.querySelector(
-			'.pdp-day.start-range,.pdp-day.end-range'
-		) as HTMLElement;
-		if (selectedDateDOM) {
-			column = +getColumn(selectedDateDOM);
-			selectedDateDOM.classList.replace(
-				...((hoveredDate.isBefore(selectedDate)
-					? ['start-range', 'end-range']
-					: ['end-range', 'start-range']) as [string, string])
-			);
-		} else {
-			selectedDate.parse(onDisplayState as PersianDate);
-			if (number === 1) {
-				selectedDate.startOf('month').subDay();
-				column = -1;
-			} else {
-				selectedDate
-					.addMonth(columnCountDerived - 1)
-					.endOf('month')
-					.addDay()
-					.startOf('date');
-				column = columnCountDerived;
-			}
-		}
-		while (!hoveredDate.isSame(selectedDate)) {
-			const oldMonth = selectedDate.month();
-			selectedDate.addDay(number);
-			if (oldMonth != selectedDate.month()) {
-				column += number;
-			}
-			if (checkDate(selectedDate, 'date') && !isInDisable(selectedDate)) {
-				document
-					.querySelector(
-						`.pdp-column[data-column='${column}'] .pdp-day[data-value='${selectedDate.date()}']`
-					)!
-					.classList.add('in-range');
-			} else {
-				break;
-			}
-		}
-	}
-
 	function submitDate(close = true): void {
 		// The displayValueState is now updated automatically by the $effect above
 		// when selectedDatesState or inputDisplayCalendar changes
@@ -1516,10 +1507,22 @@
 	function setDate(dates: string | string[]) {
 		if (!dates || (Array.isArray(dates) && dates.length === 0)) return;
 
-		if (modeProp == 'single' && typeof dates === 'string') dates = [dates];
+		// Ensure dates is an array for processing
+		let datesArray: string[];
+		if (typeof dates === 'string') {
+			datesArray = [dates];
+		} else if (Array.isArray(dates)) {
+			datesArray = dates;
+		} else {
+			// If it's not a string or array, it's invalid data for the model
+			console.warn('DatePicker: Invalid model value provided. Expected string or string[].', dates);
+			return;
+		}
+
 		selectedDatesState = [];
 
-		(dates as string[]).some((d, index) => {
+		datesArray.some((d, index) => {
+			if (typeof d !== 'string') return false;
 			const date = coreState
 				.clone()
 				.fromGregorian((typeProp == 'time' ? coreState.toString('YYYY-MM-DD') + ' ' : '') + d);
@@ -1769,6 +1772,12 @@
 																	!day.disabled &&
 																	day.raw &&
 																	selectDate(day.raw, 'date')}
+																onmouseenter={() =>
+																	!day.empty &&
+																	!day.disabled &&
+																	day.raw &&
+																	(hoveredDateState = day.raw)}
+																onmouseleave={() => (hoveredDateState = undefined)}
 																aria-label={day.val ? `Day ${day.val}` : 'Empty'}
 																data-value={day.val}
 															>

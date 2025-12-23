@@ -38,6 +38,11 @@ A highly customizable and feature-rich date picker component built with Svelte 5
 - **Modal Mode**: Can be displayed as modal
 - **Dual Input**: Separate inputs for range selection
 - **Validation**: Built-in date validation and disable rules
+- **Smart Range Selection**: 
+    - **Cross-Month Preview**: See your selected range highlight even when navigating between months.
+    - **Dynamic Disabling**: Automatically disables dates before the start date during range selection.
+    - **Easy Reset**: Clicking a new date when a range is already selected resets and starts a new selection.
+- **Reactive Model**: Seamlessly syncs with parent state changes, supporting asynchronous data loading.
 
 ## 🚀 Installation
 
@@ -55,7 +60,7 @@ yarn add @hamedf/svelte-persian-datepicker
 <script>
 	import DatePicker from '@hamedf/svelte-persian-datepicker';
 
-	let selectedDate = '';
+	let selectedDate = $state(''); // Svelte 5 rune
 
 	function handleSubmit(date) {
 		console.log('Selected date:', date);
@@ -71,6 +76,8 @@ yarn add @hamedf/svelte-persian-datepicker
 	clearable={true}
 />
 ```
+
+> **Note**: For more advanced examples including range selection, async loading, and disabling dates, check out the [demo route](src/routes/default-value/+page.svelte) in the repository.
 
 ## 🎯 Usage Examples
 
@@ -97,6 +104,23 @@ yarn add @hamedf/svelte-persian-datepicker
 	color="green"
 />
 ```
+
+### Disable Previous Dates (Select from Today)
+
+```svelte
+<DatePicker
+	bind:model={selectedDate}
+	from={new Date()}
+	color="orange"
+	label="Select future date"
+/>
+```
+
+## 🤖 GitHub Copilot Integration
+
+This package includes a specialized instruction file for GitHub Copilot. When you use this package in your project, Copilot will automatically understand the Svelte 5 runes, the Gregorian model requirement, and the various selection modes.
+
+You can find the detailed instructions in [.github/copilot-instructions.md](.github/copilot-instructions.md).
 
 ### Multiple Date Selection
 
@@ -154,12 +178,12 @@ yarn add @hamedf/svelte-persian-datepicker
 
 | Prop             | Type                                                                     | Default     | Description                |
 | ---------------- | ------------------------------------------------------------------------ | ----------- | -------------------------- |
-| `model`          | `string \| string[] \| PersianDate \| PersianDate[]`                     | `undefined` | The selected value(s)      |
+| `model`          | `string \| string[] \| PersianDate \| PersianDate[]`                     | `undefined` | The selected value(s) (Bindable) |
 | `mode`           | `'single' \| 'range' \| 'multiple'`                                      | `'single'`  | Selection mode             |
 | `type`           | `'date' \| 'time' \| 'datetime'`                                         | `'date'`    | Type of picker             |
-| `format`         | `string`                                                                 | `undefined` | Output format              |
-| `input_format`   | `string`                                                                 | `undefined` | Input format               |
-| `display_format` | `string`                                                                 | `undefined` | Display format             |
+| `format`         | `string`                                                                 | `undefined` | Output format (Gregorian)  |
+| `input_format`   | `string`                                                                 | `undefined` | Input parsing format       |
+| `display_format` | `string`                                                                 | `undefined` | UI display format          |
 | `color`          | `'blue' \| 'red' \| 'pink' \| 'orange' \| 'green' \| 'purple' \| 'gray'` | `undefined` | Color theme                |
 | `locale`         | `string`                                                                 | `'fa'`      | Locale (fa, en, ar)        |
 | `clearable`      | `boolean`                                                                | `true`      | Show clear button          |
@@ -168,9 +192,9 @@ yarn add @hamedf/svelte-persian-datepicker
 | `dual_input`     | `boolean`                                                                | `false`     | Separate inputs for range  |
 | `shortcut`       | `boolean \| object`                                                      | `false`     | Enable shortcuts           |
 | `column`         | `number \| object`                                                       | `1`         | Number of calendar columns |
-| `from`           | `string`                                                                 | `'1300'`    | Minimum date/time          |
-| `to`             | `string`                                                                 | `'1430'`    | Maximum date/time          |
-| `disable`        | `object`                                                                 | `undefined` | Disable rules              |
+| `from`           | `Date \| string`                                                         | `1921-03-22`| Minimum selectable date    |
+| `to`             | `Date \| string`                                                         | `2051-03-21`| Maximum selectable date    |
+| `disable`        | `string[] \| function \| RegExp`                                         | `undefined` | Custom disable rules       |
 
 ## 🎨 Events
 
@@ -384,11 +408,11 @@ let date: string;
 
 **Essential Props for Common Use Cases:**
 
-- `bind:model` - The selected date value(s) - ALWAYS BINDABLE
+- `bind:model` - The selected date value(s) - **ALWAYS BINDABLE & REACTIVE**
 - `mode` - Selection type: "single" | "range" | "multiple"
 - `type` - Picker type: "date" | "time" | "datetime"
 - `locale` - Language/calendar: "fa" | "en" | "ar" | "fa,en"
-- `from`/`to` - Date boundaries (e.g., "1400/01/01", "1405/12/29")
+- `from`/`to` - Date boundaries (supports `Date` objects or strings)
 - `disable` - Disabled dates/times (array, function, or regex)
 
 **Styling & UI Props:**
@@ -407,8 +431,11 @@ let date: string;
 
 ### 💡 AI Best Practices
 
-1. **Always use `bind:model`** for data binding
-2. **Check `mode` prop** for selection behavior
+1. **Always use `bind:model`** for data binding. The component will automatically sync if the parent updates the value.
+2. **Range Selection**: The component handles the flow (Start -> End). If a range is already selected, the next click resets it.
+3. **Date Boundaries**: Use `from={new Date()}` to disable all previous dates easily.
+4. **Model Format**: Remember that the `model` always uses Gregorian format (`YYYY-MM-DD`) for consistency, regardless of the displayed calendar.
+5. **Async Data**: You can initialize the `model` with an empty string and update it later (e.g., after a fetch); the component will react accordingly.
 3. **Use `from`/`to` props** for date boundaries
 4. **Use `disable` prop** for validation rules
 5. **Set `locale` appropriately** for language/calendar
