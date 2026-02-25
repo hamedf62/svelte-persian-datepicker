@@ -5,18 +5,975 @@
 		content: '';
 		position: absolute;
 		bottom: 100%;
-		//--- right of datepicker ---//
-		// right: 1.2em;
-		//--- center of datepicker ---//
-		/* left: 50%; transform: translateX(-50%); */
-		//--- left of datepicker ---//
-		/* left: 1.2em; */
 		border: solid transparent;
 		border-bottom-color: variable.$background;
 		border-bottom-color: var(--background);
 		border-width: 0.4em;
 	}
 }
+
+@mixin scrollbar {
+	&::-webkit-scrollbar {
+		-webkit-appearance: none;
+	}
+
+	&::-webkit-scrollbar:vertical {
+		width: 0.35em;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		border-radius: 1em;
+		background: variable.$border-color;
+		background: var(--border-color);
+	}
+}
+
+@keyframes start {
+	from {
+		transform: inherit scale(0.95);
+		opacity: 0;
+	}
+
+	to {
+		transform: inherit scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes startModal {
+	from {
+		transform: translate(-50%, -50%) scale(0.95);
+		opacity: 0;
+	}
+
+	to {
+		transform: translate(-50%, -50%) scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes tada {
+	0% {
+		transform: scale(1);
+	}
+
+	10%,
+	20% {
+		transform: scale(0.9) rotate(-3deg);
+	}
+
+	30%,
+	50%,
+	70%,
+	90% {
+		transform: scale(1.1) rotate(3deg);
+	}
+
+	40%,
+	60%,
+	80% {
+		transform: scale(1.1) rotate(-3deg);
+	}
+
+	100% {
+		transform: scale(1) rotate(0);
+	}
+}
+
+@media (max-width: 700px) {
+	.pdp-picker {
+		flex-direction: column-reverse;
+	}
+
+	.pdp-shortcut {
+		flex-direction: row !important;
+		flex-wrap: wrap;
+		justify-content: space-evenly;
+		padding: 0 !important;
+		border: none !important;
+	}
+}
+
+@charset "UTF-8";
+
+.font-fa,
+.pdp {
+	direction: rtl;
+}
+
+.pdp {
+	position: relative;
+
+	&:not(.pdp-range) .pdp-day.start-range {
+		border-radius: variable.$radius !important;
+		border-radius: var(--radius) !important;
+	}
+
+	&.pdp-range .pdp-picker.rtl .pdp-day.start-range {
+		border-radius: 0 variable.$radius variable.$radius 0 !important;
+		border-radius: 0 var(--radius) var(--radius) 0 !important;
+	}
+
+	&.pdp-range .pdp-picker.rtl .pdp-day.end-range {
+		border-radius: variable.$radius 0 0 variable.$radius !important;
+		border-radius: var(--radius) 0 0 var(--radius) !important;
+	}
+
+	&.pdp-range .pdp-picker.rtl .pdp-day.end-range.start-range {
+		border-radius: variable.$radius !important;
+		border-radius: var(--radius) !important;
+	}
+
+	&.pdp-range .pdp-picker.ltr .pdp-day.start-range {
+		border-radius: variable.$radius 0 0 variable.$radius !important;
+		border-radius: var(--radius) 0 0 var(--radius) !important;
+	}
+
+	&.pdp-range .pdp-picker.ltr .pdp-day.end-range {
+		border-radius: 0 variable.$radius variable.$radius 0 !important;
+		border-radius: 0 var(--radius) var(--radius) 0 !important;
+	}
+
+	&.pdp-range .pdp-picker.ltr .pdp-day.end-range.start-range {
+		border-radius: variable.$radius !important;
+		border-radius: var(--radius) !important;
+	}
+
+	&.rtl {
+		direction: rtl;
+		text-align: right;
+
+		.pdp-group {
+
+			:first-child:not(.pdp-inside),
+			.pdp-inside:first-child+input {
+				border-top-right-radius: variable.$radius;
+				border-top-right-radius: var(--radius);
+				border-bottom-right-radius: variable.$radius;
+				border-bottom-right-radius: var(--radius);
+				margin-left: -1px;
+			}
+
+			input:last-of-type {
+				border-top-left-radius: variable.$radius;
+				border-top-left-radius: var(--radius);
+				border-bottom-left-radius: variable.$radius;
+				border-bottom-left-radius: var(--radius);
+			}
+
+			.pdp-icon.pdp-inside {
+				&:nth-of-type(2) {
+					right: 50%;
+				}
+
+				+input {
+					padding-right: 3em;
+				}
+			}
+		}
+
+		&.pdp-dual {
+			.pdp-clear {
+				&:nth-of-type(1) {
+					left: calc(50% + 0.5em) !important;
+				}
+			}
+		}
+
+		.pdp-picker::after {
+			right: 1.2em;
+		}
+	}
+
+	&.ltr {
+		direction: ltr;
+		text-align: left;
+
+		.pdp-group {
+
+			:first-child:not(.pdp-inside),
+			.pdp-inside:first-child+input {
+				border-top-left-radius: variable.$radius;
+				border-top-left-radius: var(--radius);
+				border-bottom-left-radius: variable.$radius;
+				border-bottom-left-radius: var(--radius);
+				margin-right: -1px;
+			}
+
+			input:last-of-type {
+				border-top-right-radius: variable.$radius;
+				border-top-right-radius: var(--radius);
+				border-bottom-right-radius: variable.$radius;
+				border-bottom-right-radius: var(--radius);
+			}
+
+			.pdp-clear {
+				left: unset;
+				right: 0.5em;
+			}
+
+			.pdp-icon.pdp-inside {
+				&:nth-of-type(2) {
+					left: 50%;
+				}
+
+				+input {
+					padding-left: 3em;
+				}
+			}
+		}
+
+		&.pdp-dual {
+			.pdp-clear {
+				&:nth-of-type(1) {
+					right: calc(50% + 0.5em) !important;
+				}
+			}
+		}
+
+		.pdp-picker::after {
+			left: 1.2em;
+		}
+	}
+
+	&.pdp-dual {
+		.pdp-picker {
+			left: 50%;
+			transform: translateX(-50%);
+
+			&::after {
+				right: unset;
+				left: 50%;
+				transform: translateX(-50%);
+			}
+		}
+	}
+
+	&.pdp-modal {
+		.pdp-overlay {
+			background: rgba(0, 0, 0, 0.45) !important;
+		}
+
+		.pdp-picker {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			animation: startModal 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+
+			&::after {
+				all: unset !important;
+			}
+		}
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	input,
+	button {
+		font-family: inherit;
+	}
+
+	.pdp-label {
+		display: inline-block;
+		margin-bottom: 0.4em;
+		font-size: 0.875em;
+		font-weight: 500;
+		color: variable.$text-color;
+		color: var(--text-color);
+	}
+
+	.pdp-group {
+		position: relative;
+		display: flex;
+		align-items: stretch;
+		width: 100%;
+
+		.pdp-input {
+			display: block;
+			height: calc(1.5em + 0.875em + 2px);
+			padding: 0.4375em 0.875em;
+			font-size: 1em;
+			font-weight: 400;
+			line-height: 1.5;
+			color: variable.$text-color;
+			color: var(--text-color);
+			background: variable.$background;
+			background: var(--background);
+			background-clip: padding-box;
+			border: 1.5px solid variable.$border-color;
+			border: 1.5px solid var(--border-color);
+			transition:
+				border-color 0.2s ease,
+				box-shadow 0.2s ease;
+			position: relative;
+			flex: 1 1 auto;
+			width: 100%;
+
+			&::placeholder {
+				color: #9ca3af;
+			}
+
+			&.pdp-focus {
+				outline: none;
+				border-color: variable.$primary-color;
+				border-color: var(--primary-color);
+				box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+				box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
+			}
+		}
+
+		.pdp-icon {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0.4375em 0.75em;
+			line-height: 1.5;
+			font-size: 1em;
+			color: variable.$text-color;
+			color: var(--text-color);
+			background: variable.$icon-background;
+			background: var(--icon-background);
+			border: 1.5px solid variable.$border-color;
+			border: 1.5px solid var(--border-color);
+			max-height: calc(1.5em + 0.875em + 2px);
+
+			&:nth-of-type(2) {
+				margin-left: -1px;
+				margin-right: -1px;
+			}
+
+			&.pdp-inside {
+				background: transparent;
+				border: none;
+				position: absolute;
+				z-index: 1;
+			}
+		}
+
+		.pdp-clear {
+			border: none;
+			background-color: transparent;
+			position: absolute;
+			left: 0.5em;
+			top: 0;
+			bottom: 0;
+			z-index: 1;
+			cursor: pointer;
+			padding: 0 0.4em;
+			color: #9ca3af;
+			transition: color 0.15s;
+
+			&:hover {
+				color: variable.$text-color;
+				color: var(--text-color);
+			}
+		}
+	}
+
+	.pdp-overlay {
+		position: fixed;
+		top: 0;
+		bottom: 0;
+		right: 0;
+		left: 0;
+		z-index: calc(var(--z-index) - 1);
+		background: variable.$overlay-color;
+		background: var(--overlay-color);
+		border: none;
+		cursor: default;
+	}
+
+	.pdp-picker {
+		display: flex;
+		position: fixed;
+		color: variable.$text-color;
+		color: var(--text-color);
+		background: variable.$background;
+		background: var(--background);
+		box-shadow: variable.$main-box-shadow;
+		box-shadow: var(--main-box-shadow);
+		z-index: variable.$z-index;
+		z-index: var(--z-index);
+		border-radius: calc(variable.$radius * 2);
+		border-radius: calc(var(--radius) * 2);
+		border: 1px solid variable.$border-color;
+		border: 1px solid var(--border-color);
+		transition: none;
+		padding: 0.5em 0.75em;
+		animation: start 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+
+		&.ltr {
+			direction: ltr;
+
+			.pdp-header .bottom {
+				flex-direction: row-reverse;
+
+				&>div {
+					display: flex;
+					flex-direction: row-reverse;
+				}
+			}
+
+			.pdp-shortcut {
+				border-right: unset;
+				border-left: 1px solid variable.$border-color;
+				border-left: 1px solid var(--border-color);
+			}
+		}
+
+		&.rtl {
+			direction: rtl;
+		}
+
+		&.pdp-top {
+			&::after {
+				bottom: unset;
+				top: 100%;
+				transform: rotate(180deg);
+			}
+		}
+
+		&.pdp-left {
+			&::after {
+				right: unset;
+				left: 1.2em;
+			}
+		}
+
+		&.pdp-right {
+			&::after {
+				left: unset;
+				right: 1.2em;
+			}
+		}
+
+		@include little-flag();
+
+		::selection {
+			all: unset;
+		}
+
+		.pdp-auto {
+
+			&,
+			&>div {
+				background: inherit;
+			}
+		}
+
+		.pdp-select-year,
+		.pdp-select-month {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
+			font-size: 0.82em;
+			background: inherit;
+			list-style: none;
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 3.5em;
+			bottom: 3.5em;
+			padding: 0.5em;
+			margin: 0;
+			z-index: 1;
+			animation: start 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+			overflow: auto;
+
+			button {
+				border: 0;
+				background: inherit;
+				cursor: pointer;
+				font-size: inherit;
+				color: inherit;
+				padding: 0;
+				width: 100%;
+				height: 100%;
+				border-radius: inherit;
+
+				&:focus {
+					outline: 0;
+				}
+			}
+
+			li {
+				width: 4.5em;
+				height: 3.5em;
+				padding: 0.2em;
+				cursor: pointer;
+				margin: 0.2em;
+				display: inline-flex;
+				justify-content: center;
+				align-items: center;
+				flex: 30% 0;
+				border-radius: variable.$radius;
+				border-radius: var(--radius);
+				transition: background 0.12s, border 0.12s;
+
+				&:not(.disabled):hover {
+					background: variable.$in-range-background;
+					background: var(--in-range-background);
+					border: 2px solid variable.$primary-color;
+					border: 2px solid var(--primary-color);
+				}
+
+				&.disabled {
+					cursor: default !important;
+					opacity: variable.$disabled-opacity;
+					opacity: var(--disabled-opacity);
+					pointer-events: none;
+				}
+
+				&.selected {
+					border: 2px solid variable.$primary-color;
+					border: 2px solid var(--primary-color);
+					background: variable.$primary-color !important;
+					background: var(--primary-color) !important;
+					color: #fff;
+					font-weight: 600;
+				}
+			}
+
+			@include scrollbar();
+		}
+
+		.pdp-header {
+			&>div:first-child {
+				border-bottom: 1px solid variable.$border-color;
+				border-bottom: 1px solid var(--border-color);
+				margin-bottom: 0.5em;
+			}
+
+			.top {
+				padding: 0.6em 0.3em 0.8em 0.3em;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				font-size: 0.85em;
+				direction: rtl;
+
+				div {
+					font-weight: 500;
+					color: variable.$text-color;
+					color: var(--text-color);
+					opacity: 0.6;
+					font-size: 0.92em;
+				}
+
+				button {
+					border: 0;
+					background: variable.$in-range-background;
+					background: var(--in-range-background);
+					cursor: pointer;
+					color: variable.$primary-color;
+					color: var(--primary-color);
+					padding: 0.25em 0.7em;
+					border-radius: 2em;
+					font-size: 0.9em;
+					font-weight: 600;
+					transition: background 0.15s;
+
+					&:hover {
+						background: variable.$secondary-color;
+						background: var(--secondary-color);
+					}
+				}
+			}
+
+			.bottom {
+				padding: 0.25em 0.3em;
+				display: flex;
+				align-items: center;
+				height: 3em;
+				direction: rtl;
+
+				&>div {
+					display: flex;
+					flex-grow: 1;
+					justify-content: space-around;
+
+					.pdp-month,
+					.pdp-year {
+						color: variable.$primary-color;
+						color: var(--primary-color);
+						font-size: 0.95em;
+						font-weight: 600;
+						border-radius: 0.35em;
+						padding: 0.15em 0.4em;
+						transition: background 0.12s;
+
+						&:hover {
+							background: variable.$in-range-background;
+							background: var(--in-range-background);
+						}
+					}
+				}
+
+				button {
+					border: 0;
+					background: inherit;
+					cursor: pointer;
+
+					&:focus {
+						outline: 0;
+					}
+				}
+
+				.pdp-arrow.disabled {
+					opacity: variable.$disabled-opacity;
+					opacity: var(--disabled-opacity);
+				}
+
+				.pdp-arrow:not(.disabled):hover {
+					opacity: 0.55;
+				}
+			}
+		}
+
+		.pdp-main {
+			position: relative;
+
+			.pdp-date {
+				display: flex;
+				justify-content: center;
+
+				.pdp-column {
+					margin: 0 0.75em;
+
+					.pdp-week {
+						background: inherit;
+						margin-bottom: 0.35em;
+						display: flex;
+						justify-content: space-around;
+
+						.pdp-weekday {
+							width: variable.$day-dimensions;
+							width: var(--day-dimensions);
+							height: variable.$day-dimensions;
+							height: var(--day-dimensions);
+							line-height: variable.$day-dimensions;
+							line-height: var(--day-dimensions);
+							font-size: 0.75em;
+							text-align: center;
+							font-weight: 600;
+							color: #9ca3af;
+						}
+					}
+
+					.pdp-days {
+						background: inherit;
+
+						.pdp-day {
+							display: inline-flex;
+							justify-content: center;
+							align-items: center;
+							margin: 0.08em 0;
+							font-size: 0.82em;
+							width: variable.$day-dimensions;
+							width: var(--day-dimensions);
+							height: variable.$day-dimensions;
+							height: var(--day-dimensions);
+							border-radius: variable.$radius;
+							border-radius: var(--radius);
+							padding: 0;
+							cursor: pointer;
+							transition:
+								background-color 0.1s ease,
+								color 0.1s ease,
+								box-shadow 0.1s ease;
+							contain: content;
+							font-weight: 400;
+
+							&.friday {
+								color: variable.$primary-color;
+								color: var(--primary-color);
+							}
+
+							&.empty {
+								visibility: hidden;
+							}
+
+							&.start-range,
+							&.end-range {
+								background: variable.$primary-color;
+								background: var(--primary-color);
+								color: #fff;
+								font-weight: 600;
+							}
+
+							&.selected {
+								background: variable.$primary-color;
+								background: var(--primary-color);
+								color: #fff;
+								font-weight: 600;
+							}
+
+							&.disabled {
+								box-shadow: unset;
+								cursor: default !important;
+								border-color: transparent;
+								opacity: variable.$disabled-opacity;
+								opacity: var(--disabled-opacity);
+								pointer-events: none;
+							}
+
+							&.hover {
+								background: variable.$primary-color;
+								background: var(--primary-color);
+								color: #fff;
+							}
+
+							&.in-range {
+								background: variable.$in-range-background;
+								background: var(--in-range-background);
+								color: variable.$hover-color;
+								color: var(--hover-color);
+								border-radius: 0 !important;
+							}
+
+							&:not(.disabled):hover {
+								background: variable.$in-range-background;
+								background: var(--in-range-background);
+								color: variable.$hover-color;
+								color: var(--hover-color);
+								border: 2px solid variable.$primary-color;
+								border: 2px solid var(--primary-color);
+							}
+
+							&.today {
+								border: 2px solid variable.$primary-color;
+								border: 2px solid var(--primary-color);
+							}
+
+							&.start-range:not(.disabled):hover,
+							&.end-range:not(.disabled):hover,
+							&.selected:not(.disabled):hover {
+								background: variable.$primary-color;
+								background: var(--primary-color);
+								color: #fff;
+								filter: brightness(0.9);
+							}
+
+							&.tada {
+								animation: tada 1s;
+								background: variable.$secondary-color;
+								background: var(--secondary-color);
+								box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.18);
+								color: variable.$hover-color;
+								color: var(--hover-color);
+								position: relative;
+								z-index: 1;
+							}
+						}
+					}
+				}
+			}
+
+			.pdp-time {
+				background: inherit;
+
+				&:not(.inline) {
+					position: absolute;
+					top: 0;
+					bottom: 0;
+					right: 0;
+					left: 0;
+				}
+
+				.pdp-moment {
+					margin-bottom: 1em;
+					font-size: calc(2em * variable.$time-scale);
+					font-size: calc(2em * var(--time-scale));
+					display: flex;
+					justify-content: space-around;
+					height: 100%;
+
+					&.column-direction {
+						flex-direction: column;
+					}
+
+					>div {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						direction: ltr;
+						width: 100%;
+						padding: 1em 0;
+
+						&.disabled {
+							opacity: variable.$disabled-opacity;
+							opacity: var(--disabled-opacity);
+						}
+
+						div {
+							display: flex;
+							flex-direction: column;
+							align-items: center;
+							padding: 0 0.8em;
+
+							button {
+								border: none;
+								background: none;
+								cursor: pointer;
+								padding: 0.2em;
+								border-radius: 50%;
+								transition: background 0.12s;
+								display: flex;
+								align-items: center;
+								justify-content: center;
+
+								&:hover {
+									background: variable.$in-range-background;
+									background: var(--in-range-background);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.pdp-footer {
+			text-align: center;
+			min-height: 3em;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			border-top: 1px solid variable.$border-color;
+			border-top: 1px solid var(--border-color);
+			padding: 0.5em 0.3em 0.25em;
+			margin-top: 0.25em;
+			gap: 0.5em;
+
+			>div:first-child {
+				font-size: 0.8em;
+				color: #6b7280;
+				font-weight: 500;
+				display: flex;
+				align-items: center;
+				gap: 0.2em;
+				flex: 1;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+
+			.pdp-today,
+			.pdp-submit {
+				font-size: 0.8em;
+				padding: 0.35em 0.75em;
+				margin: 0 0.2em;
+				line-height: 1.5;
+				color: #fff;
+				text-decoration: none;
+				border: none;
+				border-radius: 2em;
+				background: variable.$primary-color;
+				background: var(--primary-color);
+				cursor: pointer;
+				font-weight: 600;
+				transition: filter 0.15s;
+				white-space: nowrap;
+
+				&:hover {
+					filter: brightness(0.88);
+				}
+			}
+
+			.pdp-cancel {
+				font-size: 0.8em;
+				padding: 0.35em 0.75em;
+				margin: 0 0.2em;
+				line-height: 1.5;
+				color: variable.$primary-color;
+				color: var(--primary-color);
+				text-decoration: none;
+				border: 1.5px solid variable.$primary-color;
+				border: 1.5px solid var(--primary-color);
+				border-radius: 2em;
+				background: transparent;
+				cursor: pointer;
+				font-weight: 600;
+				transition:
+					background 0.15s,
+					color 0.15s;
+				white-space: nowrap;
+
+				&:hover {
+					background: variable.$primary-color;
+					background: var(--primary-color);
+					color: #fff;
+				}
+			}
+
+			>div {
+				display: flex;
+				align-items: center;
+			}
+		}
+
+		.pdp-shortcut {
+			margin: 0;
+			padding: 0.5em;
+			list-style: none;
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			border-right: 1px solid variable.$border-color;
+			border-right: 1px solid var(--border-color);
+			min-width: 8em;
+
+			li {
+				margin: 0.2em 0;
+				padding: 0;
+				text-align: center;
+				cursor: pointer;
+				border-radius: variable.$radius;
+				border-radius: var(--radius);
+
+				button {
+					background: none;
+					border: none;
+					cursor: pointer;
+					width: 100%;
+					padding: 0.5em 0.9em;
+					border-radius: variable.$radius;
+					border-radius: var(--radius);
+					color: variable.$hover-color;
+					color: var(--hover-color);
+					font-weight: 500;
+					font-size: 0.875em;
+					transition: background 0.12s;
+
+					&:hover {
+						background: variable.$in-range-background;
+						background: var(--in-range-background);
+					}
+				}
+
+				&.selected button {
+					background: variable.$primary-color;
+					background: var(--primary-color);
+					color: #fff;
+				}
+			}
+		}
+	}
+
+	.pdp-pointer {
+		cursor: pointer;
+	}
+
+	.pdp-auto {
+		margin: auto;
+		position: relative;
+	}
+}
+
 
 @mixin scrollbar {
 	&::-webkit-scrollbar {
@@ -153,8 +1110,9 @@
 		text-align: right;
 
 		.pdp-group {
+
 			:first-child:not(.pdp-inside),
-			.pdp-inside:first-child + input {
+			.pdp-inside:first-child+input {
 				border-top-right-radius: variable.$radius;
 				border-top-right-radius: var(--radius);
 				border-bottom-right-radius: variable.$radius;
@@ -174,7 +1132,7 @@
 					right: 50%;
 				}
 
-				+ input {
+				+input {
 					padding-right: 3em;
 				}
 			}
@@ -198,8 +1156,9 @@
 		text-align: left;
 
 		.pdp-group {
+
 			:first-child:not(.pdp-inside),
-			.pdp-inside:first-child + input {
+			.pdp-inside:first-child+input {
 				border-top-left-radius: variable.$radius;
 				border-top-left-radius: var(--radius);
 				border-bottom-left-radius: variable.$radius;
@@ -224,7 +1183,7 @@
 					left: 50%;
 				}
 
-				+ input {
+				+input {
 					padding-left: 3em;
 				}
 			}
@@ -369,7 +1328,7 @@
 
 	.pdp-picker {
 		display: flex;
-		position: absolute;
+		position: fixed;
 		color: variable.$text-color;
 		color: var(--text-color);
 		background: variable.$background;
@@ -381,7 +1340,6 @@
 		border-radius: variable.$radius;
 		border-radius: var(--radius);
 		transition: all 1s ease;
-		margin-top: 0.5em;
 		padding: 0.3em 0.6em;
 		animation: start 0.1s;
 
@@ -391,7 +1349,7 @@
 			.pdp-header .bottom {
 				flex-direction: row-reverse;
 
-				& > div {
+				&>div {
 					display: flex;
 					flex-direction: row-reverse;
 				}
@@ -409,10 +1367,6 @@
 		}
 
 		&.pdp-top {
-			bottom: calc(1.5em + 0.75em + 2px);
-			margin-top: unset;
-			margin-bottom: 0.5em;
-
 			&::after {
 				bottom: unset;
 				top: 100%;
@@ -421,9 +1375,6 @@
 		}
 
 		&.pdp-left {
-			left: 0;
-			right: unset;
-
 			&::after {
 				right: unset;
 				left: 1.2em;
@@ -431,9 +1382,6 @@
 		}
 
 		&.pdp-right {
-			left: unset;
-			right: 0;
-
 			&::after {
 				left: unset;
 				right: 1.2em;
@@ -447,8 +1395,9 @@
 		}
 
 		.pdp-auto {
+
 			&,
-			& > div {
+			&>div {
 				background: inherit;
 			}
 		}
@@ -525,7 +1474,7 @@
 		}
 
 		.pdp-header {
-			& > div:first-child {
+			&>div:first-child {
 				border-bottom: 1px solid variable.$border-color;
 				border-bottom: 1px solid var(--border-color);
 				margin-bottom: 0.5em;
@@ -555,7 +1504,7 @@
 				height: 3em;
 				direction: rtl;
 
-				& > div {
+				&>div {
 					display: flex;
 					flex-grow: 1;
 					justify-content: space-around;
@@ -735,7 +1684,7 @@
 						flex-direction: column;
 					}
 
-					> div {
+					>div {
 						display: flex;
 						justify-content: center;
 						align-items: center;
@@ -819,7 +1768,7 @@
 				}
 			}
 
-			> div {
+			>div {
 				display: flex;
 			}
 		}

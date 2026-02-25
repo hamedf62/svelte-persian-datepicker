@@ -339,6 +339,9 @@
 	/** Position calculations for datepicker popup placement */
 	let pickerPlaceState: PickerPlace = $state({} as PickerPlace);
 
+	/** Fixed pixel coordinates for the picker popup — escapes ancestor stacking contexts */
+	let pickerFixedPos: { top: number; left: number } = $state({ top: 0, left: 0 });
+
 	/** Current window width for responsive column calculations */
 	let documentWidthState = $state(typeof window !== 'undefined' ? window.innerWidth : Infinity);
 
@@ -546,6 +549,13 @@
 		pickerClasses.push(lang.dir.picker);
 		attrsLocal.picker.class = pickerClasses.join(' ');
 
+		// Apply fixed-position coordinates so the picker escapes any parent stacking context
+		if (!modalProp) {
+			const existingStyle = (attrsLocal.picker.style as string) || '';
+			const posStyle = `top: ${pickerFixedPos.top}px; left: ${pickerFixedPos.left}px;`;
+			attrsLocal.picker.style = existingStyle ? `${existingStyle} ${posStyle}` : posStyle;
+		}
+
 		// For single mode with dual input, disable second input
 		if (modeProp == 'single' && dualInputProp) {
 			attrsLocal['secondInput'].disabled = 'disabled';
@@ -696,7 +706,6 @@
 						monthLocal[week][day] = { empty: true };
 						--emptyCells;
 					} else if (daysOfMonthNumber) {
-						//FIXME: refractor
 						monthLocal[week][day] = {
 							friday: day == 6,
 							raw: onDisplayState!.clone().addMonth(i).date(showDay),
@@ -832,7 +841,7 @@
 			onOpen(); // Call the onOpen callback prop
 		} else {
 			if (!modalProp) {
-				document.removeEventListener('scroll', locate);
+				document.removeEventListener('scroll', locate, true);
 			}
 			onClose(); // Call the onClose callback prop
 		}
@@ -878,9 +887,17 @@
 				return gregorianDate.toString(formats.model);
 			});
 
-			const isSame = Array.isArray(modelValueProp)
-				? JSON.stringify(modelValueProp) === JSON.stringify(currentModel)
-				: modelValueProp === currentModel[0];
+			// Treat empty string / empty array as equivalent to no selection
+			const modelIsEmpty =
+				!modelValueProp || (Array.isArray(modelValueProp) && modelValueProp.length === 0);
+			const currentIsEmpty = currentModel.length === 0;
+
+			const isSame =
+				modelIsEmpty && currentIsEmpty
+					? true
+					: Array.isArray(modelValueProp)
+						? JSON.stringify(modelValueProp) === JSON.stringify(currentModel)
+						: modelValueProp === currentModel[0];
 
 			if (!isSame) {
 				setDate(modelValueProp as string | string[]);
@@ -1220,16 +1237,14 @@
 				tick().then(() => {
 					locate();
 				});
-				document.addEventListener('scroll', locate);
+				// capture:true catches scroll on any ancestor container, not just document
+				document.addEventListener('scroll', locate, true);
 			}
 		}
 	}
 
 	async function selectWithArrow(e: KeyboardEvent): Promise<void> {
 		const fakeOnDisplayState = onDisplayState!.clone();
-		//FIXME: refactor
-		//FIXME: when up arraw press go to last date
-		// [37, 38, 39, 40] are key codes of arrow keys
 		if (['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'].includes(e.key)) {
 			const arrow = {
 				ArrowLeft: 1, // for left arrow must one day add in rtl picker
@@ -1360,27 +1375,36 @@
 	}
 
 	function locate(): void {
-		pickerPlaceState = {
-			top: false,
-			left: false,
-			right: false
-		};
+		pickerPlaceState = { top: false, left: false, right: false };
 		tick().then(() => {
 			const input = (inputsElement as HTMLElement[])[0];
 			const picker = pdpPicker as HTMLElement;
+			if (!input || !picker) return;
 
-			if (!input || !picker) {
-				return;
-			}
+			const inputRect = input.getBoundingClientRect();
+			const pickerRect = picker.getBoundingClientRect();
+			const gap = 8;
+			const margin = 8;
 
-			const inputOffset = input.offsetHeight + input.getBoundingClientRect().top;
-			const pickerHeight = picker.offsetHeight + 10;
-			const pickerOffset = picker.getBoundingClientRect();
+			// Vertical: prefer below, flip above only when there is not enough space below
+			const spaceBelow = window.innerHeight - inputRect.bottom;
+			const showAbove =
+				spaceBelow < pickerRect.height + gap && inputRect.top > pickerRect.height + gap;
 
+			let top = showAbove ? inputRect.top - pickerRect.height - gap : inputRect.bottom + gap;
+
+			// Horizontal: align right edge for RTL, left edge for LTR
+			let left = lang.dir.input === 'rtl' ? inputRect.right - pickerRect.width : inputRect.left;
+
+			// Clamp to viewport
+			left = Math.max(margin, Math.min(left, window.innerWidth - pickerRect.width - margin));
+			top = Math.max(margin, Math.min(top, window.innerHeight - pickerRect.height - margin));
+
+			pickerFixedPos = { top, left };
 			pickerPlaceState = {
-				top: inputOffset >= pickerHeight && window.innerHeight - (inputOffset + pickerHeight) < 0,
-				left: pickerOffset.left <= 0,
-				right: window.innerWidth - (pickerOffset.left + pickerOffset.width) <= 0
+				top: showAbove,
+				left: left <= margin,
+				right: left + pickerRect.width >= window.innerWidth - margin
 			};
 		});
 	}
@@ -1505,7 +1529,14 @@
 	}
 
 	function setDate(dates: string | string[]) {
-		if (!dates || (Array.isArray(dates) && dates.length === 0)) return;
+		if (dates === undefined || dates === null) return;
+
+		// Empty string or empty array — clear all internal state
+		if (!dates || (Array.isArray(dates) && dates.length === 0)) {
+			selectedDatesState = selectedTimesState = submitedValueState = [];
+			displayValueState = inputs.map(() => '');
+			return;
+		}
 
 		// Ensure dates is an array for processing
 		let datesArray: string[];
@@ -1543,35 +1574,6 @@
 			setModel();
 		}
 	}
-
-	// $inspect("coreState", coreState);
-	// $inspect('inputsElement>>>', inputsElement);
-	// $inspect('langs', langs);
-	// $inspect('lang', lang);
-	// $inspect('currentLocale', currentLocaleState);
-	// $inspect('selectedDates', selectedDatesState);
-	// $inspect('attrs', attrs);
-	// $inspect('years', years);
-	// $inspect('type', typeProp);
-	// $inspect('locale', localeProp);
-	// $inspect('from', fromProp);
-	// $inspect('to', toProp);
-	// $inspect('months', months);
-	// $inspect('showMonthSelectState', showMonthSelectState);
-	// $inspect('showYearSelectState', showYearSelectState);
-	// $inspect('selectedDates', selectedDatesState);
-	// $inspect('showDatePicker', showDatePickerState);
-	// $inspect('interval', interval);
-	// $inspect('selectedTimesState', selectedTimesState);
-	// $inspect('onDisplayState', onDisplayState);
-	// $inspect('selectedDatesState', selectedDatesState);
-	// $inspect('displayValueState', displayValueState);
-	// $inspect('inputDisplayCalendar', inputDisplayCalendar);
-	// $inspect('formats', formats);
-	// $inspect('fromDateState', fromDateState);
-	// $inspect('toDateState', toDateState);
-	// $inspect('inputs', inputs);
-	// $inspect('inputCalendarProp>>>', inputCalendarProp);
 </script>
 
 <div

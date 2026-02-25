@@ -1,11 +1,10 @@
 <script lang="ts">
 	import DatePicker, { PersianDate } from '$lib/DatePicker.svelte';
 
-	// Configuration state for testing
 	let config: {
 		type: 'date' | 'time' | 'datetime';
 		mode: 'single' | 'range' | 'multiple';
-		color: 'blue' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray';
+		color: 'blue' | 'primary' | 'red' | 'pink' | 'orange' | 'green' | 'purple' | 'gray';
 		locale: string;
 		column: number;
 		clearable: boolean;
@@ -16,9 +15,6 @@
 		modal: boolean;
 		from: Date | undefined;
 		to: Date | undefined;
-		format: string;
-		input_format: string;
-		display_format: string;
 		input_calendar: 'auto' | 'jalali' | 'gregorian';
 	} = $state({
 		type: 'date',
@@ -32,42 +28,27 @@
 		icon_inside: false,
 		shortcut: false,
 		modal: false,
-		from: new Date('1921-03-22'), // Persian year 1300
-		to: new Date('2051-03-21'), // Persian year 1430
-		format: 'YYYY-MM-DD',
-		input_format: 'YYYY-MM-DD',
-		display_format: 'YYYY-MM-DD',
+		from: new Date('1921-03-22'),
+		to: new Date('2051-03-21'),
 		input_calendar: 'auto'
 	});
 
-	// Values for different modes
 	let testValue: string | string[] = $state('');
 	let resultLog: string[] = $state([]);
 
-	// Dynamic format updates based on type
 	$effect(() => {
 		if (config.type === 'time') {
-			config.format = 'HH:mm';
-			config.input_format = 'HH:mm';
-			config.display_format = 'HH:mm';
-			config.from = undefined; // Time type doesn't use date bounds
+			config.from = undefined;
 			config.to = undefined;
-		} else if (config.type === 'datetime') {
-			config.format = 'YYYY-MM-DD HH:mm';
-			config.input_format = 'YYYY-MM-DD HH:mm';
-			config.display_format = 'YYYY-MM-DD HH:mm';
-			config.from = new Date('1921-03-22'); // Persian year 1300
-			config.to = new Date('2051-03-21'); // Persian year 1430
 		} else {
-			config.format = 'YYYY-MM-DD';
-			config.input_format = 'YYYY-MM-DD';
-			config.display_format = 'YYYY-MM-DD';
-			config.from = new Date('1921-03-22'); // Persian year 1300
-			config.to = new Date('2051-03-21'); // Persian year 1430
+			config.from = config.from ?? new Date('1921-03-22');
+			config.to = config.to ?? new Date('2051-03-21');
 		}
+		// Clear any existing value when switching picker type to avoid format mismatches
+		testValue = config.mode === 'single' ? '' : [];
+		resultLog = [];
 	});
 
-	// Reset value when mode or type changes
 	$effect(() => {
 		if (config.mode === 'single') {
 			testValue = '';
@@ -77,10 +58,7 @@
 		resultLog = [];
 	});
 
-	// Automatically adjust auto_submit behavior based on mode for better UX
 	$effect(() => {
-		// For multiple selection, we want to disable auto_submit to allow multiple selections
-		// before confirming, but keep it enabled for single/range for immediate feedback
 		if (config.mode === 'multiple') {
 			config.auto_submit = false;
 		} else {
@@ -89,302 +67,215 @@
 	});
 
 	function onSubmit(val: PersianDate | PersianDate[]) {
-		const timestamp = new Date().toLocaleTimeString();
-		const logEntry = `[${timestamp}] ${config.mode} ${config.type} submitted: ${JSON.stringify(val)}`;
-		resultLog = [logEntry, ...resultLog.slice(0, 9)]; // Keep last 10 entries
-		console.log('DatePicker submitted:', val);
+		const ts = new Date().toLocaleTimeString();
+		resultLog = [
+			`[${ts}] submit: ${JSON.stringify(val?.toString?.() ?? val)}`,
+			...resultLog.slice(0, 9)
+		];
 	}
 
 	function onSelect(date: PersianDate) {
-		const timestamp = new Date().toLocaleTimeString();
-		const logEntry = `[${timestamp}] Date selected: ${date.toString()}`;
-		resultLog = [logEntry, ...resultLog.slice(0, 9)];
-		console.log('Date selected:', date);
+		const ts = new Date().toLocaleTimeString();
+		resultLog = [`[${ts}] select: ${date.toString()}`, ...resultLog.slice(0, 9)];
 	}
 
 	function clearValue() {
-		if (config.mode === 'single') {
-			testValue = '';
-		} else {
-			testValue = [];
-		}
+		testValue = config.mode === 'single' ? '' : [];
 		resultLog = [];
 	}
 
-	function logCurrentValue() {
-		const timestamp = new Date().toLocaleTimeString();
-		const logEntry = `[${timestamp}] Current value: ${JSON.stringify(testValue)}`;
-		resultLog = [logEntry, ...resultLog.slice(0, 9)];
-		console.log('Current value:', testValue);
+	function generateCode() {
+		const lines = ['<DatePicker', '\tbind:model={value}'];
+		if (config.type !== 'date') lines.push(`\ttype="${config.type}"`);
+		if (config.mode !== 'single') lines.push(`\tmode="${config.mode}"`);
+		if (config.color !== 'blue') lines.push(`\tcolor="${config.color}"`);
+		if (config.locale !== 'fa') lines.push(`\tlocale="${config.locale}"`);
+		if (config.column !== 1) lines.push(`\tcolumn={${config.column}}`);
+		if (!config.clearable) lines.push(`\tclearable={false}`);
+		if (!config.auto_submit) lines.push(`\tauto_submit={false}`);
+		if (config.dual_input) lines.push(`\tdual_input={true}`);
+		if (config.icon_inside) lines.push(`\ticon_inside={true}`);
+		if (config.modal) lines.push(`\tmodal={true}`);
+		if (config.shortcut) lines.push(`\tshortcut={true}`);
+		if (config.input_calendar !== 'auto') lines.push(`\tinput_calendar="${config.input_calendar}"`);
+		lines.push(`\tsubmit={(v) => console.log(v)}`);
+		lines.push('/>');
+		return lines.join('\n');
 	}
 
-	function generateCodeSnippet() {
-		let snippet = '<script lang="ts">\n';
-		snippet += '\timport DatePicker from "$lib/DatePicker.svelte";\n\n';
-
-		// Add variable declaration based on mode
-		if (config.mode === 'single') {
-			snippet += '\tlet selectedValue = "";\n';
-		} else {
-			snippet += '\tlet selectedValue: string[] = [];\n';
-		}
-
-		snippet += '<\/script>\n\n';
-		snippet += '<DatePicker\n';
-		snippet += '\tbind:model={selectedValue}\n';
-
-		// Only include non-default props
-		if (config.type !== 'date') snippet += `\ttype="${config.type}"\n`;
-		if (config.mode !== 'single') snippet += `\tmode="${config.mode}"\n`;
-		if (config.color !== 'blue') snippet += `\tcolor="${config.color}"\n`;
-		if (config.locale !== 'fa') snippet += `\tlocale="${config.locale}"\n`;
-		if (config.column !== 1) snippet += `\tcolumn={${config.column}}\n`;
-		if (!config.clearable) snippet += `\tclearable={false}\n`;
-		if (!config.auto_submit) snippet += `\tauto_submit={false}\n`;
-		if (config.dual_input) snippet += `\tdual_input={true}\n`;
-		if (config.icon_inside) snippet += `\ticon_inside={true}\n`;
-		if (config.modal) snippet += `\tmodal={true}\n`;
-		if (config.shortcut) snippet += `\tshortcut={true}\n`;
-
-		// Date range props (only for date/datetime types)
-		if (config.type !== 'time') {
-			const defaultFrom = new Date('1921-03-22'); // Persian year 1300
-			const defaultTo = new Date('2051-03-21'); // Persian year 1430
-			if (config.from && config.from.getTime() !== defaultFrom.getTime()) {
-				snippet += `\tfrom={new Date('${config.from.toISOString().split('T')[0]}')}\n`;
-			}
-			if (config.to && config.to.getTime() !== defaultTo.getTime()) {
-				snippet += `\tto={new Date('${config.to.toISOString().split('T')[0]}')}\n`;
-			}
-		}
-
-		// Format props (only if different from defaults)
-		const defaultFormat =
-			config.type === 'time'
-				? 'HH:mm'
-				: config.type === 'datetime'
-					? 'YYYY-MM-DD HH:mm'
-					: 'YYYY-MM-DD';
-
-		if (config.format !== defaultFormat) snippet += `\tformat="${config.format}"\n`;
-		if (config.input_format !== defaultFormat)
-			snippet += `\tinput_format="${config.input_format}"\n`;
-		if (config.display_format !== defaultFormat)
-			snippet += `\tdisplay_format="${config.display_format}"\n`;
-		if (config.input_calendar !== 'auto')
-			snippet += `\tinput_calendar="${config.input_calendar}"\n`;
-
-		// Event handlers
-		snippet += '\tsubmit={(value) => {\n';
-		snippet += '\t\tconsole.log("Date selected:", value);\n';
-		snippet += '\t\t// Handle the selected date(s)\n';
-		snippet += '\t}}\n';
-
-		snippet += '\tselect={(date) => {\n';
-		snippet += '\t\tconsole.log("Date picked:", date);\n';
-		snippet += '\t\t// Handle individual date selection\n';
-		snippet += '\t}}\n';
-
-		snippet += '\tlabel="Select Date"\n';
-		snippet += '/>';
-
-		return snippet;
-	}
+	const colors: Array<{ value: string; bg: string }> = [
+		{ value: 'blue', bg: '#3b82f6' },
+		{ value: 'primary', bg: '#6366f1' },
+		{ value: 'green', bg: '#22c55e' },
+		{ value: 'purple', bg: '#a855f7' },
+		{ value: 'orange', bg: '#f97316' },
+		{ value: 'red', bg: '#ef4444' },
+		{ value: 'pink', bg: '#ec4899' },
+		{ value: 'gray', bg: '#6b7280' }
+	];
 </script>
 
-<main class="testing-container">
-	<div class="testing-header">
-		<h1>Persian DatePicker Testing Interface</h1>
-		<p>Interactive testing tool to explore all DatePicker features and configurations</p>
-	</div>
-
-	<div class="testing-layout">
-		<!-- Configuration Panel -->
-		<div class="config-panel">
-			<h2>Configuration</h2>
-
-			<!-- Basic Configuration -->
-			<div class="config-section">
-				<h3>Basic Settings</h3>
-
-				<div class="config-item">
-					<label for="type">Type:</label>
-					<select bind:value={config.type} id="type">
-						<option value="date">Date</option>
-						<option value="time">Time</option>
-						<option value="datetime">DateTime</option>
-					</select>
-				</div>
-
-				<div class="config-item">
-					<label for="mode">Selection Mode:</label>
-					<select bind:value={config.mode} id="mode">
-						<option value="single">Single</option>
-						<option value="range">Range</option>
-						<option value="multiple">Multiple</option>
-					</select>
-				</div>
-
-				<div class="config-item">
-					<label for="color">Color Theme:</label>
-					<select bind:value={config.color} id="color">
-						<option value="blue">Blue</option>
-						<option value="red">Red</option>
-						<option value="pink">Pink</option>
-						<option value="orange">Orange</option>
-						<option value="green">Green</option>
-						<option value="purple">Purple</option>
-						<option value="gray">Gray</option>
-					</select>
-				</div>
-
-				<div class="config-item">
-					<label for="locale">Locale:</label>
-					<select bind:value={config.locale} id="locale">
-						<option value="fa">Persian (فارسی)</option>
-						<option value="en">English</option>
-						<option value="ar">Hijri (هجري)</option>
-						<option value="fa,en">Persian + English Toggle</option>
-						<option value="fa,ar">Persian + Hijri Toggle</option>
-						<option value="en,ar">English + Hijri Toggle</option>
-						<option value="fa,en,ar">All Calendars Toggle</option>
-					</select>
+<main>
+	<header>
+		<div class="header-inner">
+			<div class="logo">
+				<span class="logo-icon">📅</span>
+				<div>
+					<h1>Svelte Persian DatePicker</h1>
+					<p>تقویم شمسی، میلادی و هجری — Svelte 5</p>
 				</div>
 			</div>
-
-			<!-- Layout Configuration -->
-			<div class="config-section">
-				<h3>Layout & Display</h3>
-
-				<div class="config-item">
-					<label for="column">Column Count:</label>
-					<select bind:value={config.column} id="column">
-						<option value={1}>1 Month</option>
-						<option value={2}>2 Months</option>
-						<option value={3}>3 Months</option>
-						<option value={4}>4 Months</option>
-					</select>
-				</div>
-
-				<div class="config-item">
-					<label>
-						<input type="checkbox" bind:checked={config.dual_input} />
-						Dual Input (Range Mode)
-					</label>
-				</div>
-
-				<div class="config-item">
-					<label>
-						<input type="checkbox" bind:checked={config.icon_inside} />
-						Icon Inside Input
-					</label>
-				</div>
-
-				<div class="config-item">
-					<label>
-						<input type="checkbox" bind:checked={config.modal} />
-						Modal Mode
-					</label>
-				</div>
-
-				<div class="config-item">
-					<label>
-						<input type="checkbox" bind:checked={config.shortcut} />
-						Show Shortcuts
-					</label>
-				</div>
-			</div>
-
-			<!-- Behavior Configuration -->
-			<div class="config-section">
-				<h3>Behavior</h3>
-
-				<div class="config-item">
-					<label>
-						<input type="checkbox" bind:checked={config.clearable} />
-						Clearable
-					</label>
-				</div>
-
-				<div class="config-item">
-					<label>
-						<input type="checkbox" bind:checked={config.auto_submit} />
-						Auto Submit
-					</label>
-				</div>
-			</div>
-
-			<!-- Date Range Configuration -->
-			{#if config.type !== 'time'}
-				<div class="config-section">
-					<h3>Date Range</h3>
-
-					<div class="config-item">
-						<label for="from">From Year/Date:</label>
-						<input type="text" bind:value={config.from} id="from" placeholder="e.g., 1300" />
-					</div>
-
-					<div class="config-item">
-						<label for="to">To Year/Date:</label>
-						<input type="text" bind:value={config.to} id="to" placeholder="e.g., 1430" />
-					</div>
-				</div>
-			{/if}
-
-			<!-- Format Configuration -->
-			<div class="config-section">
-				<h3>Format Settings</h3>
-
-				<div class="config-item">
-					<label for="format">Model Format:</label>
-					<input type="text" bind:value={config.format} id="format" placeholder="YYYY-MM-DD" />
-				</div>
-
-				<div class="config-item">
-					<label for="input_format">Input Format:</label>
-					<input
-						type="text"
-						bind:value={config.input_format}
-						id="input_format"
-						placeholder="YYYY-MM-DD"
-					/>
-				</div>
-
-				<div class="config-item">
-					<label for="display_format">Display Format:</label>
-					<input
-						type="text"
-						bind:value={config.display_format}
-						id="display_format"
-						placeholder="YYYY-MM-DD"
-					/>
-				</div>
-
-				<div class="config-item">
-					<label for="input_calendar">Input Calendar:</label>
-					<select bind:value={config.input_calendar} id="input_calendar">
-						<option value="auto">Auto (follows locale)</option>
-						<option value="jalali">Persian (Jalali)</option>
-						<option value="gregorian">Gregorian</option>
-					</select>
-				</div>
-			</div>
-
-			<!-- Actions -->
-			<div class="config-actions">
-				<button class="btn btn-secondary" onclick={clearValue}> Clear Value </button>
-				<button class="btn btn-info" onclick={logCurrentValue}> Log Current Value </button>
+			<div class="header-links">
+				<a
+					href="https://github.com/hamedf62/svelte-persian-datepicker"
+					target="_blank"
+					rel="noreferrer"
+					class="gh-btn"
+				>
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
+						><path
+							d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
+						/></svg
+					>
+					GitHub
+				</a>
+				<a
+					href="https://www.npmjs.com/package/@hamedf/svelte-persian-datepicker"
+					target="_blank"
+					rel="noreferrer"
+					class="npm-btn"
+				>
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
+						><path
+							d="M0 0v24h24V0H0zm19.2 19.2H4.8V4.8h14.4v14.4zM7.2 7.2h9.6v1.6H14.4v6.4h-1.6V8.8h-1.6v6.4H7.2z"
+						/></svg
+					>
+					npm
+				</a>
 			</div>
 		</div>
+	</header>
 
-		<!-- Testing Area -->
-		<div class="testing-area">
-			<h2>Live Testing</h2>
+	<div class="layout">
+		<!-- Config Panel -->
+		<aside class="config-panel">
+			<div class="panel-header">
+				<h2>تنظیمات</h2>
+				<span class="panel-badge">Config</span>
+			</div>
 
-			<!-- DatePicker Instance -->
-			<div class="datepicker-container">
-				<h3>DatePicker Component</h3>
-				<div class="picker-wrapper">
+			<section class="config-section">
+				<h3>حالت نمایش</h3>
+				<div class="seg-control">
+					{#each ['date', 'time', 'datetime'] as t}
+						<button class:active={config.type === t} onclick={() => (config.type = t as any)}
+							>{t}</button
+						>
+					{/each}
+				</div>
+			</section>
+
+			<section class="config-section">
+				<h3>حالت انتخاب</h3>
+				<div class="seg-control">
+					{#each ['single', 'range', 'multiple'] as m}
+						<button class:active={config.mode === m} onclick={() => (config.mode = m as any)}
+							>{m}</button
+						>
+					{/each}
+				</div>
+			</section>
+
+			<section class="config-section">
+				<h3>زبان / تقویم</h3>
+				<select bind:value={config.locale} class="select-input">
+					<option value="fa">فارسی (شمسی)</option>
+					<option value="en">English (Gregorian)</option>
+					<option value="ar">عربي (هجري)</option>
+					<option value="fa,en">فارسی + میلادی</option>
+					<option value="fa,ar">فارسی + هجری</option>
+					<option value="fa,en,ar">همه تقویم‌ها</option>
+				</select>
+			</section>
+
+			<section class="config-section">
+				<h3>رنگ</h3>
+				<div class="color-grid">
+					{#each colors as c}
+						<button
+							class="color-dot"
+							class:selected={config.color === c.value}
+							style="--c: {c.bg}"
+							onclick={() => (config.color = c.value as any)}
+							title={c.value}
+						></button>
+					{/each}
+				</div>
+			</section>
+
+			<section class="config-section">
+				<h3>ستون‌ها</h3>
+				<div class="seg-control">
+					{#each [1, 2, 3] as n}
+						<button class:active={config.column === n} onclick={() => (config.column = n)}
+							>{n}</button
+						>
+					{/each}
+				</div>
+			</section>
+
+			<section class="config-section">
+				<h3>گزینه‌ها</h3>
+				<div class="toggle-list">
+					<label class="toggle">
+						<input type="checkbox" bind:checked={config.clearable} />
+						<span class="toggle-track"><span class="toggle-thumb"></span></span>
+						<span>دکمه پاک‌کن</span>
+					</label>
+					<label class="toggle">
+						<input type="checkbox" bind:checked={config.dual_input} />
+						<span class="toggle-track"><span class="toggle-thumb"></span></span>
+						<span>ورودی دوگانه</span>
+					</label>
+					<label class="toggle">
+						<input type="checkbox" bind:checked={config.icon_inside} />
+						<span class="toggle-track"><span class="toggle-thumb"></span></span>
+						<span>آیکون داخل</span>
+					</label>
+					<label class="toggle">
+						<input type="checkbox" bind:checked={config.modal} />
+						<span class="toggle-track"><span class="toggle-thumb"></span></span>
+						<span>حالت مودال</span>
+					</label>
+					<label class="toggle">
+						<input type="checkbox" bind:checked={config.shortcut} />
+						<span class="toggle-track"><span class="toggle-thumb"></span></span>
+						<span>میانبرها</span>
+					</label>
+				</div>
+			</section>
+
+			<section class="config-section">
+				<h3>تقویم ورودی</h3>
+				<select bind:value={config.input_calendar} class="select-input">
+					<option value="auto">خودکار (auto)</option>
+					<option value="jalali">شمسی (Jalali)</option>
+					<option value="gregorian">میلادی (Gregorian)</option>
+				</select>
+			</section>
+
+			<button class="clear-btn" onclick={clearValue}>پاک کردن مقدار</button>
+		</aside>
+
+		<!-- Main Content -->
+		<div class="content">
+			<!-- Live Demo -->
+			<div class="card demo-card">
+				<div class="card-header">
+					<span class="card-title">نمایش زنده</span>
+					<span class="card-subtitle">Live Preview</span>
+				</div>
+				<div class="demo-area">
 					<DatePicker
 						bind:model={testValue}
 						type={config.type}
@@ -400,148 +291,84 @@
 						shortcut={config.shortcut}
 						from={config.from}
 						to={config.to}
-						format={config.format}
-						input_format={config.input_format}
-						display_format={config.display_format}
 						input_calendar={config.input_calendar}
 						submit={onSubmit}
 						select={onSelect}
-						label="Test DatePicker"
+						label="انتخاب تاریخ"
 					/>
 				</div>
 			</div>
 
-			<!-- Current Value Display -->
-			<div class="value-display">
-				<h3>Current Value</h3>
-				<div class="value-explanation">
-					<p>
-						<strong>Display Format:</strong> Shows dates in selected calendar format (Persian, Gregorian,
-						or Hijri)
-					</p>
-					<p>
-						<strong>Model Format:</strong> Always stored in Gregorian format for consistent data handling
-					</p>
-				</div>
-				<div class="value-content">
-					<pre>{JSON.stringify(testValue, null, 2)}</pre>
-				</div>
-				<div class="value-type">
-					Type: {Array.isArray(testValue) ? 'Array' : typeof testValue}
-					{#if Array.isArray(testValue)}
-						| Length: {testValue.length}
-					{/if}
-				</div>
-				<div class="value-note">
-					<strong>Note:</strong> The value above is always in Gregorian format (YYYY-MM-DD), regardless
-					of the selected calendar display format.
-				</div>
-			</div>
-
-			<!-- Event Log -->
-			<div class="event-log">
-				<h3>Event Log</h3>
-				<div class="log-content">
-					{#if resultLog.length === 0}
-						<p class="no-events">No events yet. Interact with the DatePicker to see logs.</p>
-					{:else}
-						{#each resultLog as log}
-							<div class="log-entry">{log}</div>
-						{/each}
-					{/if}
-				</div>
-			</div>
-
-			<!-- Code Snippet Section -->
-			<div class="code-snippet">
-				<h3>Generated Code Snippet</h3>
-				<p class="snippet-description">
-					Copy this code to use the DatePicker with your current configuration:
-				</p>
-				<div class="code-block">
-					<div class="code-header">
-						<span class="code-title">Svelte Component Usage</span>
-						<button
-							class="copy-btn"
-							onclick={(event) => {
-								const codeText = generateCodeSnippet();
-								navigator.clipboard.writeText(codeText);
-								// Show feedback
-								const btn = event.currentTarget as HTMLButtonElement;
-								if (btn) {
-									btn.textContent = 'Copied!';
-									setTimeout(() => (btn.textContent = 'Copy'), 2000);
-								}
-							}}
+			<!-- Value Panel -->
+			<div class="two-col">
+				<div class="card">
+					<div class="card-header">
+						<span class="card-title">مقدار خروجی</span>
+						<span class="value-badge {Array.isArray(testValue) ? 'array' : 'string'}"
+							>{Array.isArray(testValue) ? `array[${testValue.length}]` : 'string'}</span
 						>
-							Copy
-						</button>
 					</div>
-					<pre class="code-content"><code>{generateCodeSnippet()}</code></pre>
+					<pre class="value-pre">{JSON.stringify(testValue, null, 2)}</pre>
+					<p class="value-note">مقدار همیشه در فرمت میلادی (Gregorian) ذخیره می‌شود</p>
+				</div>
+
+				<div class="card">
+					<div class="card-header">
+						<span class="card-title">رویدادها</span>
+						{#if resultLog.length > 0}
+							<button class="clear-log-btn" onclick={() => (resultLog = [])}>پاک</button>
+						{/if}
+					</div>
+					<div class="log-area">
+						{#if resultLog.length === 0}
+							<p class="empty-log">هیچ رویدادی ثبت نشده...</p>
+						{:else}
+							{#each resultLog as entry}
+								<div class="log-entry">{entry}</div>
+							{/each}
+						{/if}
+					</div>
 				</div>
 			</div>
 
-			<!-- Testing Instructions -->
-			<div class="instructions">
-				<h3>Testing Instructions</h3>
-				<div class="instruction-content">
-					<h4>Multiple Selection Testing:</h4>
-					<ul>
-						<li>Set mode to "Multiple" and type to "Date"</li>
-						<li>Click on different dates to select multiple dates</li>
-						<li><strong>Modal stays open</strong> while you select multiple dates</li>
-						<li>Navigate between months using arrows to select dates across months</li>
-						<li>
-							For example: Select 15th of current month, then navigate to next month and select 10th
-						</li>
-						<li>Selected dates will be highlighted and accumulated</li>
-						<li><strong>Click "Confirm" button</strong> to finalize selection and close modal</li>
-						<li>Or click "Cancel" to close modal without saving changes</li>
-					</ul>
+			<!-- Code Snippet -->
+			<div class="card">
+				<div class="card-header">
+					<span class="card-title">کد تولید شده</span>
+					<button
+						class="copy-btn"
+						onclick={(e) => {
+							navigator.clipboard.writeText(generateCode());
+							const btn = e.currentTarget as HTMLButtonElement;
+							btn.textContent = '✓ کپی شد';
+							setTimeout(() => (btn.textContent = 'کپی'), 2000);
+						}}>کپی</button
+					>
+				</div>
+				<pre class="code-pre"><code>{generateCode()}</code></pre>
+			</div>
 
-					<h4>Cross-Month Selection:</h4>
-					<ul>
-						<li>Use column count 2+ to see multiple months at once</li>
-						<li>Or use single column and navigate with arrows</li>
-						<li>In multiple mode, selections persist across month navigation</li>
-						<li>Perfect for selecting dates like "15 June to 10 September"</li>
-						<li>The footer shows count of selected dates</li>
-					</ul>
-
-					<h4>Best Practices for Multiple Selection:</h4>
-					<ul>
-						<li>Auto-submit is automatically disabled for multiple mode</li>
-						<li>Modal remains open until user confirms or cancels</li>
-						<li>Clear visual feedback shows selected dates with checkmarks</li>
-						<li>Footer displays selection count and control buttons</li>
-					</ul>
-
-					<h4>Calendar Display vs Model Value:</h4>
-					<ul>
-						<li>
-							<strong>Display Format:</strong> Input box shows dates in selected calendar format
-						</li>
-						<li><strong>Persian (fa):</strong> Shows "1403/07/28" format</li>
-						<li><strong>Gregorian (en):</strong> Shows "2025-01-28" format</li>
-						<li><strong>Hijri (ar):</strong> Shows Islamic calendar format with Arabic months</li>
-						<li>
-							<strong>Model Value:</strong> Always stored as Gregorian (YYYY-MM-DD) for data consistency
-						</li>
-					</ul>
-
-					<h4>Advanced Testing:</h4>
-					<ul>
-						<li>Try different column counts (1-4 months visible)</li>
-						<li>Test dual input mode with range selection</li>
-						<li>Experiment with different color themes</li>
-						<li>Test locale switching (Persian/English/Hijri)</li>
-						<li>
-							<strong>Hijri Calendar Testing:</strong> Select "Hijri" locale to see lunar dates in input
-							box
-						</li>
-						<li>Try multi-calendar toggle options (Persian + Hijri, etc.)</li>
-						<li>Try modal mode for overlay display</li>
-					</ul>
+			<!-- Feature Cards -->
+			<div class="features-grid">
+				<div class="feature-card">
+					<div class="feature-icon">🗓️</div>
+					<h4>چندتقویمی</h4>
+					<p>پشتیبانی از تقویم‌های شمسی، میلادی و هجری با قابلیت تغییر در زمان اجرا</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">📐</div>
+					<h4>Svelte 5</h4>
+					<p>طراحی‌شده با Runes‌های Svelte 5 برای حداکثر کارایی و واکنش‌پذیری</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">✨</div>
+					<h4>قابل شخصی‌سازی</h4>
+					<p>پشتیبانی کامل از CSS variables برای شخصی‌سازی رنگ، اندازه و ظاهر</p>
+				</div>
+				<div class="feature-card">
+					<div class="feature-icon">🎯</div>
+					<h4>TypeScript</h4>
+					<p>تعریف‌های کامل TypeScript برای تجربه بهتر در محیط‌های IDE</p>
 				</div>
 			</div>
 		</div>
@@ -549,402 +376,559 @@
 </main>
 
 <style lang="scss">
-	.testing-container {
-		max-width: 1400px;
-		margin: 0 auto;
-		padding: 20px;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	:global(*) {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
 	}
 
-	.testing-header {
-		text-align: center;
-		margin-bottom: 30px;
+	:global(body) {
+		font-family:
+			'Vazirmatn',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			sans-serif;
+		background: #f8fafc;
+		color: #1e293b;
+		line-height: 1.6;
+		direction: rtl;
+	}
+
+	:global(a) {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	// ── Header ──────────────────────────────────────────────
+	header {
+		background: #fff;
+		border-bottom: 1px solid #e2e8f0;
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		padding: 0 1.5rem;
+	}
+
+	.header-inner {
+		max-width: 1280px;
+		margin: 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		height: 64px;
+		gap: 1rem;
+	}
+
+	.logo {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+
+		.logo-icon {
+			font-size: 1.8rem;
+			line-height: 1;
+		}
 
 		h1 {
-			color: #1f2937;
-			margin-bottom: 10px;
-			font-size: 2.5rem;
+			font-size: 1.1rem;
 			font-weight: 700;
+			color: #0f172a;
+			white-space: nowrap;
 		}
 
 		p {
-			color: #6b7280;
-			font-size: 1.1rem;
+			font-size: 0.75rem;
+			color: #64748b;
+			margin-top: 1px;
 		}
 	}
 
-	.testing-layout {
+	.header-links {
+		display: flex;
+		gap: 0.5rem;
+		flex-shrink: 0;
+	}
+
+	.gh-btn,
+	.npm-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.4rem 0.9rem;
+		border-radius: 2em;
+		font-size: 0.82rem;
+		font-weight: 600;
+		transition: all 0.15s;
+		cursor: pointer;
+	}
+
+	.gh-btn {
+		background: #0f172a;
+		color: #fff;
+		&:hover {
+			background: #1e293b;
+		}
+	}
+
+	.npm-btn {
+		background: #cb3837;
+		color: #fff;
+		&:hover {
+			background: #9b2626;
+		}
+	}
+
+	// ── Layout ──────────────────────────────────────────────
+	main {
+		min-height: 100vh;
+	}
+
+	.layout {
+		max-width: 1280px;
+		margin: 0 auto;
 		display: grid;
-		grid-template-columns: 350px 1fr;
-		gap: 30px;
+		grid-template-columns: 280px 1fr;
+		gap: 1.5rem;
+		padding: 1.5rem;
 		align-items: start;
 
-		@media (max-width: 1024px) {
+		@media (max-width: 900px) {
 			grid-template-columns: 1fr;
-			gap: 20px;
 		}
 	}
 
+	// ── Config Panel ─────────────────────────────────────────
 	.config-panel {
-		background: #f9fafb;
-		border: 1px solid #e5e7eb;
-		border-radius: 12px;
-		padding: 24px;
+		background: #fff;
+		border: 1px solid #e2e8f0;
+		border-radius: 1rem;
+		padding: 1.25rem;
 		position: sticky;
-		top: 20px;
-		max-height: calc(100vh - 40px);
+		top: 80px;
+		max-height: calc(100vh - 100px);
 		overflow-y: auto;
+		scroll-behavior: smooth;
+
+		&::-webkit-scrollbar {
+			width: 4px;
+		}
+		&::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 2px;
+		}
+	}
+
+	.panel-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.25rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid #f1f5f9;
 
 		h2 {
-			color: #1f2937;
-			margin-bottom: 20px;
-			font-size: 1.5rem;
-			font-weight: 600;
+			font-size: 1rem;
+			font-weight: 700;
+			color: #0f172a;
 		}
+	}
+
+	.panel-badge {
+		font-size: 0.7rem;
+		font-weight: 600;
+		background: #f1f5f9;
+		color: #64748b;
+		padding: 0.15em 0.6em;
+		border-radius: 1em;
+		letter-spacing: 0.05em;
 	}
 
 	.config-section {
-		margin-bottom: 24px;
+		margin-bottom: 1.1rem;
 
 		h3 {
-			color: #374151;
-			margin-bottom: 12px;
-			font-size: 1.1rem;
+			font-size: 0.78rem;
 			font-weight: 600;
-			border-bottom: 1px solid #e5e7eb;
-			padding-bottom: 8px;
+			color: #94a3b8;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			margin-bottom: 0.5rem;
 		}
 	}
 
-	.config-item {
-		margin-bottom: 12px;
+	.seg-control {
+		display: flex;
+		background: #f1f5f9;
+		border-radius: 0.5rem;
+		padding: 2px;
+		gap: 2px;
 
-		label {
-			display: block;
-			color: #4b5563;
-			font-weight: 500;
-			margin-bottom: 4px;
-			font-size: 0.9rem;
-		}
-
-		select,
-		input[type='text'] {
-			width: 100%;
-			padding: 8px 12px;
-			border: 1px solid #d1d5db;
-			border-radius: 6px;
-			font-size: 0.9rem;
-			background: white;
-
-			&:focus {
-				outline: none;
-				border-color: #3b82f6;
-				box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-			}
-		}
-
-		input[type='checkbox'] {
-			margin-right: 8px;
-		}
-
-		label:has(input[type='checkbox']) {
-			display: flex;
-			align-items: center;
+		button {
+			flex: 1;
+			padding: 0.35em 0.5em;
+			border: none;
+			background: none;
+			border-radius: 0.4rem;
+			font-size: 0.82rem;
+			font-family: inherit;
 			cursor: pointer;
+			color: #64748b;
+			transition: all 0.15s;
+			font-weight: 500;
+
+			&.active {
+				background: #fff;
+				color: #0f172a;
+				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+				font-weight: 600;
+			}
 		}
 	}
 
-	.config-actions {
-		display: flex;
-		gap: 8px;
-		margin-top: 20px;
-	}
-
-	.btn {
-		padding: 8px 16px;
-		border: none;
-		border-radius: 6px;
-		font-size: 0.9rem;
-		font-weight: 500;
+	.select-input {
+		width: 100%;
+		padding: 0.45em 0.7em;
+		border: 1.5px solid #e2e8f0;
+		border-radius: 0.5rem;
+		font-size: 0.85rem;
+		font-family: inherit;
+		background: #fff;
+		color: #1e293b;
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: border-color 0.15s;
 
-		&.btn-secondary {
-			background: #6b7280;
-			color: white;
-
-			&:hover {
-				background: #4b5563;
-			}
-		}
-
-		&.btn-info {
-			background: #3b82f6;
-			color: white;
-
-			&:hover {
-				background: #2563eb;
-			}
+		&:focus {
+			outline: none;
+			border-color: #3b82f6;
 		}
 	}
 
-	.testing-area {
-		background: white;
-		border: 1px solid #e5e7eb;
-		border-radius: 12px;
-		padding: 24px;
-
-		h2 {
-			color: #1f2937;
-			margin-bottom: 24px;
-			font-size: 1.5rem;
-			font-weight: 600;
-		}
-
-		h3 {
-			color: #374151;
-			margin-bottom: 16px;
-			font-size: 1.2rem;
-			font-weight: 600;
-		}
-	}
-
-	.code-snippet {
-		margin-bottom: 24px;
-		padding: 16px;
-		background: #f9fafb;
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-	}
-
-	.snippet-description {
-		color: #6b7280;
-		margin-bottom: 12px;
-		font-size: 0.9rem;
-	}
-
-	.code-block {
-		background: #1f2937;
-		border-radius: 8px;
-		overflow: hidden;
-		border: 1px solid #374151;
-	}
-
-	.code-header {
+	.color-grid {
 		display: flex;
-		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.color-dot {
+		width: 28px;
+		height: 28px;
+		border-radius: 50%;
+		background: var(--c);
+		border: 2.5px solid transparent;
+		cursor: pointer;
+		transition: all 0.15s;
+		position: relative;
+
+		&.selected {
+			border-color: var(--c);
+			box-shadow:
+				0 0 0 2px #fff,
+				0 0 0 4px var(--c);
+		}
+
+		&:hover:not(.selected) {
+			transform: scale(1.1);
+		}
+	}
+
+	.toggle-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+	}
+
+	.toggle {
+		display: flex;
 		align-items: center;
-		padding: 12px 16px;
-		background: #374151;
-		border-bottom: 1px solid #4b5563;
+		gap: 0.6rem;
+		cursor: pointer;
+
+		input {
+			display: none;
+		}
+
+		.toggle-track {
+			width: 36px;
+			height: 20px;
+			background: #cbd5e1;
+			border-radius: 10px;
+			position: relative;
+			transition: background 0.2s;
+			flex-shrink: 0;
+		}
+
+		.toggle-thumb {
+			position: absolute;
+			top: 2px;
+			right: 2px;
+			width: 16px;
+			height: 16px;
+			background: #fff;
+			border-radius: 50%;
+			transition: transform 0.2s;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+		}
+
+		input:checked + .toggle-track {
+			background: #3b82f6;
+
+			.toggle-thumb {
+				transform: translateX(-16px);
+			}
+		}
+
+		span:last-child {
+			font-size: 0.85rem;
+			color: #374151;
+		}
 	}
 
-	.code-title {
-		color: #f9fafb;
-		font-size: 0.9rem;
-		font-weight: 500;
-	}
-
-	.copy-btn {
-		background: #3b82f6;
-		color: white;
-		border: none;
-		padding: 6px 12px;
-		border-radius: 4px;
-		font-size: 0.8rem;
+	.clear-btn {
+		width: 100%;
+		padding: 0.6em 1em;
+		border: 1.5px solid #e2e8f0;
+		border-radius: 0.5rem;
+		background: #fff;
+		color: #64748b;
+		font-size: 0.85rem;
+		font-family: inherit;
 		font-weight: 500;
 		cursor: pointer;
-		transition: all 0.2s;
+		margin-top: 0.5rem;
+		transition: all 0.15s;
 
 		&:hover {
-			background: #2563eb;
-		}
-
-		&:active {
-			transform: translateY(1px);
+			border-color: #ef4444;
+			color: #ef4444;
+			background: #fef2f2;
 		}
 	}
 
-	.code-content {
-		padding: 16px;
-		margin: 0;
-		color: #f9fafb;
-		font-family: 'Monaco', 'Consolas', 'Fira Code', monospace;
-		font-size: 0.85rem;
-		line-height: 1.6;
-		overflow-x: auto;
-		white-space: pre;
-
-		code {
-			color: inherit;
-			background: none;
-			padding: 0;
-			font-family: inherit;
-		}
+	// ── Content ──────────────────────────────────────────────
+	.content {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
 	}
 
-	.datepicker-container {
-		margin-bottom: 24px;
-		padding: 20px;
-		border: 2px dashed #d1d5db;
-		border-radius: 8px;
-		background: #fafafa;
+	.card {
+		background: #fff;
+		border: 1px solid #e2e8f0;
+		border-radius: 1rem;
+		overflow: hidden;
 	}
 
-	.picker-wrapper {
+	.card-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.9rem 1.25rem;
+		border-bottom: 1px solid #f1f5f9;
+	}
+
+	.card-title {
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: #0f172a;
+	}
+
+	.card-subtitle {
+		font-size: 0.78rem;
+		color: #94a3b8;
+		font-weight: 500;
+	}
+
+	.demo-card .demo-area {
+		padding: 2.5rem 1.5rem;
 		display: flex;
 		justify-content: center;
-		padding: 20px 0;
-	}
+		background: repeating-conic-gradient(#f8fafc 0% 25%, #fff 0% 50%) 0 0 / 24px 24px;
 
-	.value-display {
-		margin-bottom: 24px;
-		padding: 16px;
-		background: #f9fafb;
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-	}
-
-	.value-explanation {
-		margin-bottom: 12px;
-		padding: 12px;
-		background: #eff6ff;
-		border: 1px solid #bfdbfe;
-		border-radius: 6px;
-
-		p {
-			margin: 4px 0;
-			font-size: 0.9rem;
-			color: #1e40af;
+		:global(.pdp) {
+			min-width: 280px;
+			max-width: 420px;
+			width: 100%;
 		}
 	}
 
-	.value-content {
-		background: #1f2937;
-		color: #f9fafb;
-		padding: 12px;
-		border-radius: 4px;
-		font-family: 'Monaco', 'Consolas', monospace;
-		font-size: 0.9rem;
-		overflow-x: auto;
+	.two-col {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1.25rem;
 
-		pre {
-			margin: 0;
-			white-space: pre-wrap;
+		@media (max-width: 640px) {
+			grid-template-columns: 1fr;
 		}
 	}
 
-	.value-type {
-		margin-top: 8px;
-		font-size: 0.8rem;
-		color: #6b7280;
-		font-weight: 500;
+	.value-pre {
+		padding: 1rem 1.25rem;
+		font-family: 'Fira Code', 'Menlo', 'Monaco', monospace;
+		font-size: 0.82rem;
+		color: #0f172a;
+		background: #f8fafc;
+		border: none;
+		min-height: 80px;
+		white-space: pre-wrap;
+		direction: ltr;
 	}
 
 	.value-note {
-		margin-top: 12px;
-		padding: 8px;
-		background: #fef3c7;
-		border: 1px solid #f59e0b;
-		border-radius: 4px;
-		font-size: 0.85rem;
-		color: #92400e;
+		padding: 0.6rem 1.25rem;
+		font-size: 0.78rem;
+		color: #64748b;
+		background: #fffbeb;
+		border-top: 1px solid #fed7aa;
 	}
-	.event-log {
-		margin-bottom: 24px;
-		padding: 16px;
-		background: #f9fafb;
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-		max-height: 300px;
+
+	.value-badge {
+		font-size: 0.72rem;
+		font-weight: 600;
+		padding: 0.15em 0.65em;
+		border-radius: 1em;
+
+		&.string {
+			background: #dcfce7;
+			color: #15803d;
+		}
+
+		&.array {
+			background: #dbeafe;
+			color: #1d4ed8;
+		}
+	}
+
+	.log-area {
+		padding: 0.75rem 1.25rem;
+		min-height: 100px;
+		max-height: 220px;
 		overflow-y: auto;
+		font-family: 'Fira Code', 'Menlo', 'Monaco', monospace;
+		font-size: 0.78rem;
+		direction: ltr;
+
+		&::-webkit-scrollbar {
+			width: 4px;
+		}
+		&::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 2px;
+		}
 	}
 
-	.log-content {
-		font-family: 'Monaco', 'Consolas', monospace;
-		font-size: 0.85rem;
-	}
-
-	.no-events {
-		color: #9ca3af;
-		font-style: italic;
+	.empty-log {
+		color: #94a3b8;
 		text-align: center;
-		padding: 20px;
+		padding: 1.5rem;
+		font-size: 0.85rem;
+		direction: rtl;
+		font-family: inherit;
 	}
 
 	.log-entry {
-		padding: 4px 0;
-		border-bottom: 1px solid #e5e7eb;
-		color: #374151;
+		padding: 0.25rem 0;
+		border-bottom: 1px solid #f1f5f9;
+		color: #334155;
 
 		&:last-child {
 			border-bottom: none;
 		}
 	}
 
-	.instructions {
-		padding: 20px;
-		background: #eff6ff;
-		border: 1px solid #bfdbfe;
-		border-radius: 8px;
-	}
+	.clear-log-btn {
+		font-size: 0.75rem;
+		font-family: inherit;
+		padding: 0.2em 0.7em;
+		border: 1.5px solid #e2e8f0;
+		border-radius: 1em;
+		background: #fff;
+		color: #64748b;
+		cursor: pointer;
+		transition: all 0.15s;
 
-	.instruction-content {
-		h4 {
-			color: #1e40af;
-			margin: 16px 0 8px 0;
-			font-size: 1rem;
-			font-weight: 600;
-
-			&:first-child {
-				margin-top: 0;
-			}
-		}
-
-		ul {
-			margin: 0 0 16px 0;
-			padding-left: 20px;
-
-			li {
-				color: #374151;
-				margin-bottom: 4px;
-				line-height: 1.5;
-			}
+		&:hover {
+			border-color: #ef4444;
+			color: #ef4444;
 		}
 	}
 
-	/* Custom styles for multiple selection visual feedback */
-	:global(.pdp-multiple .pdp-day.selected) {
-		background-color: var(--primary-color, #3b82f6) !important;
-		color: white !important;
-		border-radius: 4px;
+	.code-pre {
+		padding: 1.25rem;
+		background: #0f172a;
+		color: #e2e8f0;
+		font-family: 'Fira Code', 'Menlo', 'Monaco', monospace;
+		font-size: 0.82rem;
+		line-height: 1.7;
+		overflow-x: auto;
+		direction: ltr;
+
+		code {
+			background: none;
+			padding: 0;
+			color: inherit;
+			font-family: inherit;
+		}
+	}
+
+	.copy-btn {
+		font-size: 0.78rem;
+		font-family: inherit;
+		padding: 0.3em 0.9em;
+		border: none;
+		border-radius: 1em;
+		background: #3b82f6;
+		color: #fff;
+		cursor: pointer;
 		font-weight: 600;
-		position: relative;
+		transition: all 0.15s;
+
+		&:hover {
+			background: #2563eb;
+		}
+		&:active {
+			transform: scale(0.97);
+		}
 	}
 
-	:global(.pdp-multiple .pdp-day.selected:hover) {
-		opacity: 0.9;
+	// ── Features ─────────────────────────────────────────────
+	.features-grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 1rem;
+
+		@media (max-width: 900px) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		@media (max-width: 480px) {
+			grid-template-columns: 1fr;
+		}
 	}
 
-	:global(.pdp-multiple .pdp-day.selected::after) {
-		content: '✓';
-		position: absolute;
-		top: 2px;
-		right: 2px;
-		font-size: 10px;
-		font-weight: bold;
-	}
+	.feature-card {
+		background: #fff;
+		border: 1px solid #e2e8f0;
+		border-radius: 1rem;
+		padding: 1.25rem;
+		text-align: center;
 
-	/* Enhanced range selection styling */
-	:global(.pdp-range .pdp-day.start-range) {
-		border-radius: 4px 0 0 4px;
-	}
+		.feature-icon {
+			font-size: 2rem;
+			margin-bottom: 0.75rem;
+		}
 
-	:global(.pdp-range .pdp-day.end-range) {
-		border-radius: 0 4px 4px 0;
-	}
+		h4 {
+			font-size: 0.9rem;
+			font-weight: 700;
+			color: #0f172a;
+			margin-bottom: 0.4rem;
+		}
 
-	:global(.pdp-range .pdp-day.start-range.end-range) {
-		border-radius: 4px;
+		p {
+			font-size: 0.8rem;
+			color: #64748b;
+			line-height: 1.6;
+		}
 	}
 </style>

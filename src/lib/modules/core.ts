@@ -78,7 +78,7 @@ export const Core = {
 				'December'
 			],
 			dir: {
-				input: 'rtl',
+				input: 'ltr',
 				picker: 'ltr'
 			},
 			translations: {
@@ -193,46 +193,60 @@ export const Core = {
 		if (!color) return;
 		let colors = {};
 		switch (color) {
+			case 'blue':
+				colors = {
+					'primary-color': '#3b82f6',
+					'secondary-color': '#93c5fd',
+					'in-range-background': '#dbeafe'
+				};
+				break;
+			case 'primary':
+				colors = {
+					'primary-color': '#6366f1',
+					'secondary-color': '#a5b4fc',
+					'in-range-background': '#e0e7ff'
+				};
+				break;
 			case 'red':
 				colors = {
-					'primary-color': '#c7004c',
-					'secondary-color': '#ffaaaa',
-					'in-range-background': '#ffd2d2'
+					'primary-color': '#ef4444',
+					'secondary-color': '#fca5a5',
+					'in-range-background': '#fee2e2'
 				};
 				break;
 			case 'pink':
 				colors = {
-					'primary-color': '#e56ab3',
-					'secondary-color': '#ef87be',
-					'in-range-background': '#fcbcd7'
+					'primary-color': '#ec4899',
+					'secondary-color': '#f9a8d4',
+					'in-range-background': '#fce7f3'
 				};
 				break;
 			case 'orange':
 				colors = {
-					'primary-color': '#ffa500',
-					'secondary-color': '#ffbe47',
-					'in-range-background': '#ffe0a6'
+					'primary-color': '#f97316',
+					'secondary-color': '#fdba74',
+					'in-range-background': '#ffedd5'
 				};
 				break;
 			case 'green':
 				colors = {
-					'primary-color': '#38a169',
-					'secondary-color': '#89dda3',
-					'in-range-background': '#c6f6d5'
+					'primary-color': '#22c55e',
+					'secondary-color': '#86efac',
+					'in-range-background': '#dcfce7'
 				};
 				break;
 			case 'purple':
 				colors = {
-					'primary-color': '#7825d0',
-					'secondary-color': '#c196ed',
-					'in-range-background': '#d4baf3'
+					'primary-color': '#a855f7',
+					'secondary-color': '#d8b4fe',
+					'in-range-background': '#f3e8ff'
 				};
 				break;
 			case 'gray':
 				colors = {
-					'primary-color': '#494848',
-					'secondary-color': '#909090',
-					'in-range-background': '#b4b4b4'
+					'primary-color': '#6b7280',
+					'secondary-color': '#d1d5db',
+					'in-range-background': '#f3f4f6'
 				};
 				break;
 			default:
