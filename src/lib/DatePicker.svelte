@@ -1596,6 +1596,7 @@
 				class="pdp-icon"
 				class:pdp-pointer={['all', 'icon'].includes(clickOnProp)}
 				class:pdp-inside={iconInsideProp}
+				aria-label={lang.translations.selectDates}
 				onclick={() => showPicker('icon', index as 0 | 1)}
 				onkeydown={(e) => {
 					if (e.key === 'Enter' || e.key === ' ') {
@@ -1618,7 +1619,12 @@
 			/>
 
 			{#if clearableProp}
-				<button class="pdp-clear" type="button" onclick={() => clear(input)}>
+				<button
+					class="pdp-clear"
+					type="button"
+					onclick={() => clear(input)}
+					aria-label="Clear date"
+				>
 					<PDPIcon icon="clear" />
 				</button>
 			{/if}
@@ -1688,6 +1694,7 @@
 									class="pdp-arrow"
 									class:disabled={!checkDate(onDisplayState!.clone().subMonth(), 'month')}
 									title={lang.translations.prevMonth}
+									aria-label={lang.translations.prevMonth}
 									onclick={() => changeSelectedMonth('sub')}
 								>
 									<PDPArrow
@@ -1698,7 +1705,7 @@
 									/>
 								</button>
 
-								<div>
+								<div aria-live="polite" aria-atomic="true">
 									{#each Array(columnCountDerived) as _, i}
 										<div>
 											<button
@@ -1706,6 +1713,9 @@
 												type="button"
 												onclick={() => showPart('month')}
 												tabindex="-1"
+												aria-label={lang.translations.text +
+													': ' +
+													months[onDisplayState!.clone().addMonth(i).month()].label}
 											>
 												{months[onDisplayState!.clone().addMonth(i).month()].label}
 											</button>
@@ -1714,6 +1724,7 @@
 												type="button"
 												onclick={() => showPart('year')}
 												tabindex="-1"
+												aria-label={`${lang.translations.text}: year ${onDisplayState!.clone().addMonth(i).year()}`}
 											>
 												{onDisplayState!.clone().addMonth(i).year()}
 											</button>
@@ -1725,6 +1736,7 @@
 									class="pdp-arrow"
 									class:disabled={!checkDate(onDisplayState!.clone().addMonth(), 'month')}
 									title={lang.translations.nextMonth}
+									aria-label={lang.translations.nextMonth}
 									onclick={() => changeSelectedMonth('add')}
 								>
 									<PDPArrow direction="left" inverse={lang.dir.picker === 'ltr'} />
@@ -1738,22 +1750,24 @@
 							<div class="pdp-date">
 								{#each Array(columnCountDerived) as _, i}
 									<div class="pdp-column" data-column={i}>
-										<div class="pdp-week">
+										<div class="pdp-week" role="row">
 											<!-- week days above -->
 											{#each lang.weekdays as weekday}
-												<div class="pdp-weekday">{weekday}</div>
+												<div class="pdp-weekday" role="columnheader" aria-label={weekday}>
+													{weekday}
+												</div>
 											{/each}
 										</div>
 
-										<div class="pdp-days">
+										<div class="pdp-days" role="grid" aria-label={lang.translations.text}>
 											{#each monthDays[i] as week, wIndex}
-												<div>
+												<div role="row">
 													{#each week as any[] as day, dIndex}
 														{#if day}
 															<div
 																class="pdp-day"
-																role="button"
-																tabindex="0"
+																role="gridcell"
+																tabindex={!day.empty && !day.disabled ? 0 : -1}
 																class:tada={null}
 																class:empty={day.empty}
 																class:friday={day.friday}
@@ -1769,18 +1783,29 @@
 																	!day.disabled &&
 																	day.raw &&
 																	selectDate(day.raw, 'date')}
-																onkeydown={() =>
-																	!day.empty &&
-																	!day.disabled &&
-																	day.raw &&
-																	selectDate(day.raw, 'date')}
+																onkeydown={(e) => {
+																	if (
+																		(e.key === 'Enter' || e.key === ' ') &&
+																		!day.empty &&
+																		!day.disabled &&
+																		day.raw
+																	) {
+																		e.preventDefault();
+																		selectDate(day.raw, 'date');
+																	}
+																}}
 																onmouseenter={() =>
 																	!day.empty &&
 																	!day.disabled &&
 																	day.raw &&
 																	(hoveredDateState = day.raw)}
 																onmouseleave={() => (hoveredDateState = undefined)}
-																aria-label={day.val ? `Day ${day.val}` : 'Empty'}
+																aria-selected={day.selected ? 'true' : undefined}
+																aria-disabled={day.disabled || day.empty ? 'true' : undefined}
+																aria-current={day.today ? 'date' : undefined}
+																aria-label={day.val
+																	? `${months[onDisplayState!.clone().addMonth(i).month()].label} ${day.val}`
+																	: 'Empty'}
 																data-value={day.val}
 															>
 																{day.val}

@@ -7,14 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-07-05
+
+### Added
+
+- Proper TypeScript type exports via `./types` subpath export in package.json
+- SCSS styles export via `./styles` subpath export for easier theming
+- Comprehensive WAI-ARIA accessibility attributes:
+  - Calendar grid: `role="grid"`, `role="row"`, `role="gridcell"`, `role="columnheader"`
+  - Day cells: `aria-selected`, `aria-disabled`, `aria-current="date"` for today
+  - Descriptive `aria-label` with month name and day number on each day cell
+  - `aria-live="polite"` region for month/year change announcements
+  - `aria-label` on navigation buttons, calendar icon, and clear button
+
+### Changed
+
+- Day cell role changed from `role="button"` to `role="gridcell"` for proper semantics
+- Day cell `tabindex` is now conditional (0 for interactive, -1 for disabled/empty)
+
+### Fixed
+
+- Day cell `onkeydown` handler now only responds to Enter/Space keys (previously triggered on any key press)
+
 ## [1.2.0] - 2025-07-05
 
 ### Added
+
 - CHANGELOG.md for proper version tracking
 - GitHub Actions CI/CD workflows for automated testing and publishing
 - Updated .gitignore to exclude temporary test files and playwright artifacts
 
 ### Changed
+
 - Updated all dependencies to latest versions:
   - Svelte 5.46.0 → 5.56.4
   - @sveltejs/kit 2.49.2 → 2.69.1
@@ -31,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated pnpm version requirement from 8 to 10 in CI workflows
 
 ### Fixed
+
 - Removed commented code in Cypress config
 - Cleaned up temporary test files (test-endof.js, test-persian-date.js)
 - Removed .playwright-mcp directory with test artifacts
