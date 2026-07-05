@@ -11,7 +11,9 @@ $z-index: 9999;
 $disabled-opacity: 0.38;
 $icon-background: #f3f4f6; // Gray-100
 $overlay-color: transparent;
-$main-box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.1), 0 1px 4px 0 rgba(0, 0, 0, 0.06);
+$main-box-shadow:
+	0 4px 24px 0 rgba(0, 0, 0, 0.1),
+	0 1px 4px 0 rgba(0, 0, 0, 0.06);
 $day-dimensions: 2.2em;
 $time-scale: 1;
 

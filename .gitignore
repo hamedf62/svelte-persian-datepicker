@@ -24,3 +24,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 /cypress
+
+# Temporary test files
+test-*.js
+.playwright-mcp/

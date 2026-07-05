@@ -144,9 +144,8 @@
 		text-align: right;
 
 		.pdp-group {
-
 			:first-child:not(.pdp-inside),
-			.pdp-inside:first-child+input {
+			.pdp-inside:first-child + input {
 				border-top-right-radius: variable.$radius;
 				border-top-right-radius: var(--radius);
 				border-bottom-right-radius: variable.$radius;
@@ -166,7 +165,7 @@
 					right: 50%;
 				}
 
-				+input {
+				+ input {
 					padding-right: 3em;
 				}
 			}
@@ -190,9 +189,8 @@
 		text-align: left;
 
 		.pdp-group {
-
 			:first-child:not(.pdp-inside),
-			.pdp-inside:first-child+input {
+			.pdp-inside:first-child + input {
 				border-top-left-radius: variable.$radius;
 				border-top-left-radius: var(--radius);
 				border-bottom-left-radius: variable.$radius;
@@ -217,7 +215,7 @@
 					left: 50%;
 				}
 
-				+input {
+				+ input {
 					padding-left: 3em;
 				}
 			}
@@ -411,7 +409,7 @@
 			.pdp-header .bottom {
 				flex-direction: row-reverse;
 
-				&>div {
+				& > div {
 					display: flex;
 					flex-direction: row-reverse;
 				}
@@ -457,9 +455,8 @@
 		}
 
 		.pdp-auto {
-
 			&,
-			&>div {
+			& > div {
 				background: inherit;
 			}
 		}
@@ -512,7 +509,9 @@
 				flex: 30% 0;
 				border-radius: variable.$radius;
 				border-radius: var(--radius);
-				transition: background 0.12s, border 0.12s;
+				transition:
+					background 0.12s,
+					border 0.12s;
 
 				&:not(.disabled):hover {
 					background: variable.$in-range-background;
@@ -542,7 +541,7 @@
 		}
 
 		.pdp-header {
-			&>div:first-child {
+			& > div:first-child {
 				border-bottom: 1px solid variable.$border-color;
 				border-bottom: 1px solid var(--border-color);
 				margin-bottom: 0.5em;
@@ -591,7 +590,7 @@
 				height: 3em;
 				direction: rtl;
 
-				&>div {
+				& > div {
 					display: flex;
 					flex-grow: 1;
 					justify-content: space-around;
@@ -796,7 +795,7 @@
 						flex-direction: column;
 					}
 
-					>div {
+					> div {
 						display: flex;
 						justify-content: center;
 						align-items: center;
@@ -849,7 +848,7 @@
 			margin-top: 0.25em;
 			gap: 0.5em;
 
-			>div:first-child {
+			> div:first-child {
 				font-size: 0.8em;
 				color: #6b7280;
 				font-weight: 500;
@@ -910,7 +909,7 @@
 				}
 			}
 
-			>div {
+			> div {
 				display: flex;
 				align-items: center;
 			}
@@ -973,7 +972,6 @@
 		position: relative;
 	}
 }
-
 
 @mixin scrollbar {
 	&::-webkit-scrollbar {
@@ -1110,9 +1108,8 @@
 		text-align: right;
 
 		.pdp-group {
-
 			:first-child:not(.pdp-inside),
-			.pdp-inside:first-child+input {
+			.pdp-inside:first-child + input {
 				border-top-right-radius: variable.$radius;
 				border-top-right-radius: var(--radius);
 				border-bottom-right-radius: variable.$radius;
@@ -1132,7 +1129,7 @@
 					right: 50%;
 				}
 
-				+input {
+				+ input {
 					padding-right: 3em;
 				}
 			}
@@ -1156,9 +1153,8 @@
 		text-align: left;
 
 		.pdp-group {
-
 			:first-child:not(.pdp-inside),
-			.pdp-inside:first-child+input {
+			.pdp-inside:first-child + input {
 				border-top-left-radius: variable.$radius;
 				border-top-left-radius: var(--radius);
 				border-bottom-left-radius: variable.$radius;
@@ -1183,7 +1179,7 @@
 					left: 50%;
 				}
 
-				+input {
+				+ input {
 					padding-left: 3em;
 				}
 			}
@@ -1349,7 +1345,7 @@
 			.pdp-header .bottom {
 				flex-direction: row-reverse;
 
-				&>div {
+				& > div {
 					display: flex;
 					flex-direction: row-reverse;
 				}
@@ -1395,9 +1391,8 @@
 		}
 
 		.pdp-auto {
-
 			&,
-			&>div {
+			& > div {
 				background: inherit;
 			}
 		}
@@ -1474,7 +1469,7 @@
 		}
 
 		.pdp-header {
-			&>div:first-child {
+			& > div:first-child {
 				border-bottom: 1px solid variable.$border-color;
 				border-bottom: 1px solid var(--border-color);
 				margin-bottom: 0.5em;
@@ -1504,7 +1499,7 @@
 				height: 3em;
 				direction: rtl;
 
-				&>div {
+				& > div {
 					display: flex;
 					flex-grow: 1;
 					justify-content: space-around;
@@ -1684,7 +1679,7 @@
 						flex-direction: column;
 					}
 
-					>div {
+					> div {
 						display: flex;
 						justify-content: center;
 						align-items: center;
@@ -1768,7 +1763,7 @@
 				}
 			}
 
-			>div {
+			> div {
 				display: flex;
 			}
 		}

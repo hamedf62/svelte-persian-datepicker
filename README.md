@@ -38,10 +38,10 @@ A highly customizable and feature-rich date picker component built with Svelte 5
 - **Modal Mode**: Can be displayed as modal
 - **Dual Input**: Separate inputs for range selection
 - **Validation**: Built-in date validation and disable rules
-- **Smart Range Selection**: 
-    - **Cross-Month Preview**: See your selected range highlight even when navigating between months.
-    - **Dynamic Disabling**: Automatically disables dates before the start date during range selection.
-    - **Easy Reset**: Clicking a new date when a range is already selected resets and starts a new selection.
+- **Smart Range Selection**:
+  - **Cross-Month Preview**: See your selected range highlight even when navigating between months.
+  - **Dynamic Disabling**: Automatically disables dates before the start date during range selection.
+  - **Easy Reset**: Clicking a new date when a range is already selected resets and starts a new selection.
 - **Reactive Model**: Seamlessly syncs with parent state changes, supporting asynchronous data loading.
 
 ## 🚀 Installation
@@ -108,12 +108,7 @@ yarn add @hamedf/svelte-persian-datepicker
 ### Disable Previous Dates (Select from Today)
 
 ```svelte
-<DatePicker
-	bind:model={selectedDate}
-	from={new Date()}
-	color="orange"
-	label="Select future date"
-/>
+<DatePicker bind:model={selectedDate} from={new Date()} color="orange" label="Select future date" />
 ```
 
 ## 🤖 GitHub Copilot Integration
@@ -176,25 +171,25 @@ You can find the detailed instructions in [.github/copilot-instructions.md](.git
 
 ## ⚙️ Props
 
-| Prop             | Type                                                                     | Default     | Description                |
-| ---------------- | ------------------------------------------------------------------------ | ----------- | -------------------------- |
-| `model`          | `string \| string[] \| PersianDate \| PersianDate[]`                     | `undefined` | The selected value(s) (Bindable) |
-| `mode`           | `'single' \| 'range' \| 'multiple'`                                      | `'single'`  | Selection mode             |
-| `type`           | `'date' \| 'time' \| 'datetime'`                                         | `'date'`    | Type of picker             |
-| `format`         | `string`                                                                 | `undefined` | Output format (Gregorian)  |
-| `input_format`   | `string`                                                                 | `undefined` | Input parsing format       |
-| `display_format` | `string`                                                                 | `undefined` | UI display format          |
-| `color`          | `'blue' \| 'red' \| 'pink' \| 'orange' \| 'green' \| 'purple' \| 'gray'` | `undefined` | Color theme                |
-| `locale`         | `string`                                                                 | `'fa'`      | Locale (fa, en, ar)        |
-| `clearable`      | `boolean`                                                                | `true`      | Show clear button          |
-| `auto_submit`    | `boolean`                                                                | `true`      | Auto submit on selection   |
-| `modal`          | `boolean`                                                                | `false`     | Display as modal           |
-| `dual_input`     | `boolean`                                                                | `false`     | Separate inputs for range  |
-| `shortcut`       | `boolean \| object`                                                      | `false`     | Enable shortcuts           |
-| `column`         | `number \| object`                                                       | `1`         | Number of calendar columns |
-| `from`           | `Date \| string`                                                         | `1921-03-22`| Minimum selectable date    |
-| `to`             | `Date \| string`                                                         | `2051-03-21`| Maximum selectable date    |
-| `disable`        | `string[] \| function \| RegExp`                                         | `undefined` | Custom disable rules       |
+| Prop             | Type                                                                     | Default      | Description                      |
+| ---------------- | ------------------------------------------------------------------------ | ------------ | -------------------------------- |
+| `model`          | `string \| string[] \| PersianDate \| PersianDate[]`                     | `undefined`  | The selected value(s) (Bindable) |
+| `mode`           | `'single' \| 'range' \| 'multiple'`                                      | `'single'`   | Selection mode                   |
+| `type`           | `'date' \| 'time' \| 'datetime'`                                         | `'date'`     | Type of picker                   |
+| `format`         | `string`                                                                 | `undefined`  | Output format (Gregorian)        |
+| `input_format`   | `string`                                                                 | `undefined`  | Input parsing format             |
+| `display_format` | `string`                                                                 | `undefined`  | UI display format                |
+| `color`          | `'blue' \| 'red' \| 'pink' \| 'orange' \| 'green' \| 'purple' \| 'gray'` | `undefined`  | Color theme                      |
+| `locale`         | `string`                                                                 | `'fa'`       | Locale (fa, en, ar)              |
+| `clearable`      | `boolean`                                                                | `true`       | Show clear button                |
+| `auto_submit`    | `boolean`                                                                | `true`       | Auto submit on selection         |
+| `modal`          | `boolean`                                                                | `false`      | Display as modal                 |
+| `dual_input`     | `boolean`                                                                | `false`      | Separate inputs for range        |
+| `shortcut`       | `boolean \| object`                                                      | `false`      | Enable shortcuts                 |
+| `column`         | `number \| object`                                                       | `1`          | Number of calendar columns       |
+| `from`           | `Date \| string`                                                         | `1921-03-22` | Minimum selectable date          |
+| `to`             | `Date \| string`                                                         | `2051-03-21` | Maximum selectable date          |
+| `disable`        | `string[] \| function \| RegExp`                                         | `undefined`  | Custom disable rules             |
 
 ## 🎨 Events
 
@@ -436,7 +431,7 @@ let date: string;
 3. **Date Boundaries**: Use `from={new Date()}` to disable all previous dates easily.
 4. **Model Format**: Remember that the `model` always uses Gregorian format (`YYYY-MM-DD`) for consistency, regardless of the displayed calendar.
 5. **Async Data**: You can initialize the `model` with an empty string and update it later (e.g., after a fetch); the component will react accordingly.
-3. **Use `from`/`to` props** for date boundaries
-4. **Use `disable` prop** for validation rules
-5. **Set `locale` appropriately** for language/calendar
-6. **Consider `dual_input`** for better range UX
+6. **Use `from`/`to` props** for date boundaries
+7. **Use `disable` prop** for validation rules
+8. **Set `locale` appropriately** for language/calendar
+9. **Consider `dual_input`** for better range UX
