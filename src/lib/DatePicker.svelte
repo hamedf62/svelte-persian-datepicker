@@ -830,7 +830,9 @@
 	$effect(() => {
 		if (browser && showYearSelectState) {
 			tick().then(() => {
-				const selectedEl = (pdpSelectYear as HTMLElement)?.querySelector('li.selected') as HTMLLIElement | null;
+				const selectedEl = (pdpSelectYear as HTMLElement)?.querySelector(
+					'li.selected'
+				) as HTMLLIElement | null;
 				if (selectedEl && pdpSelectYear) {
 					(pdpSelectYear as HTMLElement).scroll({
 						top: selectedEl.offsetTop,
