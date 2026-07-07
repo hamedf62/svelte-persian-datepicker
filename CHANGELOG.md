@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-07-08
+
+### Changed
+
+- **BREAKING SSR FIX**: Migrated from SCSS to pre-compiled plain CSS in distributed component.
+  - SCSS is now compiled to CSS at build time and inlined directly into the `<style>` block
+  - Eliminates SCSS preprocessing requirement for consuming projects
+  - Fixes `[css is not a function]` error during SvelteKit SSR CSS extraction
+- The `./styles` export now points to compiled CSS (`./dist/assets/app.css`) instead of SCSS
+- Added comprehensive SSR safety guards (`browser` flag) around all browser API usage
+- Added `build:css` script for CSS compilation
+- Package build now automatically compiles SCSS before running `svelte-package`
+
+### Fixed
+
+- SvelteKit SSR incompatibility: Component no longer requires SCSS preprocessing on consumer side
+- `$effect` blocks guarded against server-side execution with `browser` flag
+- `document.removeEventListener` calls now guarded against SSR
+- Year selection scroll effect now safely handles missing DOM elements
+- Root element style/color manipulations now guarded for SSR safety
+- Old SCSS files are cleaned from dist after packaging
+
 ## [1.3.0] - 2025-07-05
 
 ### Added

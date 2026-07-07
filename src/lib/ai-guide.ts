@@ -5,7 +5,7 @@
  * understand and work with the Persian DatePicker component effectively.
  *
  * @fileoverview AI-friendly component documentation and usage patterns
- * @version 1.0.3
+ * @version 1.4.0
  * @author Hamed Fallah
  */
 
