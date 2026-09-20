@@ -1,3 +1,5 @@
+
+
 # Persian DatePicker Component (Svelte 5)
 
 **🌟 [Live Demo](https://hamedf62.github.io/svelte-persian-datepicker/) 🌟**
@@ -179,7 +181,7 @@ You can find the detailed instructions in [.github/copilot-instructions.md](.git
 | `format`         | `string`                                                                 | `undefined`  | Output format (Gregorian)        |
 | `input_format`   | `string`                                                                 | `undefined`  | Input parsing format             |
 | `display_format` | `string`                                                                 | `undefined`  | UI display format                |
-| `color`          | `'blue' \| 'red' \| 'pink' \| 'orange' \| 'green' \| 'purple' \| 'gray'` | `undefined`  | Color theme                      |
+| `color`          | `'blue' \| 'primary' \| 'red' \| 'pink' \| 'orange' \| 'green' \| 'purple' \| 'gray'` | `undefined`  | Color theme                      |
 | `locale`         | `string`                                                                 | `'fa'`       | Locale (fa, en, ar)              |
 | `clearable`      | `boolean`                                                                | `true`       | Show clear button                |
 | `auto_submit`    | `boolean`                                                                | `true`       | Auto submit on selection         |
